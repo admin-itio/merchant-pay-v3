@@ -1,0 +1,94 @@
+
+import React from 'react';
+import { 
+  Home, 
+  CreditCard, 
+  Settings, 
+  BarChart3, 
+  Users, 
+  Wallet, 
+  FileText, 
+  Shield,
+  Menu,
+  X
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+
+interface SidebarProps {
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
+}
+
+const Sidebar = ({ activeTab, setActiveTab, isOpen, setIsOpen }: SidebarProps) => {
+  const menuItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: Home },
+    { id: 'transactions', label: 'Transactions', icon: CreditCard },
+    { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+    { id: 'orchestration', label: 'Orchestration', icon: Shield },
+    { id: 'settlements', label: 'Settlements', icon: Wallet },
+    { id: 'customers', label: 'Customers', icon: Users },
+    { id: 'payment-methods', label: 'Payment Methods', icon: FileText },
+    { id: 'profile', label: 'Profile', icon: Settings },
+  ];
+
+  return (
+    <>
+      {/* Mobile overlay */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+      
+      {/* Sidebar */}
+      <div className={`
+        fixed left-0 top-0 h-full bg-white border-r border-gray-200 z-50 transform transition-transform duration-300 ease-in-out
+        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+        md:translate-x-0 md:static md:z-auto
+        w-64
+      `}>
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <h1 className="text-xl font-bold text-gray-900">MerchantPay</h1>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="md:hidden"
+            onClick={() => setIsOpen(false)}
+          >
+            <X className="h-5 w-5" />
+          </Button>
+        </div>
+        
+        <nav className="p-4 space-y-2">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <button
+                key={item.id}
+                onClick={() => {
+                  setActiveTab(item.id);
+                  setIsOpen(false);
+                }}
+                className={`
+                  w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors
+                  ${activeTab === item.id 
+                    ? 'bg-blue-50 text-blue-700 border border-blue-200' 
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  }
+                `}
+              >
+                <Icon className="h-5 w-5" />
+                <span className="font-medium">{item.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+      </div>
+    </>
+  );
+};
+
+export default Sidebar;
