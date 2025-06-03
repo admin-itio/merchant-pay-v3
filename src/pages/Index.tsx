@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import Header from '@/components/layout/Header';
-import DashboardOverview from '@/components/dashboard/DashboardOverview';
+import DashboardEnhanced from '@/components/dashboard/DashboardEnhanced';
 import TransactionsList from '@/components/transactions/TransactionsList';
 import OrchestrationRules from '@/components/orchestration/OrchestrationRules';
 import Settlements from '@/components/settlements/Settlements';
@@ -16,7 +16,7 @@ const Index = () => {
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <DashboardOverview />;
+        return <DashboardEnhanced />;
       case 'transactions':
         return <TransactionsList />;
       case 'orchestration':
@@ -46,7 +46,7 @@ const Index = () => {
           </div>
         );
       default:
-        return <DashboardOverview />;
+        return <DashboardEnhanced />;
     }
   };
 
