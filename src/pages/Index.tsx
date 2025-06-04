@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import Header from '@/components/layout/Header';
@@ -9,6 +8,7 @@ import Settlements from '@/components/settlements/Settlements';
 import PaymentMethods from '@/components/payment-methods/PaymentMethods';
 import Profile from '@/components/profile/Profile';
 import ApiDeveloperTools from '@/components/api/ApiDeveloperTools';
+import SupportCenter from '@/components/support/SupportCenter';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -30,6 +30,8 @@ const Index = () => {
         return <Profile />;
       case 'api-tools':
         return <ApiDeveloperTools />;
+      case 'support':
+        return <SupportCenter />;
       case 'analytics':
         return (
           <div className="flex items-center justify-center h-96">
