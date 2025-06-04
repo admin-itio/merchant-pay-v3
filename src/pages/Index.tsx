@@ -8,6 +8,7 @@ import OrchestrationRules from '@/components/orchestration/OrchestrationRules';
 import Settlements from '@/components/settlements/Settlements';
 import PaymentMethods from '@/components/payment-methods/PaymentMethods';
 import Profile from '@/components/profile/Profile';
+import ApiDeveloperTools from '@/components/api/ApiDeveloperTools';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -27,6 +28,8 @@ const Index = () => {
         return <PaymentMethods />;
       case 'profile':
         return <Profile />;
+      case 'api-tools':
+        return <ApiDeveloperTools />;
       case 'analytics':
         return (
           <div className="flex items-center justify-center h-96">
