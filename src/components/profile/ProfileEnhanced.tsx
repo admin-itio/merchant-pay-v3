@@ -2,9 +2,12 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { User, Shield, Building, Bell, CreditCard, Users, Gift } from 'lucide-react';
+import { User, Shield, Building, Bell, CreditCard, Users } from 'lucide-react';
 import ProfileSecurity from './ProfileSecurity';
 import ProfileBusinessInfo from './ProfileBusinessInfo';
+import ProfileNotificationSettings from './ProfileNotificationSettings';
+import ProfileBilling from './ProfileBilling';
+import SubAccountManagement from './SubAccountManagement';
 
 const ProfileEnhanced = () => {
   const [activeTab, setActiveTab] = useState('business');
@@ -12,10 +15,9 @@ const ProfileEnhanced = () => {
   const tabs = [
     { id: 'business', label: 'Business Info', icon: Building, component: ProfileBusinessInfo },
     { id: 'security', label: 'Security', icon: Shield, component: ProfileSecurity },
-    { id: 'account', label: 'Account Settings', icon: User, component: () => <div>Account Settings Coming Soon</div> },
-    { id: 'notifications', label: 'Notifications', icon: Bell, component: () => <div>Notifications Coming Soon</div> },
-    { id: 'referrals', label: 'Referrals', icon: Gift, component: () => <div>Referrals Coming Soon</div> },
-    { id: 'billing', label: 'Billing', icon: CreditCard, component: () => <div>Billing Coming Soon</div> }
+    { id: 'sub-accounts', label: 'Sub Accounts', icon: Users, component: SubAccountManagement },
+    { id: 'notifications', label: 'Notifications', icon: Bell, component: ProfileNotificationSettings },
+    { id: 'billing', label: 'Billing', icon: CreditCard, component: ProfileBilling },
   ];
 
   return (
@@ -26,7 +28,7 @@ const ProfileEnhanced = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-6 mb-6 bg-gray-100">
+        <TabsList className="grid w-full grid-cols-5 mb-6 bg-gray-100">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (
