@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import Header from '@/components/layout/Header';
@@ -9,6 +10,7 @@ import PaymentMethods from '@/components/payment-methods/PaymentMethods';
 import Profile from '@/components/profile/Profile';
 import ApiDeveloperTools from '@/components/api/ApiDeveloperTools';
 import SupportCenter from '@/components/support/SupportCenter';
+import ReferralManagement from '@/components/referrals/ReferralManagement';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -32,6 +34,8 @@ const Index = () => {
         return <ApiDeveloperTools />;
       case 'support':
         return <SupportCenter />;
+      case 'referrals':
+        return <ReferralManagement />;
       case 'analytics':
         return (
           <div className="flex items-center justify-center h-96">
