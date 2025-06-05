@@ -13,7 +13,8 @@ import {
   Clock, 
   Users, 
   Settings,
-  MarkAsUnread,
+  Mail,
+  MailOpen,
   Trash2,
   Filter,
   Search
@@ -168,7 +169,7 @@ const NotificationCenter = () => {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm">
-            <MarkAsUnread className="h-4 w-4 mr-2" />
+            <MailOpen className="h-4 w-4 mr-2" />
             Mark All Read
           </Button>
           <Button variant="outline" size="sm">
@@ -245,7 +246,7 @@ const NotificationCenter = () => {
                     </div>
                     <div className="flex gap-1 ml-4">
                       <Button variant="ghost" size="sm">
-                        <MarkAsUnread className="h-4 w-4" />
+                        <Mail className="h-4 w-4" />
                       </Button>
                       <Button variant="ghost" size="sm">
                         <Trash2 className="h-4 w-4" />
