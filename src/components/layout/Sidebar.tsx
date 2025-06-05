@@ -52,10 +52,10 @@ const Sidebar = ({ activeTab, setActiveTab, isOpen, setIsOpen }: SidebarProps) =
         fixed left-0 top-0 h-full bg-white border-r border-gray-200 z-50 transform transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
         md:translate-x-0 md:static md:z-auto
-        w-64
+        w-56 lg:w-64
       `}>
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h1 className="text-xl font-bold text-gray-900">MerchantPay</h1>
+        <div className="flex items-center justify-between p-4 lg:p-6 border-b border-gray-200">
+          <h1 className="text-lg lg:text-xl font-bold text-gray-900">MerchantPay</h1>
           <Button
             variant="ghost"
             size="sm"
@@ -66,7 +66,7 @@ const Sidebar = ({ activeTab, setActiveTab, isOpen, setIsOpen }: SidebarProps) =
           </Button>
         </div>
         
-        <nav className="p-4 space-y-2">
+        <nav className="p-3 lg:p-4 space-y-1 lg:space-y-2">
           {menuItems.map((item) => {
             const Icon = item.icon;
             return (
@@ -77,14 +77,14 @@ const Sidebar = ({ activeTab, setActiveTab, isOpen, setIsOpen }: SidebarProps) =
                   setIsOpen(false);
                 }}
                 className={`
-                  w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors
+                  w-full flex items-center gap-2 lg:gap-3 px-2 lg:px-3 py-2 rounded-lg text-left transition-colors text-sm lg:text-base
                   ${activeTab === item.id 
                     ? 'bg-blue-50 text-blue-700 border border-blue-200' 
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                   }
                 `}
               >
-                <Icon className="h-5 w-5" />
+                <Icon className="h-4 w-4 lg:h-5 lg:w-5 flex-shrink-0" />
                 <span className="font-medium">{item.label}</span>
               </button>
             );

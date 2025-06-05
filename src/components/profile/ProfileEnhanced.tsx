@@ -21,33 +21,35 @@ const ProfileEnhanced = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6 p-4 lg:p-0">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Profile Settings</h1>
-        <p className="text-gray-600 mt-2">Manage your account information, security settings, and business preferences</p>
+        <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Profile Settings</h1>
+        <p className="text-sm lg:text-base text-gray-600 mt-2">Manage your account information, security settings, and business preferences</p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-5 mb-6 bg-gray-100">
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            return (
-              <TabsTrigger 
-                key={tab.id} 
-                value={tab.id}
-                className="flex items-center gap-2 text-sm font-medium"
-              >
-                <Icon className="h-4 w-4" />
-                <span className="hidden sm:inline">{tab.label}</span>
-              </TabsTrigger>
-            );
-          })}
-        </TabsList>
+        <div className="overflow-x-auto pb-2">
+          <TabsList className="grid grid-cols-3 lg:grid-cols-5 w-full min-w-max lg:min-w-0 bg-gray-100 p-1">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <TabsTrigger 
+                  key={tab.id} 
+                  value={tab.id}
+                  className="flex items-center gap-1 lg:gap-2 text-xs lg:text-sm font-medium px-2 lg:px-4 py-2"
+                >
+                  <Icon className="h-3 w-3 lg:h-4 lg:w-4 flex-shrink-0" />
+                  <span className="hidden sm:inline lg:inline whitespace-nowrap">{tab.label}</span>
+                </TabsTrigger>
+              );
+            })}
+          </TabsList>
+        </div>
 
         {tabs.map((tab) => {
           const Component = tab.component;
           return (
-            <TabsContent key={tab.id} value={tab.id} className="mt-0">
+            <TabsContent key={tab.id} value={tab.id} className="mt-4 lg:mt-6">
               <Component />
             </TabsContent>
           );

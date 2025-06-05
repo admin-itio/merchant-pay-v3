@@ -7,7 +7,7 @@ import TransactionsList from '@/components/transactions/TransactionsList';
 import OrchestrationRules from '@/components/orchestration/OrchestrationRules';
 import Settlements from '@/components/settlements/Settlements';
 import PaymentMethods from '@/components/payment-methods/PaymentMethods';
-import Profile from '@/components/profile/Profile';
+import ProfileEnhanced from '@/components/profile/ProfileEnhanced';
 import ApiDeveloperTools from '@/components/api/ApiDeveloperTools';
 import SupportCenter from '@/components/support/SupportCenter';
 import ReferralManagement from '@/components/referrals/ReferralManagement';
@@ -40,7 +40,7 @@ const Index = () => {
       case 'payment-methods':
         return <PaymentMethods />;
       case 'profile':
-        return <Profile />;
+        return <ProfileEnhanced />;
       case 'api-tools':
         return <ApiDeveloperTools />;
       case 'support':
@@ -51,19 +51,19 @@ const Index = () => {
         return <NotificationCenter />;
       case 'analytics':
         return (
-          <div className="flex items-center justify-center h-96">
+          <div className="flex items-center justify-center h-64 lg:h-96 p-4">
             <div className="text-center">
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Analytics Dashboard</h3>
-              <p className="text-gray-600">Detailed analytics and reporting coming soon</p>
+              <h3 className="text-lg lg:text-xl font-semibold text-gray-900 mb-2">Analytics Dashboard</h3>
+              <p className="text-sm lg:text-base text-gray-600">Detailed analytics and reporting coming soon</p>
             </div>
           </div>
         );
       case 'customers':
         return (
-          <div className="flex items-center justify-center h-96">
+          <div className="flex items-center justify-center h-64 lg:h-96 p-4">
             <div className="text-center">
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Customer Management</h3>
-              <p className="text-gray-600">Customer database and management tools coming soon</p>
+              <h3 className="text-lg lg:text-xl font-semibold text-gray-900 mb-2">Customer Management</h3>
+              <p className="text-sm lg:text-base text-gray-600">Customer database and management tools coming soon</p>
             </div>
           </div>
         );
@@ -73,7 +73,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gray-50 flex w-full">
       <Sidebar 
         activeTab={activeTab} 
         setActiveTab={setActiveTab}
@@ -81,14 +81,14 @@ const Index = () => {
         setIsOpen={setSidebarOpen}
       />
       
-      <div className="flex-1 flex flex-col min-h-screen md:ml-0">
+      <div className="flex-1 flex flex-col min-h-screen">
         <Header 
           setIsOpen={setSidebarOpen}
           onNotificationClick={handleNotificationClick}
           onProfileClick={handleProfileClick}
         />
         
-        <main className="flex-1 p-6 overflow-auto">
+        <main className="flex-1 p-3 lg:p-6 overflow-auto">
           {renderContent()}
         </main>
       </div>

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -212,27 +211,27 @@ const NotificationCenter = () => {
   const categoryCount = (category: string) => notifications.filter(n => n.category === category).length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6 p-4 lg:p-0">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col space-y-4 lg:flex-row lg:justify-between lg:items-center lg:space-y-0">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <Bell className="h-8 w-8 text-blue-600" />
+          <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 flex items-center gap-2 lg:gap-3">
+            <Bell className="h-6 w-6 lg:h-8 lg:w-8 text-blue-600" />
             Notifications
             {unreadCount > 0 && (
-              <Badge className="bg-red-500 text-white px-3 py-1 text-sm">
+              <Badge className="bg-red-500 text-white px-2 py-1 text-xs lg:px-3 lg:text-sm">
                 {unreadCount} unread
               </Badge>
             )}
           </h1>
-          <p className="text-gray-600 mt-2">Stay updated with your payment activities and system alerts</p>
+          <p className="text-sm lg:text-base text-gray-600 mt-1 lg:mt-2">Stay updated with your payment activities and system alerts</p>
         </div>
-        <div className="flex gap-3">
-          <Button variant="outline" size="sm" onClick={markAllAsRead} disabled={unreadCount === 0}>
+        <div className="flex flex-col sm:flex-row gap-2 lg:gap-3">
+          <Button variant="outline" size="sm" onClick={markAllAsRead} disabled={unreadCount === 0} className="w-full sm:w-auto">
             <MailOpen className="h-4 w-4 mr-2" />
             Mark All Read
           </Button>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" className="w-full sm:w-auto">
             <Settings className="h-4 w-4 mr-2" />
             Settings
           </Button>
@@ -241,15 +240,15 @@ const NotificationCenter = () => {
 
       {/* Search and Filters */}
       <Card>
-        <CardContent className="p-6">
-          <div className="flex flex-col sm:flex-row gap-4">
+        <CardContent className="p-4 lg:p-6">
+          <div className="flex flex-col sm:flex-row gap-3 lg:gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
-                placeholder="Search notifications by title, message, or category..."
+                placeholder="Search notifications..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-10 text-sm lg:text-base"
               />
               {searchTerm && (
                 <Button
@@ -262,9 +261,9 @@ const NotificationCenter = () => {
                 </Button>
               )}
             </div>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="w-full sm:w-auto">
               <Filter className="h-4 w-4 mr-2" />
-              Advanced Filters
+              <span className="hidden sm:inline">Advanced </span>Filters
             </Button>
           </div>
         </CardContent>
@@ -272,35 +271,37 @@ const NotificationCenter = () => {
 
       {/* Notification Tabs */}
       <Tabs value={filter} onValueChange={setFilter} className="w-full">
-        <TabsList className="grid w-full grid-cols-8 mb-6 bg-gray-100 p-1">
-          <TabsTrigger value="all" className="text-sm">
-            All ({notifications.length})
-          </TabsTrigger>
-          <TabsTrigger value="unread" className="text-sm">
-            Unread ({unreadCount})
-          </TabsTrigger>
-          <TabsTrigger value="payments" className="text-sm">
-            Payments ({categoryCount('payments')})
-          </TabsTrigger>
-          <TabsTrigger value="settlements" className="text-sm">
-            Settlements ({categoryCount('settlements')})
-          </TabsTrigger>
-          <TabsTrigger value="disputes" className="text-sm">
-            Disputes ({categoryCount('disputes')})
-          </TabsTrigger>
-          <TabsTrigger value="technical" className="text-sm">
-            Technical ({categoryCount('technical')})
-          </TabsTrigger>
-          <TabsTrigger value="security" className="text-sm">
-            Security ({categoryCount('security')})
-          </TabsTrigger>
-          <TabsTrigger value="system" className="text-sm">
-            System ({categoryCount('system')})
-          </TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto pb-2">
+          <TabsList className="grid grid-cols-4 lg:grid-cols-8 w-full min-w-max lg:min-w-0 bg-gray-100 p-1">
+            <TabsTrigger value="all" className="text-xs lg:text-sm whitespace-nowrap px-2 lg:px-4">
+              All ({notifications.length})
+            </TabsTrigger>
+            <TabsTrigger value="unread" className="text-xs lg:text-sm whitespace-nowrap px-2 lg:px-4">
+              Unread ({unreadCount})
+            </TabsTrigger>
+            <TabsTrigger value="payments" className="text-xs lg:text-sm whitespace-nowrap px-2 lg:px-4">
+              Payments ({categoryCount('payments')})
+            </TabsTrigger>
+            <TabsTrigger value="settlements" className="text-xs lg:text-sm whitespace-nowrap px-2 lg:px-4">
+              Settlements ({categoryCount('settlements')})
+            </TabsTrigger>
+            <TabsTrigger value="disputes" className="text-xs lg:text-sm whitespace-nowrap px-2 lg:px-4">
+              Disputes ({categoryCount('disputes')})
+            </TabsTrigger>
+            <TabsTrigger value="technical" className="text-xs lg:text-sm whitespace-nowrap px-2 lg:px-4">
+              Technical ({categoryCount('technical')})
+            </TabsTrigger>
+            <TabsTrigger value="security" className="text-xs lg:text-sm whitespace-nowrap px-2 lg:px-4">
+              Security ({categoryCount('security')})
+            </TabsTrigger>
+            <TabsTrigger value="system" className="text-xs lg:text-sm whitespace-nowrap px-2 lg:px-4">
+              System ({categoryCount('system')})
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
-        <TabsContent value={filter} className="mt-0">
-          <div className="space-y-3">
+        <TabsContent value={filter} className="mt-4 lg:mt-6">
+          <div className="space-y-3 lg:space-y-4">
             {filteredNotifications.map((notification) => (
               <Card 
                 key={notification.id} 
@@ -310,13 +311,13 @@ const NotificationCenter = () => {
                   'border-l-green-500'
                 } ${!notification.read ? 'bg-blue-50 shadow-sm' : 'bg-white'}`}
               >
-                <CardContent className="p-5">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-start gap-4 flex-1 min-w-0">
+                <CardContent className="p-4 lg:p-5">
+                  <div className="flex items-start justify-between gap-2 lg:gap-4">
+                    <div className="flex items-start gap-2 lg:gap-4 flex-1 min-w-0">
                       {/* Unread indicator */}
                       {!notification.read && (
-                        <div className="flex-shrink-0 mt-2">
-                          <Dot className="h-6 w-6 text-blue-600 animate-pulse" />
+                        <div className="flex-shrink-0 mt-1 lg:mt-2">
+                          <Dot className="h-5 w-5 lg:h-6 lg:w-6 text-blue-600 animate-pulse" />
                         </div>
                       )}
                       
@@ -327,32 +328,34 @@ const NotificationCenter = () => {
                       
                       {/* Content */}
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-3 mb-2 flex-wrap">
-                          <h3 className={`font-medium text-gray-900 ${!notification.read ? 'font-semibold' : ''}`}>
+                        <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-3 mb-2 flex-wrap">
+                          <h3 className={`font-medium text-gray-900 text-sm lg:text-base ${!notification.read ? 'font-semibold' : ''}`}>
                             {notification.title}
                           </h3>
-                          <Badge 
-                            variant="outline" 
-                            className={`${getPriorityColor(notification.priority)} text-xs font-medium`}
-                          >
-                            {notification.priority.toUpperCase()}
-                          </Badge>
-                          <div className="flex items-center gap-1 text-gray-500">
-                            {getCategoryIcon(notification.category)}
-                            <span className="text-xs font-medium capitalize">{notification.category}</span>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <Badge 
+                              variant="outline" 
+                              className={`${getPriorityColor(notification.priority)} text-xs font-medium`}
+                            >
+                              {notification.priority.toUpperCase()}
+                            </Badge>
+                            <div className="flex items-center gap-1 text-gray-500">
+                              {getCategoryIcon(notification.category)}
+                              <span className="text-xs font-medium capitalize">{notification.category}</span>
+                            </div>
                           </div>
                         </div>
                         
-                        <p className="text-gray-700 text-sm mb-3 leading-relaxed">
+                        <p className="text-gray-700 text-xs lg:text-sm mb-3 leading-relaxed">
                           {notification.message}
                         </p>
                         
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
                           <span className="text-xs text-gray-500 font-medium">
                             {notification.timestamp}
                           </span>
                           {notification.data && (
-                            <div className="flex gap-2 flex-wrap">
+                            <div className="flex gap-1 lg:gap-2 flex-wrap">
                               {Object.entries(notification.data).slice(0, 2).map(([key, value]) => (
                                 <Badge key={key} variant="secondary" className="text-xs">
                                   {key}: {value}
@@ -370,23 +373,23 @@ const NotificationCenter = () => {
                         variant="ghost" 
                         size="sm"
                         onClick={() => notification.read ? markAsUnread(notification.id) : markAsRead(notification.id)}
-                        className="h-8 w-8 p-0"
+                        className="h-7 w-7 lg:h-8 lg:w-8 p-0"
                         title={notification.read ? "Mark as unread" : "Mark as read"}
                       >
                         {notification.read ? (
-                          <Mail className="h-4 w-4 text-gray-500" />
+                          <Mail className="h-3 w-3 lg:h-4 lg:w-4 text-gray-500" />
                         ) : (
-                          <Check className="h-4 w-4 text-green-600" />
+                          <Check className="h-3 w-3 lg:h-4 lg:w-4 text-green-600" />
                         )}
                       </Button>
                       <Button 
                         variant="ghost" 
                         size="sm"
                         onClick={() => deleteNotification(notification.id)}
-                        className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600"
+                        className="h-7 w-7 lg:h-8 lg:w-8 p-0 hover:bg-red-50 hover:text-red-600"
                         title="Delete notification"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-3 w-3 lg:h-4 lg:w-4" />
                       </Button>
                     </div>
                   </div>
@@ -400,12 +403,12 @@ const NotificationCenter = () => {
       {/* Empty State */}
       {filteredNotifications.length === 0 && (
         <Card>
-          <CardContent className="p-12 text-center">
-            <Bell className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-medium text-gray-900 mb-2">
+          <CardContent className="p-8 lg:p-12 text-center">
+            <Bell className="h-12 w-12 lg:h-16 lg:w-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-lg lg:text-xl font-medium text-gray-900 mb-2">
               {searchTerm ? 'No matching notifications' : 'No notifications found'}
             </h3>
-            <p className="text-gray-600 mb-4">
+            <p className="text-sm lg:text-base text-gray-600 mb-4">
               {searchTerm 
                 ? `No notifications match "${searchTerm}". Try a different search term.`
                 : filter === 'unread' 

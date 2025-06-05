@@ -76,15 +76,15 @@ const Settlements = () => {
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
+    <div className="space-y-4 lg:space-y-6 p-4 lg:p-0">
+      <div className="flex flex-col gap-4 lg:flex-row lg:justify-between lg:items-center lg:gap-0">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Settlements</h2>
-          <p className="text-gray-600 mt-1">Manage and track your payment settlements</p>
+          <h2 className="text-xl lg:text-2xl font-bold text-gray-900">Settlements</h2>
+          <p className="text-sm lg:text-base text-gray-600 mt-1">Manage and track your payment settlements</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-            <SelectTrigger className="w-40">
+            <SelectTrigger className="w-full sm:w-40">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -94,7 +94,7 @@ const Settlements = () => {
               <SelectItem value="custom">Custom range</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" className="flex items-center gap-2">
+          <Button variant="outline" className="flex items-center gap-2 w-full sm:w-auto">
             <Download className="h-4 w-4" />
             Export
           </Button>
@@ -102,19 +102,19 @@ const Settlements = () => {
       </div>
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
         {summaryStats.map((stat, index) => {
           const Icon = stat.icon;
           return (
             <Card key={index}>
-              <CardContent className="p-6">
+              <CardContent className="p-4 lg:p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                    <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
+                    <p className="text-xs lg:text-sm font-medium text-gray-600">{stat.title}</p>
+                    <p className="text-lg lg:text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
                   </div>
-                  <div className={`p-3 rounded-lg ${stat.bgColor}`}>
-                    <Icon className={`h-6 w-6 ${stat.color}`} />
+                  <div className={`p-2 lg:p-3 rounded-lg ${stat.bgColor}`}>
+                    <Icon className={`h-5 w-5 lg:h-6 lg:w-6 ${stat.color}`} />
                   </div>
                 </div>
               </CardContent>
@@ -126,27 +126,27 @@ const Settlements = () => {
       {/* Bank Account Configuration */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">Settlement Configuration</CardTitle>
+          <CardTitle className="text-base lg:text-lg font-semibold">Settlement Configuration</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
             <div>
-              <h4 className="font-medium text-gray-900 mb-2">Primary Bank Account</h4>
-              <div className="p-4 border border-gray-200 rounded-lg">
-                <p className="font-medium">Chase Business Account</p>
-                <p className="text-sm text-gray-600">Account ending in 1234</p>
-                <p className="text-sm text-gray-600">Routing: 021000021</p>
+              <h4 className="font-medium text-gray-900 mb-2 text-sm lg:text-base">Primary Bank Account</h4>
+              <div className="p-3 lg:p-4 border border-gray-200 rounded-lg">
+                <p className="font-medium text-sm lg:text-base">Chase Business Account</p>
+                <p className="text-xs lg:text-sm text-gray-600">Account ending in 1234</p>
+                <p className="text-xs lg:text-sm text-gray-600">Routing: 021000021</p>
               </div>
-              <Button variant="outline" className="mt-2">Change Account</Button>
+              <Button variant="outline" className="mt-2 w-full lg:w-auto text-sm">Change Account</Button>
             </div>
             <div>
-              <h4 className="font-medium text-gray-900 mb-2">Settlement Schedule</h4>
-              <div className="p-4 border border-gray-200 rounded-lg">
-                <p className="font-medium">Daily settlements</p>
-                <p className="text-sm text-gray-600">Initiated at 6:00 PM EST</p>
-                <p className="text-sm text-gray-600">Typically arrives in 1-2 business days</p>
+              <h4 className="font-medium text-gray-900 mb-2 text-sm lg:text-base">Settlement Schedule</h4>
+              <div className="p-3 lg:p-4 border border-gray-200 rounded-lg">
+                <p className="font-medium text-sm lg:text-base">Daily settlements</p>
+                <p className="text-xs lg:text-sm text-gray-600">Initiated at 6:00 PM EST</p>
+                <p className="text-xs lg:text-sm text-gray-600">Typically arrives in 1-2 business days</p>
               </div>
-              <Button variant="outline" className="mt-2">Update Schedule</Button>
+              <Button variant="outline" className="mt-2 w-full lg:w-auto text-sm">Update Schedule</Button>
             </div>
           </div>
         </CardContent>
@@ -155,43 +155,43 @@ const Settlements = () => {
       {/* Settlements History */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">Settlement History</CardTitle>
+          <CardTitle className="text-base lg:text-lg font-semibold">Settlement History</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[800px]">
               <thead>
                 <tr className="border-b border-gray-200">
-                  <th className="text-left py-3 px-4 font-medium text-gray-600">Settlement ID</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-600">Amount</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-600">Transactions</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-600">Fees</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-600">Bank Account</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-600">Status</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-600">Date</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-600">Actions</th>
+                  <th className="text-left py-2 lg:py-3 px-2 lg:px-4 font-medium text-gray-600 text-xs lg:text-sm">Settlement ID</th>
+                  <th className="text-left py-2 lg:py-3 px-2 lg:px-4 font-medium text-gray-600 text-xs lg:text-sm">Amount</th>
+                  <th className="text-left py-2 lg:py-3 px-2 lg:px-4 font-medium text-gray-600 text-xs lg:text-sm">Transactions</th>
+                  <th className="text-left py-2 lg:py-3 px-2 lg:px-4 font-medium text-gray-600 text-xs lg:text-sm">Fees</th>
+                  <th className="text-left py-2 lg:py-3 px-2 lg:px-4 font-medium text-gray-600 text-xs lg:text-sm">Bank Account</th>
+                  <th className="text-left py-2 lg:py-3 px-2 lg:px-4 font-medium text-gray-600 text-xs lg:text-sm">Status</th>
+                  <th className="text-left py-2 lg:py-3 px-2 lg:px-4 font-medium text-gray-600 text-xs lg:text-sm">Date</th>
+                  <th className="text-left py-2 lg:py-3 px-2 lg:px-4 font-medium text-gray-600 text-xs lg:text-sm">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {settlements.map((settlement) => (
                   <tr key={settlement.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                    <td className="py-4 px-4">
-                      <span className="font-mono text-sm text-blue-600">{settlement.id}</span>
+                    <td className="py-3 lg:py-4 px-2 lg:px-4">
+                      <span className="font-mono text-xs lg:text-sm text-blue-600">{settlement.id}</span>
                     </td>
-                    <td className="py-4 px-4">
-                      <span className="font-semibold text-gray-900">{settlement.amount}</span>
+                    <td className="py-3 lg:py-4 px-2 lg:px-4">
+                      <span className="font-semibold text-gray-900 text-xs lg:text-sm">{settlement.amount}</span>
                     </td>
-                    <td className="py-4 px-4">
-                      <span className="text-gray-700">{settlement.transactions}</span>
+                    <td className="py-3 lg:py-4 px-2 lg:px-4">
+                      <span className="text-gray-700 text-xs lg:text-sm">{settlement.transactions}</span>
                     </td>
-                    <td className="py-4 px-4">
-                      <span className="text-gray-700">{settlement.fees}</span>
+                    <td className="py-3 lg:py-4 px-2 lg:px-4">
+                      <span className="text-gray-700 text-xs lg:text-sm">{settlement.fees}</span>
                     </td>
-                    <td className="py-4 px-4">
-                      <span className="text-gray-700">{settlement.bankAccount}</span>
+                    <td className="py-3 lg:py-4 px-2 lg:px-4">
+                      <span className="text-gray-700 text-xs lg:text-sm">{settlement.bankAccount}</span>
                     </td>
-                    <td className="py-4 px-4">
-                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                    <td className="py-3 lg:py-4 px-2 lg:px-4">
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full whitespace-nowrap ${
                         settlement.status === 'Completed' 
                           ? 'bg-green-100 text-green-800'
                           : settlement.status === 'Pending'
@@ -201,11 +201,11 @@ const Settlements = () => {
                         {settlement.status}
                       </span>
                     </td>
-                    <td className="py-4 px-4">
-                      <span className="text-sm text-gray-600">{settlement.date}</span>
+                    <td className="py-3 lg:py-4 px-2 lg:px-4">
+                      <span className="text-xs lg:text-sm text-gray-600">{settlement.date}</span>
                     </td>
-                    <td className="py-4 px-4">
-                      <Button variant="ghost" size="sm">
+                    <td className="py-3 lg:py-4 px-2 lg:px-4">
+                      <Button variant="ghost" size="sm" className="text-xs lg:text-sm">
                         View Details
                       </Button>
                     </td>

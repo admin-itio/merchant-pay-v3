@@ -169,7 +169,7 @@ const AdvancedFilters = ({ onFiltersChange, activeFilters }: FilterProps) => {
     if (field.type === 'select') {
       return (
         <Select value={filters[field.key]} onValueChange={(value) => updateFilter(field.key, value)}>
-          <SelectTrigger>
+          <SelectTrigger className="text-sm">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -189,6 +189,7 @@ const AdvancedFilters = ({ onFiltersChange, activeFilters }: FilterProps) => {
         placeholder={field.placeholder}
         value={filters[field.key]}
         onChange={(e) => updateFilter(field.key, e.target.value)}
+        className="text-sm"
       />
     );
   };
@@ -196,9 +197,9 @@ const AdvancedFilters = ({ onFiltersChange, activeFilters }: FilterProps) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="relative">
+        <Button variant="outline" size="sm" className="relative w-full sm:w-auto">
           <Filter className="h-4 w-4 mr-2" />
-          Advanced Filters
+          <span className="hidden sm:inline">Advanced </span>Filters
           {getActiveFilterCount() > 0 && (
             <Badge className="ml-2 h-5 w-5 flex items-center justify-center p-0 text-xs bg-blue-500">
               {getActiveFilterCount()}
@@ -206,33 +207,33 @@ const AdvancedFilters = ({ onFiltersChange, activeFilters }: FilterProps) => {
           )}
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-4xl bg-white max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-xs sm:max-w-2xl lg:max-w-4xl bg-white max-h-[90vh] overflow-y-auto p-4 lg:p-6">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 text-lg lg:text-xl">
             <Filter className="h-5 w-5" />
             Advanced Transaction Filters
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-sm lg:text-base">
             Search and filter transactions by any field or combination of criteria
           </DialogDescription>
         </DialogHeader>
         
-        <div className="space-y-6">
+        <div className="space-y-4 lg:space-y-6">
           {filterCategories.map((category) => {
             const Icon = category.icon;
             return (
               <Card key={category.title}>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base flex items-center gap-2">
+                <CardHeader className="pb-2 lg:pb-3">
+                  <CardTitle className="text-sm lg:text-base flex items-center gap-2">
                     <Icon className="h-4 w-4" />
                     {category.title}
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <CardContent className="p-3 lg:p-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4">
                     {category.fields.map((field) => (
                       <div key={field.key}>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-xs lg:text-sm font-medium text-gray-700 mb-1">
                           {field.label}
                         </label>
                         {renderField(field)}
@@ -244,12 +245,12 @@ const AdvancedFilters = ({ onFiltersChange, activeFilters }: FilterProps) => {
             );
           })}
 
-          <div className="flex justify-between gap-4">
-            <Button variant="outline" onClick={clearFilters} className="flex-1">
+          <div className="flex flex-col sm:flex-row justify-between gap-3 lg:gap-4 pt-2">
+            <Button variant="outline" onClick={clearFilters} className="flex-1 text-sm">
               <X className="h-4 w-4 mr-2" />
               Clear All Filters
             </Button>
-            <Button onClick={applyFilters} className="flex-1">
+            <Button onClick={applyFilters} className="flex-1 text-sm">
               <Search className="h-4 w-4 mr-2" />
               Apply Filters ({getActiveFilterCount()})
             </Button>
