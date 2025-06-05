@@ -53,8 +53,8 @@ const Index = () => {
         return (
           <div className="flex items-center justify-center h-64 lg:h-96 p-4">
             <div className="text-center">
-              <h3 className="text-lg lg:text-xl font-semibold text-gray-900 mb-2">Analytics Dashboard</h3>
-              <p className="text-sm lg:text-base text-gray-600">Detailed analytics and reporting coming soon</p>
+              <h3 className="text-lg lg:text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Analytics Dashboard</h3>
+              <p className="text-sm lg:text-base text-gray-600 dark:text-gray-400">Detailed analytics and reporting coming soon</p>
             </div>
           </div>
         );
@@ -62,8 +62,8 @@ const Index = () => {
         return (
           <div className="flex items-center justify-center h-64 lg:h-96 p-4">
             <div className="text-center">
-              <h3 className="text-lg lg:text-xl font-semibold text-gray-900 mb-2">Customer Management</h3>
-              <p className="text-sm lg:text-base text-gray-600">Customer database and management tools coming soon</p>
+              <h3 className="text-lg lg:text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Customer Management</h3>
+              <p className="text-sm lg:text-base text-gray-600 dark:text-gray-400">Customer database and management tools coming soon</p>
             </div>
           </div>
         );
@@ -73,7 +73,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex w-full">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex w-full">
       <Sidebar 
         activeTab={activeTab} 
         setActiveTab={setActiveTab}
@@ -88,8 +88,10 @@ const Index = () => {
           onProfileClick={handleProfileClick}
         />
         
-        <main className="flex-1 p-3 lg:p-6 overflow-auto">
-          {renderContent()}
+        <main className="flex-1 p-3 sm:p-4 lg:p-6 overflow-auto scrollbar-thin">
+          <div className="max-w-full">
+            {renderContent()}
+          </div>
         </main>
       </div>
     </div>

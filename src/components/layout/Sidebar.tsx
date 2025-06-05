@@ -49,13 +49,13 @@ const Sidebar = ({ activeTab, setActiveTab, isOpen, setIsOpen }: SidebarProps) =
       
       {/* Sidebar */}
       <div className={`
-        fixed left-0 top-0 h-full bg-white border-r border-gray-200 z-50 transform transition-transform duration-300 ease-in-out
+        fixed left-0 top-0 h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 z-50 transform transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
         md:translate-x-0 md:static md:z-auto
         w-56 lg:w-64
       `}>
-        <div className="flex items-center justify-between p-4 lg:p-6 border-b border-gray-200">
-          <h1 className="text-lg lg:text-xl font-bold text-gray-900">MerchantPay</h1>
+        <div className="flex items-center justify-between p-4 lg:p-6 border-b border-gray-200 dark:border-gray-800">
+          <h1 className="text-lg lg:text-xl font-bold text-gray-900 dark:text-gray-100">MerchantPay</h1>
           <Button
             variant="ghost"
             size="sm"
@@ -66,7 +66,7 @@ const Sidebar = ({ activeTab, setActiveTab, isOpen, setIsOpen }: SidebarProps) =
           </Button>
         </div>
         
-        <nav className="p-3 lg:p-4 space-y-1 lg:space-y-2">
+        <nav className="p-3 lg:p-4 space-y-1 lg:space-y-2 scrollbar-thin overflow-y-auto max-h-[calc(100vh-5rem)]">
           {menuItems.map((item) => {
             const Icon = item.icon;
             return (
@@ -79,8 +79,8 @@ const Sidebar = ({ activeTab, setActiveTab, isOpen, setIsOpen }: SidebarProps) =
                 className={`
                   w-full flex items-center gap-2 lg:gap-3 px-2 lg:px-3 py-2 rounded-lg text-left transition-colors text-sm lg:text-base
                   ${activeTab === item.id 
-                    ? 'bg-blue-50 text-blue-700 border border-blue-200' 
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800' 
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100'
                   }
                 `}
               >
