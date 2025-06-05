@@ -17,14 +17,20 @@ import {
   MailOpen,
   Trash2,
   Filter,
-  Search
+  Search,
+  X,
+  Check,
+  Dot
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
 
 const NotificationCenter = () => {
   const [filter, setFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const { toast } = useToast();
 
-  const notifications = [
+  const [notifications, setNotifications] = useState([
     {
       id: 1,
       type: 'alert',
@@ -113,7 +119,49 @@ const NotificationCenter = () => {
       category: 'system',
       data: { startTime: '2:00 AM IST', endTime: '4:00 AM IST', services: ['Payments', 'Settlements'] }
     }
-  ];
+  ]);
+
+  const markAsRead = (id: number) => {
+    setNotifications(prev => 
+      prev.map(notif => 
+        notif.id === id ? { ...notif, read: true } : notif
+      )
+    );
+    toast({
+      title: "Notification marked as read",
+      duration: 2000,
+    });
+  };
+
+  const markAsUnread = (id: number) => {
+    setNotifications(prev => 
+      prev.map(notif => 
+        notif.id === id ? { ...notif, read: false } : notif
+      )
+    );
+    toast({
+      title: "Notification marked as unread",
+      duration: 2000,
+    });
+  };
+
+  const deleteNotification = (id: number) => {
+    setNotifications(prev => prev.filter(notif => notif.id !== id));
+    toast({
+      title: "Notification deleted",
+      duration: 2000,
+    });
+  };
+
+  const markAllAsRead = () => {
+    setNotifications(prev => 
+      prev.map(notif => ({ ...notif, read: true }))
+    );
+    toast({
+      title: "All notifications marked as read",
+      duration: 2000,
+    });
+  };
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -127,10 +175,10 @@ const NotificationCenter = () => {
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high': return 'bg-red-100 text-red-800';
-      case 'medium': return 'bg-yellow-100 text-yellow-800';
-      case 'low': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'high': return 'bg-red-100 text-red-800 border-red-200';
+      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'low': return 'bg-green-100 text-green-800 border-green-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
@@ -140,35 +188,47 @@ const NotificationCenter = () => {
       case 'settlements': return <Clock className="h-4 w-4" />;
       case 'customers': return <Users className="h-4 w-4" />;
       case 'technical': return <Settings className="h-4 w-4" />;
+      case 'disputes': return <AlertTriangle className="h-4 w-4" />;
+      case 'security': return <Settings className="h-4 w-4" />;
+      case 'system': return <Settings className="h-4 w-4" />;
       default: return <Bell className="h-4 w-4" />;
     }
   };
 
   const filteredNotifications = notifications.filter(notification => {
-    if (filter === 'all') return true;
-    if (filter === 'unread') return !notification.read;
-    return notification.category === filter;
+    const matchesFilter = filter === 'all' || 
+                         (filter === 'unread' && !notification.read) ||
+                         notification.category === filter;
+    
+    const matchesSearch = searchTerm === '' ||
+                         notification.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         notification.message.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         notification.category.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    return matchesFilter && matchesSearch;
   });
 
   const unreadCount = notifications.filter(n => !n.read).length;
+  const categoryCount = (category: string) => notifications.filter(n => n.category === category).length;
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <Bell className="h-6 w-6" />
+          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+            <Bell className="h-8 w-8 text-blue-600" />
             Notifications
             {unreadCount > 0 && (
-              <Badge className="bg-red-500">
+              <Badge className="bg-red-500 text-white px-3 py-1 text-sm">
                 {unreadCount} unread
               </Badge>
             )}
           </h1>
-          <p className="text-gray-600 mt-1">Stay updated with your payment activities</p>
+          <p className="text-gray-600 mt-2">Stay updated with your payment activities and system alerts</p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm">
+        <div className="flex gap-3">
+          <Button variant="outline" size="sm" onClick={markAllAsRead} disabled={unreadCount === 0}>
             <MailOpen className="h-4 w-4 mr-2" />
             Mark All Read
           </Button>
@@ -179,62 +239,121 @@ const NotificationCenter = () => {
         </div>
       </div>
 
-      <div className="flex gap-4 items-center">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-          <Input
-            placeholder="Search notifications..."
-            className="pl-10"
-          />
-        </div>
-        <Button variant="outline" size="sm">
-          <Filter className="h-4 w-4 mr-2" />
-          Filters
-        </Button>
-      </div>
+      {/* Search and Filters */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                placeholder="Search notifications by title, message, or category..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+              {searchTerm && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
+                  onClick={() => setSearchTerm('')}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+            <Button variant="outline" size="sm">
+              <Filter className="h-4 w-4 mr-2" />
+              Advanced Filters
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
+      {/* Notification Tabs */}
       <Tabs value={filter} onValueChange={setFilter} className="w-full">
-        <TabsList className="grid w-full grid-cols-7 mb-6">
-          <TabsTrigger value="all">All ({notifications.length})</TabsTrigger>
-          <TabsTrigger value="unread">Unread ({unreadCount})</TabsTrigger>
-          <TabsTrigger value="payments">Payments</TabsTrigger>
-          <TabsTrigger value="settlements">Settlements</TabsTrigger>
-          <TabsTrigger value="disputes">Disputes</TabsTrigger>
-          <TabsTrigger value="technical">Technical</TabsTrigger>
-          <TabsTrigger value="security">Security</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-8 mb-6 bg-gray-100 p-1">
+          <TabsTrigger value="all" className="text-sm">
+            All ({notifications.length})
+          </TabsTrigger>
+          <TabsTrigger value="unread" className="text-sm">
+            Unread ({unreadCount})
+          </TabsTrigger>
+          <TabsTrigger value="payments" className="text-sm">
+            Payments ({categoryCount('payments')})
+          </TabsTrigger>
+          <TabsTrigger value="settlements" className="text-sm">
+            Settlements ({categoryCount('settlements')})
+          </TabsTrigger>
+          <TabsTrigger value="disputes" className="text-sm">
+            Disputes ({categoryCount('disputes')})
+          </TabsTrigger>
+          <TabsTrigger value="technical" className="text-sm">
+            Technical ({categoryCount('technical')})
+          </TabsTrigger>
+          <TabsTrigger value="security" className="text-sm">
+            Security ({categoryCount('security')})
+          </TabsTrigger>
+          <TabsTrigger value="system" className="text-sm">
+            System ({categoryCount('system')})
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value={filter}>
-          <div className="space-y-4">
+        <TabsContent value={filter} className="mt-0">
+          <div className="space-y-3">
             {filteredNotifications.map((notification) => (
-              <Card key={notification.id} className={`border-l-4 ${
-                notification.priority === 'high' ? 'border-l-red-500' :
-                notification.priority === 'medium' ? 'border-l-yellow-500' :
-                'border-l-green-500'
-              } ${!notification.read ? 'bg-blue-50' : ''}`}>
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-3 flex-1">
-                      {getNotificationIcon(notification.type)}
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className={`font-medium ${!notification.read ? 'font-semibold' : ''}`}>
+              <Card 
+                key={notification.id} 
+                className={`border-l-4 transition-all duration-200 hover:shadow-md ${
+                  notification.priority === 'high' ? 'border-l-red-500' :
+                  notification.priority === 'medium' ? 'border-l-yellow-500' :
+                  'border-l-green-500'
+                } ${!notification.read ? 'bg-blue-50 shadow-sm' : 'bg-white'}`}
+              >
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start gap-4 flex-1 min-w-0">
+                      {/* Unread indicator */}
+                      {!notification.read && (
+                        <div className="flex-shrink-0 mt-2">
+                          <Dot className="h-6 w-6 text-blue-600 animate-pulse" />
+                        </div>
+                      )}
+                      
+                      {/* Icon */}
+                      <div className="flex-shrink-0 mt-1">
+                        {getNotificationIcon(notification.type)}
+                      </div>
+                      
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-3 mb-2 flex-wrap">
+                          <h3 className={`font-medium text-gray-900 ${!notification.read ? 'font-semibold' : ''}`}>
                             {notification.title}
                           </h3>
-                          <Badge variant="outline" className={getPriorityColor(notification.priority)}>
-                            {notification.priority}
+                          <Badge 
+                            variant="outline" 
+                            className={`${getPriorityColor(notification.priority)} text-xs font-medium`}
+                          >
+                            {notification.priority.toUpperCase()}
                           </Badge>
                           <div className="flex items-center gap-1 text-gray-500">
                             {getCategoryIcon(notification.category)}
-                            <span className="text-xs">{notification.category}</span>
+                            <span className="text-xs font-medium capitalize">{notification.category}</span>
                           </div>
                         </div>
-                        <p className="text-gray-600 text-sm mb-2">{notification.message}</p>
+                        
+                        <p className="text-gray-700 text-sm mb-3 leading-relaxed">
+                          {notification.message}
+                        </p>
+                        
                         <div className="flex items-center justify-between">
-                          <span className="text-xs text-gray-500">{notification.timestamp}</span>
+                          <span className="text-xs text-gray-500 font-medium">
+                            {notification.timestamp}
+                          </span>
                           {notification.data && (
-                            <div className="flex gap-2">
-                              {Object.entries(notification.data).map(([key, value]) => (
+                            <div className="flex gap-2 flex-wrap">
+                              {Object.entries(notification.data).slice(0, 2).map(([key, value]) => (
                                 <Badge key={key} variant="secondary" className="text-xs">
                                   {key}: {value}
                                 </Badge>
@@ -244,11 +363,29 @@ const NotificationCenter = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="flex gap-1 ml-4">
-                      <Button variant="ghost" size="sm">
-                        <Mail className="h-4 w-4" />
+                    
+                    {/* Actions */}
+                    <div className="flex gap-1 flex-shrink-0">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => notification.read ? markAsUnread(notification.id) : markAsRead(notification.id)}
+                        className="h-8 w-8 p-0"
+                        title={notification.read ? "Mark as unread" : "Mark as read"}
+                      >
+                        {notification.read ? (
+                          <Mail className="h-4 w-4 text-gray-500" />
+                        ) : (
+                          <Check className="h-4 w-4 text-green-600" />
+                        )}
                       </Button>
-                      <Button variant="ghost" size="sm">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => deleteNotification(notification.id)}
+                        className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600"
+                        title="Delete notification"
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -260,12 +397,27 @@ const NotificationCenter = () => {
         </TabsContent>
       </Tabs>
 
+      {/* Empty State */}
       {filteredNotifications.length === 0 && (
         <Card>
-          <CardContent className="p-8 text-center">
-            <Bell className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No notifications</h3>
-            <p className="text-gray-600">You're all caught up! No new notifications to show.</p>
+          <CardContent className="p-12 text-center">
+            <Bell className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-xl font-medium text-gray-900 mb-2">
+              {searchTerm ? 'No matching notifications' : 'No notifications found'}
+            </h3>
+            <p className="text-gray-600 mb-4">
+              {searchTerm 
+                ? `No notifications match "${searchTerm}". Try a different search term.`
+                : filter === 'unread' 
+                  ? "You're all caught up! No unread notifications."
+                  : "No notifications in this category."
+              }
+            </p>
+            {searchTerm && (
+              <Button variant="outline" onClick={() => setSearchTerm('')}>
+                Clear Search
+              </Button>
+            )}
           </CardContent>
         </Card>
       )}
