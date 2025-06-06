@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '@/components/layout/Sidebar';
@@ -14,6 +13,7 @@ import SupportCenter from '@/components/support/SupportCenter';
 import ReferralManagement from '@/components/referrals/ReferralManagement';
 import NotificationCenter from '@/components/notifications/NotificationCenter';
 import DashboardAnalytics from '@/components/dashboard/DashboardAnalytics';
+import TerNoManagement from '@/components/terno/TerNoManagement';
 
 // For demo purposes - you would use a proper auth system in production
 const isAuthenticated = () => {
@@ -72,6 +72,8 @@ const Index = () => {
         return <NotificationCenter />;
       case 'analytics':
         return <DashboardAnalytics />;
+      case 'terno':
+        return <TerNoManagement />;
       case 'customers':
         return (
           <div className="flex items-center justify-center h-64 lg:h-96 p-4">
