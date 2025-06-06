@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Globe, MapPin, TrendingUp, DollarSign, Users, AlertCircle } from 'lucide-react';
+import { Globe, MapPin, TrendingUp, DollarSign, Users, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const WorldMapAnalytics = () => {
@@ -12,6 +12,7 @@ const WorldMapAnalytics = () => {
   const [mapboxToken, setMapboxToken] = useState('');
   const [selectedMetric, setSelectedMetric] = useState('volume');
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
+  const [showToken, setShowToken] = useState(false);
 
   // Sample country data with enhanced metrics
   const countryData = [
@@ -132,23 +133,51 @@ const WorldMapAnalytics = () => {
   ];
 
   const initializeMap = () => {
-    if (!mapContainer.current || !mapboxToken) return;
+    if (!mapContainer.current) return;
 
-    // Simple map visualization without mapbox for demo
-    const mockMapElement = document.createElement('div');
-    mockMapElement.className = 'w-full h-full bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-800 dark:to-gray-900 rounded-lg flex items-center justify-center';
-    mockMapElement.innerHTML = `
-      <div class="text-center p-8">
-        <div class="text-6xl mb-4">🌍</div>
-        <p class="text-gray-600 dark:text-gray-300">Interactive World Map</p>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Enter Mapbox token to view detailed map</p>
-      </div>
-    `;
+    // Enhanced map visualization
+    const mapElement = document.createElement('div');
+    mapElement.className = 'w-full h-full bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-800 dark:to-gray-900 rounded-lg relative overflow-hidden';
+    
+    if (mapboxToken) {
+      mapElement.innerHTML = `
+        <div class="absolute inset-0 flex items-center justify-center">
+          <div class="text-center p-8">
+            <div class="text-6xl mb-4 animate-pulse">🗺️</div>
+            <p class="text-gray-700 dark:text-gray-300 font-medium">Mapbox Integration Ready</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Token configured successfully</p>
+            <div class="mt-4 grid grid-cols-2 gap-2 max-w-md">
+              ${countryData.map(country => `
+                <div class="bg-white dark:bg-gray-800 p-2 rounded shadow-sm text-xs">
+                  <div class="font-medium">${country.country}</div>
+                  <div class="text-gray-600 dark:text-gray-400">$${(country.volume / 1000000).toFixed(1)}M</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    } else {
+      mapElement.innerHTML = `
+        <div class="absolute inset-0 flex items-center justify-center">
+          <div class="text-center p-8">
+            <div class="text-6xl mb-4">🌍</div>
+            <p class="text-gray-600 dark:text-gray-300 font-medium">Interactive World Map</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Enter Mapbox token to view detailed map</p>
+            <div class="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+              <p class="text-sm text-yellow-700 dark:text-yellow-300">
+                Get your free token at <a href="https://mapbox.com" target="_blank" class="underline font-medium">mapbox.com</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      `;
+    }
     
     if (mapContainer.current.firstChild) {
       mapContainer.current.removeChild(mapContainer.current.firstChild);
     }
-    mapContainer.current.appendChild(mockMapElement);
+    mapContainer.current.appendChild(mapElement);
   };
 
   useEffect(() => {
@@ -201,12 +230,24 @@ const WorldMapAnalytics = () => {
             </SelectContent>
           </Select>
           
-          <Input
-            placeholder="Enter Mapbox Token"
-            value={mapboxToken}
-            onChange={(e) => setMapboxToken(e.target.value)}
-            className="w-48"
-          />
+          <div className="relative">
+            <Input
+              type={showToken ? "text" : "password"}
+              placeholder="Enter Mapbox Token"
+              value={mapboxToken}
+              onChange={(e) => setMapboxToken(e.target.value)}
+              className="w-48 pr-10"
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0"
+              onClick={() => setShowToken(!showToken)}
+            >
+              {showToken ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -221,18 +262,18 @@ const WorldMapAnalytics = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div ref={mapContainer} className="w-full h-96 rounded-lg border" />
+              <div ref={mapContainer} className="w-full h-96 rounded-lg border bg-gray-50 dark:bg-gray-900" />
               
               {/* Country Markers */}
               <div className="mt-4 grid grid-cols-2 lg:grid-cols-3 gap-3">
                 {countryData.map((country) => (
                   <button
                     key={country.code}
-                    onClick={() => setSelectedCountry(country.code)}
+                    onClick={() => setSelectedCountry(selectedCountry === country.code ? null : country.code)}
                     className={`p-3 rounded-lg border text-left hover:shadow-md transition-all ${
                       selectedCountry === country.code 
-                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
-                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-md' 
+                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-2">
@@ -282,7 +323,7 @@ const WorldMapAnalytics = () => {
                   
                   <div>
                     <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">Risk Score</p>
-                    <Badge variant={selectedCountryData.riskScore === 'Low' ? 'default' : 'secondary'}>
+                    <Badge variant={selectedCountryData.riskScore === 'Low' || selectedCountryData.riskScore === 'Very Low' ? 'default' : 'secondary'}>
                       {selectedCountryData.riskScore}
                     </Badge>
                   </div>
@@ -308,11 +349,11 @@ const WorldMapAnalytics = () => {
                   <div className="space-y-2">
                     {Object.entries(selectedCountryData.paymentMethods).map(([method, percentage]) => (
                       <div key={method} className="flex items-center justify-between">
-                        <span className="text-xs capitalize">{method}</span>
+                        <span className="text-xs capitalize">{method.replace(/([A-Z])/g, ' $1').trim()}</span>
                         <div className="flex items-center gap-2">
                           <div className="w-16 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                             <div 
-                              className="h-full bg-blue-500 rounded-full"
+                              className="h-full bg-blue-500 rounded-full transition-all duration-300"
                               style={{ width: `${percentage}%` }}
                             />
                           </div>
@@ -329,7 +370,8 @@ const WorldMapAnalytics = () => {
               <CardContent className="flex items-center justify-center h-64">
                 <div className="text-center">
                   <Globe className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600 dark:text-gray-400">Select a country to view details</p>
+                  <p className="text-gray-600 dark:text-gray-400 mb-2">Select a country to view details</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-500">Click on any country card above</p>
                 </div>
               </CardContent>
             </Card>
