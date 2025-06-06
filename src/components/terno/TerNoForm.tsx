@@ -9,7 +9,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Plus, Trash2, Key, Eye, EyeOff } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
 
 interface TerNoFormProps {
   terno?: any;
@@ -45,8 +44,8 @@ const TerNoForm = ({ terno, onClose, onSave }: TerNoFormProps) => {
       refund: false,
       customer: false
     },
-    // Orchestration rules
-    orchestrationRules: terno?.orchestrationRules || []
+    // Orchestration rules - ensure it's always an array
+    orchestrationRules: Array.isArray(terno?.orchestrationRules) ? terno.orchestrationRules : []
   });
 
   const [showPrivateKey, setShowPrivateKey] = useState(false);
@@ -386,13 +385,13 @@ const TerNoForm = ({ terno, onClose, onSave }: TerNoFormProps) => {
                 <div key={key} className="flex items-center space-x-2">
                   <Checkbox
                     id={key}
-                    checked={value}
+                    checked={Boolean(value)}
                     onCheckedChange={(checked) => 
                       setFormData({
                         ...formData,
                         notificationSettings: {
                           ...formData.notificationSettings,
-                          [key]: checked
+                          [key]: checked === true
                         }
                       })
                     }
@@ -424,7 +423,7 @@ const TerNoForm = ({ terno, onClose, onSave }: TerNoFormProps) => {
               </p>
             ) : (
               <div className="space-y-4">
-                {formData.orchestrationRules.map((rule, index) => (
+                {formData.orchestrationRules.map((rule: any, index: number) => (
                   <div key={rule.id} className="p-4 border rounded-lg">
                     <div className="flex items-center justify-between mb-2">
                       <h4 className="font-medium">Rule #{index + 1}</h4>
