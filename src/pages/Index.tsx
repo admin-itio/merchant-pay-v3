@@ -1,5 +1,6 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Sidebar from '@/components/layout/Sidebar';
 import Header from '@/components/layout/Header';
 import DashboardEnhanced from '@/components/dashboard/DashboardEnhanced';
@@ -12,10 +13,30 @@ import ApiDeveloperTools from '@/components/api/ApiDeveloperTools';
 import SupportCenter from '@/components/support/SupportCenter';
 import ReferralManagement from '@/components/referrals/ReferralManagement';
 import NotificationCenter from '@/components/notifications/NotificationCenter';
+import DashboardAnalytics from '@/components/dashboard/DashboardAnalytics';
+
+// For demo purposes - you would use a proper auth system in production
+const isAuthenticated = () => {
+  // Simple check for demo purposes
+  // In a real app, you would check for a valid token
+  // return !!localStorage.getItem('authToken');
+  
+  // For demo, we'll just return true to skip auth flow
+  // Change to false to test auth flow
+  return true;
+};
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check if user is authenticated
+    if (!isAuthenticated()) {
+      navigate('/login');
+    }
+  }, [navigate]);
 
   const handleNotificationClick = () => {
     setActiveTab('notifications');
@@ -50,14 +71,7 @@ const Index = () => {
       case 'notifications':
         return <NotificationCenter />;
       case 'analytics':
-        return (
-          <div className="flex items-center justify-center h-64 lg:h-96 p-4">
-            <div className="text-center">
-              <h3 className="text-lg lg:text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Analytics Dashboard</h3>
-              <p className="text-sm lg:text-base text-gray-600 dark:text-gray-400">Detailed analytics and reporting coming soon</p>
-            </div>
-          </div>
-        );
+        return <DashboardAnalytics />;
       case 'customers':
         return (
           <div className="flex items-center justify-center h-64 lg:h-96 p-4">

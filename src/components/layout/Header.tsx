@@ -1,5 +1,5 @@
-
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -31,11 +31,16 @@ interface HeaderProps {
 }
 
 const Header = ({ setIsOpen, onNotificationClick, onProfileClick }: HeaderProps) => {
+  const navigate = useNavigate();
   const [notificationCount] = useState(5);
 
   const breadcrumbItems = [
     { label: 'Dashboard', current: true }
   ];
+
+  const handleLogout = () => {
+    navigate('/logout');
+  };
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 dark:bg-gray-950/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-gray-950/60 border-b border-gray-200 dark:border-gray-800 px-3 sm:px-4 lg:px-6 py-3 lg:py-4">
@@ -125,7 +130,10 @@ const Header = ({ setIsOpen, onNotificationClick, onProfileClick }: HeaderProps)
                 <span>Support</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator className="dark:bg-gray-700" />
-              <DropdownMenuItem className="text-sm cursor-pointer dark:hover:bg-gray-700">
+              <DropdownMenuItem 
+                className="text-sm cursor-pointer dark:hover:bg-gray-700"
+                onClick={handleLogout}
+              >
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
               </DropdownMenuItem>

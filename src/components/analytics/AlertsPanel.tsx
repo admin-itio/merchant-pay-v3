@@ -22,16 +22,16 @@ const AlertsPanel = () => {
       <CardContent>
         <div className="space-y-2">
           {recentAlerts.map((alert, index) => (
-            <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+            <div key={index} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded">
               <div className="flex items-center gap-2">
                 <div className={`w-2 h-2 rounded-full ${
                   alert.type === 'error' ? 'bg-red-500' :
                   alert.type === 'warning' ? 'bg-yellow-500' :
                   alert.type === 'success' ? 'bg-green-500' : 'bg-blue-500'
                 }`} />
-                <span className="text-sm">{alert.message}</span>
+                <span className="text-sm dark:text-gray-200">{alert.message}</span>
               </div>
-              <span className="text-xs text-gray-500">{alert.time}</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">{alert.time}</span>
             </div>
           ))}
         </div>

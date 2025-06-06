@@ -24,18 +24,18 @@ const MerchantsList = () => {
       <CardContent>
         <div className="space-y-4">
           {topMerchantsData.map((merchant, index) => (
-            <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <div key={index} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
               <div className="flex items-center gap-4">
-                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                  <span className="text-sm font-medium text-blue-600">{index + 1}</span>
+                <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                  <span className="text-sm font-medium text-blue-600 dark:text-blue-400">{index + 1}</span>
                 </div>
                 <div>
-                  <p className="font-medium">{merchant.merchant}</p>
-                  <p className="text-sm text-gray-600">{merchant.transactions} transactions</p>
+                  <p className="font-medium dark:text-white">{merchant.merchant}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{merchant.transactions} transactions</p>
                 </div>
               </div>
               <div className="text-right">
-                <p className="font-medium">₹{merchant.volume.toLocaleString()}</p>
+                <p className="font-medium dark:text-white">₹{merchant.volume.toLocaleString()}</p>
                 <Badge variant={merchant.successRate > 95 ? 'default' : 'secondary'}>
                   {merchant.successRate}% success
                 </Badge>
