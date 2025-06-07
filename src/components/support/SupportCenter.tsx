@@ -1,193 +1,239 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { 
-  MessageCircle, 
-  Search, 
-  Book, 
-  Phone, 
-  Mail, 
-  Clock, 
-  CheckCircle, 
-  AlertCircle,
-  Send,
-  Plus,
-  Filter,
-  ExternalLink
-} from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Search, MessageCircle, Phone, Mail, FileText, Clock, CheckCircle, AlertCircle, Plus } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const SupportCenter = () => {
-  const [activeTab, setActiveTab] = useState('tickets');
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
-  const [newTicket, setNewTicket] = useState({ subject: '', category: '', priority: 'medium', description: '' });
+  const [newTicket, setNewTicket] = useState({
+    subject: '',
+    category: '',
+    priority: '',
+    description: ''
+  });
 
   const tickets = [
     {
-      id: 'TK-001',
-      subject: 'Payment Gateway Integration Issue',
-      status: 'open',
-      priority: 'high',
+      id: 'TICK-001',
+      subject: 'Payment processing issue',
       category: 'Technical',
+      priority: 'High',
+      status: 'Open',
       created: '2024-01-15',
-      lastUpdate: '2 hours ago',
-      messages: 3
+      lastUpdate: '2024-01-15',
+      assignee: 'Support Team A'
     },
     {
-      id: 'TK-002',
-      subject: 'Refund Processing Delay',
-      status: 'in-progress',
-      priority: 'medium',
-      category: 'Billing',
+      id: 'TICK-002',
+      subject: 'API integration question',
+      category: 'Development',
+      priority: 'Medium',
+      status: 'In Progress',
       created: '2024-01-14',
-      lastUpdate: '1 day ago',
-      messages: 5
+      lastUpdate: '2024-01-14',
+      assignee: 'Tech Support'
     },
     {
-      id: 'TK-003',
-      subject: 'API Documentation Request',
-      status: 'resolved',
-      priority: 'low',
-      category: 'Documentation',
+      id: 'TICK-003',
+      subject: 'Account billing inquiry',
+      category: 'Billing',
+      priority: 'Low',
+      status: 'Resolved',
       created: '2024-01-13',
-      lastUpdate: '3 days ago',
-      messages: 2
+      lastUpdate: '2024-01-13',
+      assignee: 'Billing Team'
     }
   ];
 
-  const knowledgeBase = [
+  const faqItems = [
+    {
+      question: 'How do I integrate the payment API?',
+      answer: 'You can integrate our payment API by following our comprehensive documentation. Start by obtaining your API keys from the dashboard, then use our SDKs or make direct HTTP requests to our endpoints.',
+      category: 'Integration'
+    },
+    {
+      question: 'What are the transaction fees?',
+      answer: 'Our transaction fees vary by payment method and volume. Standard credit card processing is 2.9% + $0.30 per transaction. Volume discounts are available for high-volume merchants.',
+      category: 'Pricing'
+    },
+    {
+      question: 'How long do settlements take?',
+      answer: 'Standard settlements are processed daily and typically arrive in your bank account within 1-2 business days. Express settlements are available for an additional fee.',
+      category: 'Settlements'
+    },
+    {
+      question: 'Is my data secure?',
+      answer: 'Yes, we use industry-standard encryption and are PCI DSS Level 1 compliant. All sensitive data is encrypted at rest and in transit using AES-256 encryption.',
+      category: 'Security'
+    }
+  ];
+
+  const knowledgeBaseArticles = [
     {
       title: 'Getting Started with Payment Processing',
       category: 'Getting Started',
-      views: 1250,
-      helpful: 98
+      readTime: '5 min',
+      description: 'Learn the basics of setting up payment processing for your business.'
     },
     {
-      title: 'How to Handle Failed Transactions',
+      title: 'API Authentication Guide',
+      category: 'Development',
+      readTime: '8 min',
+      description: 'Complete guide to authenticating with our API using API keys and tokens.'
+    },
+    {
+      title: 'Handling Failed Payments',
       category: 'Troubleshooting',
-      views: 890,
-      helpful: 95
+      readTime: '6 min',
+      description: 'Best practices for handling and retrying failed payment attempts.'
     },
     {
-      title: 'Setting Up Webhooks',
-      category: 'API',
-      views: 756,
-      helpful: 92
-    },
-    {
-      title: 'Understanding Chargeback Process',
-      category: 'Risk Management',
-      views: 634,
-      helpful: 88
+      title: 'Setting up Webhooks',
+      category: 'Development',
+      readTime: '10 min',
+      description: 'Configure webhooks to receive real-time payment notifications.'
     }
   ];
 
-  const getStatusColor = (status: string) => {
+  const handleSubmitTicket = () => {
+    if (!newTicket.subject || !newTicket.category || !newTicket.priority || !newTicket.description) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Ticket Submitted",
+      description: "Your support ticket has been created successfully. We'll get back to you soon.",
+    });
+
+    setNewTicket({
+      subject: '',
+      category: '',
+      priority: '',
+      description: ''
+    });
+  };
+
+  const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'open': return 'bg-red-100 text-red-800';
-      case 'in-progress': return 'bg-yellow-100 text-yellow-800';
-      case 'resolved': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'Open':
+        return <AlertCircle className="h-4 w-4 text-orange-500" />;
+      case 'In Progress':
+        return <Clock className="h-4 w-4 text-blue-500" />;
+      case 'Resolved':
+        return <CheckCircle className="h-4 w-4 text-green-500" />;
+      default:
+        return <AlertCircle className="h-4 w-4 text-gray-500" />;
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high': return 'bg-red-500';
-      case 'medium': return 'bg-yellow-500';
-      case 'low': return 'bg-green-500';
-      default: return 'bg-gray-500';
+      case 'High':
+        return 'bg-red-100 text-red-800';
+      case 'Medium':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'Low':
+        return 'bg-green-100 text-green-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const handleCreateTicket = () => {
-    console.log('Creating ticket:', newTicket);
-    // Reset form
-    setNewTicket({ subject: '', category: '', priority: 'medium', description: '' });
-  };
+  const filteredFAQ = faqItems.filter(item =>
+    item.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.answer.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Support Center</h1>
-        <p className="text-gray-600 mt-2">Get help, manage tickets, and access our knowledge base</p>
+    <div className="space-y-6 p-4 lg:p-0">
+      <div className="flex flex-col gap-4 lg:flex-row lg:justify-between lg:items-center">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Support Center</h2>
+          <p className="text-gray-600 mt-1">Get help with your account and payment processing</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" className="flex items-center gap-2">
+            <Phone className="h-4 w-4" />
+            Call Support
+          </Button>
+          <Button variant="outline" className="flex items-center gap-2">
+            <MessageCircle className="h-4 w-4" />
+            Live Chat
+          </Button>
+        </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="cursor-pointer hover:shadow-md transition-shadow">
+          <CardContent className="p-6 text-center">
+            <MessageCircle className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+            <h3 className="font-semibold mb-1">Create Ticket</h3>
+            <p className="text-sm text-gray-600">Get personalized support</p>
+          </CardContent>
+        </Card>
+        <Card className="cursor-pointer hover:shadow-md transition-shadow">
+          <CardContent className="p-6 text-center">
+            <FileText className="h-8 w-8 text-green-600 mx-auto mb-2" />
+            <h3 className="font-semibold mb-1">Knowledge Base</h3>
+            <p className="text-sm text-gray-600">Find answers quickly</p>
+          </CardContent>
+        </Card>
+        <Card className="cursor-pointer hover:shadow-md transition-shadow">
+          <CardContent className="p-6 text-center">
+            <Mail className="h-8 w-8 text-purple-600 mx-auto mb-2" />
+            <h3 className="font-semibold mb-1">Email Support</h3>
+            <p className="text-sm text-gray-600">support@company.com</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Tabs defaultValue="tickets" className="space-y-6">
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="tickets" className="flex items-center gap-2">
-            <MessageCircle className="h-4 w-4" />
-            My Tickets
-          </TabsTrigger>
-          <TabsTrigger value="new-ticket" className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            New Ticket
-          </TabsTrigger>
-          <TabsTrigger value="knowledge" className="flex items-center gap-2">
-            <Book className="h-4 w-4" />
-            Knowledge Base
-          </TabsTrigger>
-          <TabsTrigger value="contact" className="flex items-center gap-2">
-            <Phone className="h-4 w-4" />
-            Contact
-          </TabsTrigger>
+          <TabsTrigger value="tickets">My Tickets</TabsTrigger>
+          <TabsTrigger value="create">Create Ticket</TabsTrigger>
+          <TabsTrigger value="faq">FAQ</TabsTrigger>
+          <TabsTrigger value="knowledge">Knowledge Base</TabsTrigger>
         </TabsList>
 
         <TabsContent value="tickets" className="space-y-4">
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Support Tickets</CardTitle>
-                <div className="flex items-center gap-2">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                    <Input
-                      placeholder="Search tickets..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10 w-64"
-                    />
-                  </div>
-                  <Button variant="outline" size="sm">
-                    <Filter className="h-4 w-4 mr-2" />
-                    Filter
-                  </Button>
-                </div>
-              </div>
+              <CardTitle>Support Tickets</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {tickets.map((ticket) => (
-                  <div key={ticket.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="font-semibold text-gray-900">{ticket.subject}</h3>
-                          <Badge className={getStatusColor(ticket.status)}>
-                            {ticket.status}
-                          </Badge>
-                          <div className={`w-2 h-2 rounded-full ${getPriorityColor(ticket.priority)}`} />
-                        </div>
-                        <div className="flex items-center gap-4 text-sm text-gray-600">
-                          <span>#{ticket.id}</span>
-                          <span>{ticket.category}</span>
-                          <span className="flex items-center gap-1">
-                            <Clock className="h-3 w-3" />
-                            {ticket.lastUpdate}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <MessageCircle className="h-3 w-3" />
-                            {ticket.messages} messages
-                          </span>
-                        </div>
+                  <div key={ticket.id} className="p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        {getStatusIcon(ticket.status)}
+                        <span className="font-mono text-sm text-blue-600">{ticket.id}</span>
+                        <Badge variant="outline">{ticket.status}</Badge>
                       </div>
-                      <Button variant="outline" size="sm">
-                        View Details
-                      </Button>
+                      <Badge className={getPriorityColor(ticket.priority)}>
+                        {ticket.priority}
+                      </Badge>
+                    </div>
+                    <h4 className="font-medium mb-1">{ticket.subject}</h4>
+                    <div className="flex items-center gap-4 text-sm text-gray-600">
+                      <span>Category: {ticket.category}</span>
+                      <span>Created: {ticket.created}</span>
+                      <span>Assignee: {ticket.assignee}</span>
                     </div>
                   </div>
                 ))}
@@ -196,79 +242,107 @@ const SupportCenter = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="new-ticket" className="space-y-4">
+        <TabsContent value="create" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Create New Support Ticket</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Plus className="h-5 w-5" />
+                Create Support Ticket
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Subject
-                  </label>
+                <div className="space-y-2">
+                  <Label htmlFor="subject">Subject *</Label>
                   <Input
-                    placeholder="Brief description of your issue"
+                    id="subject"
                     value={newTicket.subject}
-                    onChange={(e) => setNewTicket({...newTicket, subject: e.target.value})}
+                    onChange={(e) => setNewTicket(prev => ({ ...prev, subject: e.target.value }))}
+                    placeholder="Brief description of your issue"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Category
-                  </label>
-                  <select 
-                    className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md"
+                <div className="space-y-2">
+                  <Label htmlFor="category">Category *</Label>
+                  <Select
                     value={newTicket.category}
-                    onChange={(e) => setNewTicket({...newTicket, category: e.target.value})}
+                    onValueChange={(value) => setNewTicket(prev => ({ ...prev, category: value }))}
                   >
-                    <option value="">Select category</option>
-                    <option value="technical">Technical Support</option>
-                    <option value="billing">Billing & Payments</option>
-                    <option value="account">Account Management</option>
-                    <option value="integration">Integration Help</option>
-                    <option value="other">Other</option>
-                  </select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="technical">Technical Issue</SelectItem>
+                      <SelectItem value="billing">Billing</SelectItem>
+                      <SelectItem value="development">Development</SelectItem>
+                      <SelectItem value="account">Account Management</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Priority
-                </label>
-                <div className="flex gap-2">
-                  {['low', 'medium', 'high'].map((priority) => (
-                    <button
-                      key={priority}
-                      onClick={() => setNewTicket({...newTicket, priority})}
-                      className={`px-4 py-2 rounded-lg capitalize ${
-                        newTicket.priority === priority
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      {priority}
-                    </button>
-                  ))}
-                </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="priority">Priority *</Label>
+                <Select
+                  value={newTicket.priority}
+                  onValueChange={(value) => setNewTicket(prev => ({ ...prev, priority: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select priority" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="urgent">Urgent</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Description
-                </label>
+              <div className="space-y-2">
+                <Label htmlFor="description">Description *</Label>
                 <Textarea
-                  placeholder="Describe your issue in detail..."
-                  rows={6}
+                  id="description"
                   value={newTicket.description}
-                  onChange={(e) => setNewTicket({...newTicket, description: e.target.value})}
+                  onChange={(e) => setNewTicket(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Please provide detailed information about your issue..."
+                  rows={5}
                 />
               </div>
 
-              <Button onClick={handleCreateTicket} className="w-full">
-                <Send className="h-4 w-4 mr-2" />
+              <Button onClick={handleSubmitTicket} className="w-full">
                 Submit Ticket
               </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="faq" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Frequently Asked Questions</CardTitle>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  placeholder="Search FAQ..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {filteredFAQ.map((item, index) => (
+                  <div key={index} className="p-4 border rounded-lg">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h4 className="font-medium">{item.question}</h4>
+                      <Badge variant="secondary" className="text-xs">{item.category}</Badge>
+                    </div>
+                    <p className="text-gray-600 text-sm">{item.answer}</p>
+                  </div>
+                ))}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -276,111 +350,23 @@ const SupportCenter = () => {
         <TabsContent value="knowledge" className="space-y-4">
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Knowledge Base</CardTitle>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                  <Input
-                    placeholder="Search articles..."
-                    className="pl-10 w-64"
-                  />
-                </div>
-              </div>
+              <CardTitle>Knowledge Base</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-4">
-                {knowledgeBase.map((article, index) => (
-                  <div key={index} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900 mb-2">{article.title}</h3>
-                        <div className="flex items-center gap-4 text-sm text-gray-600">
-                          <Badge variant="outline">{article.category}</Badge>
-                          <span>{article.views} views</span>
-                          <span className="flex items-center gap-1">
-                            <CheckCircle className="h-3 w-3 text-green-500" />
-                            {article.helpful}% helpful
-                          </span>
-                        </div>
-                      </div>
-                      <Button variant="outline" size="sm">
-                        <ExternalLink className="h-4 w-4 mr-2" />
-                        Read
-                      </Button>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {knowledgeBaseArticles.map((article, index) => (
+                  <div key={index} className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Badge variant="outline">{article.category}</Badge>
+                      <span className="text-xs text-gray-500">{article.readTime} read</span>
                     </div>
+                    <h4 className="font-medium mb-1">{article.title}</h4>
+                    <p className="text-sm text-gray-600">{article.description}</p>
                   </div>
                 ))}
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
-
-        <TabsContent value="contact" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Contact Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <Mail className="h-5 w-5 text-blue-500" />
-                  <div>
-                    <p className="font-medium">Email Support</p>
-                    <p className="text-sm text-gray-600">support@merchantpay.com</p>
-                    <p className="text-xs text-gray-500">Response within 24 hours</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Phone className="h-5 w-5 text-green-500" />
-                  <div>
-                    <p className="font-medium">Phone Support</p>
-                    <p className="text-sm text-gray-600">+1 (555) 123-4567</p>
-                    <p className="text-xs text-gray-500">Mon-Fri 9AM-6PM EST</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <MessageCircle className="h-5 w-5 text-purple-500" />
-                  <div>
-                    <p className="font-medium">Live Chat</p>
-                    <p className="text-sm text-gray-600">Available 24/7</p>
-                    <p className="text-xs text-gray-500">Click the chat widget</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Emergency Support</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                  <div className="flex items-center gap-3 mb-2">
-                    <AlertCircle className="h-5 w-5 text-red-500" />
-                    <h3 className="font-semibold text-red-900">Critical Issues</h3>
-                  </div>
-                  <p className="text-sm text-red-800 mb-3">
-                    For urgent issues affecting payment processing or security
-                  </p>
-                  <Button variant="destructive" size="sm">
-                    <Phone className="h-4 w-4 mr-2" />
-                    Emergency Hotline
-                  </Button>
-                </div>
-
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <h3 className="font-semibold text-blue-900 mb-2">Status Page</h3>
-                  <p className="text-sm text-blue-800 mb-3">
-                    Check real-time system status and planned maintenance
-                  </p>
-                  <Button variant="outline" size="sm">
-                    <ExternalLink className="h-4 w-4 mr-2" />
-                    View Status
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
         </TabsContent>
       </Tabs>
     </div>
