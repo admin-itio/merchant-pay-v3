@@ -1,44 +1,13 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowUpIcon, ArrowDownIcon, DollarSign, CreditCard, Users, TrendingUp } from 'lucide-react';
+import { CreditCard } from 'lucide-react';
+import RevenueWidget from './widgets/RevenueWidget';
+import TransactionVolumeWidget from './widgets/TransactionVolumeWidget';
+import ActiveUsersWidget from './widgets/ActiveUsersWidget';
+import PerformanceWidget from './widgets/PerformanceWidget';
 
 const DashboardOverview = () => {
-  const stats = [
-    {
-      title: 'Total Revenue',
-      value: '$124,567',
-      change: '+12.5%',
-      changeType: 'positive',
-      icon: DollarSign,
-      description: 'vs last month'
-    },
-    {
-      title: 'Transactions',
-      value: '2,847',
-      change: '+8.2%',
-      changeType: 'positive',
-      icon: CreditCard,
-      description: 'vs last month'
-    },
-    {
-      title: 'Active Customers',
-      value: '1,234',
-      change: '+5.1%',
-      changeType: 'positive',
-      icon: Users,
-      description: 'vs last month'
-    },
-    {
-      title: 'Success Rate',
-      value: '98.5%',
-      change: '-0.3%',
-      changeType: 'negative',
-      icon: TrendingUp,
-      description: 'vs last month'
-    }
-  ];
-
   const recentTransactions = [
     { id: '1', customer: 'Alice Johnson', amount: '$159.99', status: 'Success', time: '2 mins ago' },
     { id: '2', customer: 'Bob Smith', amount: '$89.50', status: 'Pending', time: '5 mins ago' },
@@ -49,39 +18,12 @@ const DashboardOverview = () => {
 
   return (
     <div className="space-y-6">
-      {/* Stats Grid */}
+      {/* Enhanced Stats Grid with New Widgets */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => {
-          const Icon = stat.icon;
-          return (
-            <Card key={index} className="hover:shadow-lg transition-shadow">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">
-                  {stat.title}
-                </CardTitle>
-                <div className="p-2 bg-blue-50 rounded-lg">
-                  <Icon className="h-4 w-4 text-blue-600" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
-                <div className="flex items-center gap-1 mt-1">
-                  {stat.changeType === 'positive' ? (
-                    <ArrowUpIcon className="h-4 w-4 text-green-500" />
-                  ) : (
-                    <ArrowDownIcon className="h-4 w-4 text-red-500" />
-                  )}
-                  <span className={`text-sm ${
-                    stat.changeType === 'positive' ? 'text-green-600' : 'text-red-600'
-                  }`}>
-                    {stat.change}
-                  </span>
-                  <span className="text-sm text-gray-500">{stat.description}</span>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+        <RevenueWidget />
+        <TransactionVolumeWidget />
+        <ActiveUsersWidget />
+        <PerformanceWidget />
       </div>
 
       {/* Recent Transactions */}
