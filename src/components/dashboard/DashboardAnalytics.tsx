@@ -11,6 +11,7 @@ import FraudAnalysis from '@/components/analytics/FraudAnalysis';
 import MerchantsList from '@/components/analytics/MerchantsList';
 import HourlyTrends from '@/components/analytics/HourlyTrends';
 import ReportsSection from '@/components/analytics/ReportsSection';
+import AnalyticsEnhanced from '@/components/analytics/AnalyticsEnhanced';
 
 const DashboardAnalytics = () => {
   const [dateRange, setDateRange] = useState('7d');
@@ -53,13 +54,14 @@ const DashboardAnalytics = () => {
       <MetricsCards />
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-6 mb-6">
+        <TabsList className="grid w-full grid-cols-7 mb-6">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="transactions">Transactions</TabsTrigger>
           <TabsTrigger value="fraud">Fraud Analysis</TabsTrigger>
           <TabsTrigger value="merchants">Top Merchants</TabsTrigger>
           <TabsTrigger value="hourly">Hourly Trends</TabsTrigger>
           <TabsTrigger value="reports">Reports</TabsTrigger>
+          <TabsTrigger value="enhanced">Enhanced</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -80,6 +82,10 @@ const DashboardAnalytics = () => {
 
         <TabsContent value="reports" className="space-y-6">
           <ReportsSection />
+        </TabsContent>
+
+        <TabsContent value="enhanced" className="space-y-6">
+          <AnalyticsEnhanced />
         </TabsContent>
       </Tabs>
     </div>
