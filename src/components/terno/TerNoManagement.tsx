@@ -223,7 +223,7 @@ const TerNoManagement = () => {
             TerNo Management
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            Manage your payment terminal numbers and configurations
+            Manage your payment terminal numbers and configurations. Create, configure, and monitor your TerNos.
           </p>
         </div>
         <Button 
@@ -232,55 +232,89 @@ const TerNoManagement = () => {
             setActiveTab('form');
           }}
           className="gap-2"
+          size="lg"
         >
           <Plus className="h-4 w-4" />
           Create New TerNo
         </Button>
       </div>
 
+      {/* Quick Actions */}
+      <div className="flex flex-wrap gap-2">
+        <Button variant="outline" size="sm" onClick={() => setStatusFilter('active')}>
+          <CheckCircle className="h-4 w-4 mr-2" />
+          Active TerNos ({terNos.filter(t => t.status === 'active').length})
+        </Button>
+        <Button variant="outline" size="sm" onClick={() => setEnvironmentFilter('production')}>
+          <Shield className="h-4 w-4 mr-2" />
+          Production ({terNos.filter(t => t.environment === 'production').length})
+        </Button>
+        <Button variant="outline" size="sm" onClick={() => setStatusFilter('pending')}>
+          <Clock className="h-4 w-4 mr-2" />
+          Pending ({terNos.filter(t => t.status === 'pending').length})
+        </Button>
+      </div>
+
       {/* Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
+        <Card className="hover:shadow-md transition-shadow">
           <CardContent className="p-4">
             <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
               {terNos.length}
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-400">Total TerNos</div>
+            <div className="text-xs text-gray-500 mt-1">
+              +{terNos.filter(t => new Date(t.createdAt) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)).length} this month
+            </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="hover:shadow-md transition-shadow">
           <CardContent className="p-4">
             <div className="text-2xl font-bold text-green-600 dark:text-green-400">
               {terNos.filter(t => t.status === 'active').length}
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-400">Active</div>
+            <div className="text-xs text-gray-500 mt-1">
+              {((terNos.filter(t => t.status === 'active').length / terNos.length) * 100).toFixed(1)}% of total
+            </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="hover:shadow-md transition-shadow">
           <CardContent className="p-4">
             <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
               {terNos.filter(t => t.environment === 'production').length}
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-400">Production</div>
+            <div className="text-xs text-gray-500 mt-1">
+              Live payment processing
+            </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="hover:shadow-md transition-shadow">
           <CardContent className="p-4">
             <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
               {terNos.reduce((sum, t) => sum + t.transactionCount, 0).toLocaleString()}
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-400">Total Transactions</div>
+            <div className="text-xs text-gray-500 mt-1">
+              Across all TerNos
+            </div>
           </CardContent>
         </Card>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="list">TerNo List</TabsTrigger>
-          <TabsTrigger value="form">
+          <TabsTrigger value="list" className="gap-2">
+            <Key className="h-4 w-4" />
+            TerNo List
+          </TabsTrigger>
+          <TabsTrigger value="form" className="gap-2">
+            {selectedTerNo ? <Edit className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
             {selectedTerNo ? 'Edit TerNo' : 'Create TerNo'}
           </TabsTrigger>
-          <TabsTrigger value="details" disabled={!selectedTerNo}>
+          <TabsTrigger value="details" disabled={!selectedTerNo} className="gap-2">
+            <Eye className="h-4 w-4" />
             TerNo Details
           </TabsTrigger>
         </TabsList>
@@ -294,7 +328,7 @@ const TerNoManagement = () => {
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                     <Input
-                      placeholder="Search TerNos..."
+                      placeholder="Search by name, TerNo number, or description..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="pl-10"
@@ -323,9 +357,36 @@ const TerNoManagement = () => {
                     <SelectItem value="sandbox">Sandbox</SelectItem>
                   </SelectContent>
                 </Select>
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    setSearchTerm('');
+                    setStatusFilter('all');
+                    setEnvironmentFilter('all');
+                  }}
+                  className="gap-2"
+                >
+                  <Filter className="h-4 w-4" />
+                  Clear
+                </Button>
               </div>
             </CardContent>
           </Card>
+
+          {/* Results Summary */}
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Showing {filteredTerNos.length} of {terNos.length} TerNos
+            </p>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm">
+                Export List
+              </Button>
+              <Button variant="outline" size="sm">
+                Bulk Actions
+              </Button>
+            </div>
+          </div>
 
           {/* TerNo Table */}
           <Card>
@@ -352,7 +413,7 @@ const TerNoManagement = () => {
                     const StatusIcon = getStatusIcon(terno.status);
                     
                     return (
-                      <TableRow key={terno.id}>
+                      <TableRow key={terno.id} className="hover:bg-muted/50">
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <Key className="h-4 w-4 text-gray-400" />

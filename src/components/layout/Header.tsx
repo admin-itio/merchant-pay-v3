@@ -13,7 +13,10 @@ import {
   LogOut,
   CreditCard,
   Shield,
-  MessageSquare
+  MessageSquare,
+  Building,
+  Users,
+  Mail
 } from 'lucide-react';
 import { 
   DropdownMenu,
@@ -71,7 +74,7 @@ const Header = ({ onToggleSidebar, activeTab, setActiveTab }: HeaderProps) => {
           {/* Theme toggle */}
           <ThemeToggle />
 
-          {/* Notifications */}
+          {/* Announcements/Notifications */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="relative p-2">
@@ -80,19 +83,36 @@ const Header = ({ onToggleSidebar, activeTab, setActiveTab }: HeaderProps) => {
                   variant="destructive" 
                   className="absolute -top-1 -right-1 h-5 w-5 text-xs p-0 flex items-center justify-center"
                 >
-                  3
+                  5
                 </Badge>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-80">
               <div className="p-4">
-                <h4 className="font-medium mb-2">Notifications</h4>
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-medium">Notifications</h4>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => setActiveTab('announcements')}
+                    className="text-xs"
+                  >
+                    View All
+                  </Button>
+                </div>
                 <div className="space-y-2">
+                  <div className="p-2 rounded bg-muted border-l-2 border-blue-500">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Badge variant="secondary" className="text-xs">New</Badge>
+                      <p className="text-sm font-medium">System Maintenance</p>
+                    </div>
+                    <p className="text-xs text-muted-foreground">Scheduled maintenance on Dec 15, 2024</p>
+                  </div>
                   <div className="p-2 rounded bg-muted">
                     <p className="text-sm font-medium">Payment Received</p>
                     <p className="text-xs text-muted-foreground">$1,234 from John Doe</p>
                   </div>
-                  <div className="p-2 rounded bg-muted">
+                  <div className="p-2 rounded bg-muted border-l-2 border-red-500">
                     <p className="text-sm font-medium">Chargeback Alert</p>
                     <p className="text-xs text-muted-foreground">Transaction TXN001 disputed</p>
                   </div>
@@ -109,7 +129,7 @@ const Header = ({ onToggleSidebar, activeTab, setActiveTab }: HeaderProps) => {
             onClick={() => setActiveTab('support')}
           >
             <HelpCircle className="h-4 w-4" />
-            <span className="hidden lg:inline ml-2">Support</span>
+            <span className="hidden lg:inline ml-2">Help</span>
           </Button>
 
           {/* Profile Menu */}
@@ -134,17 +154,26 @@ const Header = ({ onToggleSidebar, activeTab, setActiveTab }: HeaderProps) => {
                 <User className="mr-2 h-4 w-4" />
                 Profile Settings
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCard className="mr-2 h-4 w-4" />
-                Billing
+              <DropdownMenuItem onClick={() => setActiveTab('profile')}>
+                <Building className="mr-2 h-4 w-4" />
+                Business Info
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setActiveTab('profile')}>
                 <Shield className="mr-2 h-4 w-4" />
                 Security
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setActiveTab('profile')}>
+                <Users className="mr-2 h-4 w-4" />
+                Sub Accounts
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setActiveTab('profile')}>
+                <Mail className="mr-2 h-4 w-4" />
+                Authorized Emails
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setActiveTab('support')}>
                 <MessageSquare className="mr-2 h-4 w-4" />
-                Support
+                Support Center
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>

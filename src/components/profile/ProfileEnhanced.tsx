@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { User, Shield, Building, Bell, CreditCard, Users, Mail } from 'lucide-react';
+import { User, Shield, Building, Bell, CreditCard, Users, Mail, Settings } from 'lucide-react';
 import UserProfile from './UserProfile';
 import ProfileSecurity from './ProfileSecurity';
 import ProfileBusinessInfo from './ProfileBusinessInfo';
@@ -10,6 +10,7 @@ import ProfileNotificationSettings from './ProfileNotificationSettings';
 import ProfileBilling from './ProfileBilling';
 import SubAccountManagement from './SubAccountManagement';
 import AuthorizedEmailManagement from './AuthorizedEmailManagement';
+import AccountSettings from './AccountSettings';
 
 const ProfileEnhanced = () => {
   const [activeTab, setActiveTab] = useState('user');
@@ -22,6 +23,7 @@ const ProfileEnhanced = () => {
     { id: 'emails', label: 'Authorized Emails', icon: Mail, component: AuthorizedEmailManagement },
     { id: 'notifications', label: 'Notifications', icon: Bell, component: ProfileNotificationSettings },
     { id: 'billing', label: 'Billing', icon: CreditCard, component: ProfileBilling },
+    { id: 'settings', label: 'Account Settings', icon: Settings, component: AccountSettings },
   ];
 
   return (
@@ -33,7 +35,7 @@ const ProfileEnhanced = () => {
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="overflow-x-auto pb-2">
-          <TabsList className="grid grid-cols-3 lg:grid-cols-7 w-full min-w-max lg:min-w-0 bg-gray-100 p-1">
+          <TabsList className="grid grid-cols-4 lg:grid-cols-8 w-full min-w-max lg:min-w-0 bg-gray-100 p-1">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
