@@ -1,339 +1,432 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
-import { Shield, Smartphone, Eye, EyeOff, AlertTriangle, CheckCircle, Clock, Globe, Trash2 } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { AlertTriangle, Shield, Smartphone, Key, Clock, MapPin, Trash2, Plus } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+
+interface SecurityDevice {
+  id: string;
+  name: string;
+  type: 'mobile' | 'desktop' | 'tablet';
+  lastActive: string;
+  location: string;
+  current: boolean;
+}
+
+interface LoginSession {
+  id: string;
+  device: string;
+  location: string;
+  loginTime: string;
+  lastActive: string;
+  current: boolean;
+}
 
 const ProfileSecurity = () => {
-  const [antiPhishingCode, setAntiPhishingCode] = useState('');
-  const [antiPhishingEnabled, setAntiPhishingEnabled] = useState(false);
-  const [twoFAEnabled, setTwoFAEnabled] = useState(false);
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [otpValue, setOtpValue] = useState('');
+  const { toast } = useToast();
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState(true);
+  const [loginAlertsEnabled, setLoginAlertsEnabled] = useState(true);
+  const [showBackupCodes, setShowBackupCodes] = useState(false);
 
-  const deviceHistory = [
-    { device: 'MacBook Pro - Chrome', location: 'New York, US', ip: '192.168.1.1', lastActive: '2 hours ago', current: true },
-    { device: 'iPhone 14 - Safari', location: 'New York, US', ip: '192.168.1.2', lastActive: '1 day ago', current: false },
-    { device: 'Windows PC - Edge', location: 'London, UK', ip: '81.2.69.142', lastActive: '3 days ago', current: false }
+  const [trustedDevices, setTrustedDevices] = useState<SecurityDevice[]>([
+    {
+      id: '1',
+      name: 'iPhone 15 Pro',
+      type: 'mobile',
+      lastActive: '2024-06-07 14:30',
+      location: 'New York, NY',
+      current: true
+    },
+    {
+      id: '2',
+      name: 'MacBook Pro',
+      type: 'desktop',
+      lastActive: '2024-06-07 14:25',
+      location: 'New York, NY',
+      current: false
+    },
+    {
+      id: '3',
+      name: 'iPad Air',
+      type: 'tablet',
+      lastActive: '2024-06-06 09:15',
+      location: 'Boston, MA',
+      current: false
+    }
+  ]);
+
+  const [loginSessions, setLoginSessions] = useState<LoginSession[]>([
+    {
+      id: '1',
+      device: 'Chrome on MacBook Pro',
+      location: 'New York, NY',
+      loginTime: '2024-06-07 08:00',
+      lastActive: '2024-06-07 14:30',
+      current: true
+    },
+    {
+      id: '2',
+      device: 'Safari on iPhone',
+      location: 'New York, NY',
+      loginTime: '2024-06-07 07:45',
+      lastActive: '2024-06-07 14:25',
+      current: false
+    },
+    {
+      id: '3',
+      device: 'Chrome on Windows',
+      location: 'Boston, MA',
+      loginTime: '2024-06-06 09:00',
+      lastActive: '2024-06-06 17:30',
+      current: false
+    }
+  ]);
+
+  const backupCodes = [
+    '8A4B-9C2D', '7E3F-1G5H', '6I9J-2K4L', '5M8N-3O7P',
+    '4Q1R-9S6T', '3U7V-2W5X', '2Y6Z-1A8B', '1C5D-9E3F'
   ];
 
-  const whitelistedIPs = [
-    { ip: '192.168.1.1', label: 'Office Network', added: '2024-01-15' },
-    { ip: '203.0.113.0/24', label: 'Home Network Range', added: '2024-01-10' }
-  ];
+  const handlePasswordChange = () => {
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      toast({
+        title: "Error",
+        description: "Please fill in all password fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast({
+        title: "Error",
+        description: "New passwords do not match",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      toast({
+        title: "Error",
+        description: "Password must be at least 8 characters long",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Password Updated",
+      description: "Your password has been successfully changed",
+    });
+
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
+  };
+
+  const handleRemoveDevice = (deviceId: string) => {
+    setTrustedDevices(devices => devices.filter(device => device.id !== deviceId));
+    toast({
+      title: "Device Removed",
+      description: "The device has been removed from your trusted devices",
+    });
+  };
+
+  const handleTerminateSession = (sessionId: string) => {
+    setLoginSessions(sessions => sessions.filter(session => session.id !== sessionId));
+    toast({
+      title: "Session Terminated",
+      description: "The login session has been terminated",
+    });
+  };
+
+  const handleGenerateBackupCodes = () => {
+    toast({
+      title: "Backup Codes Generated",
+      description: "New backup codes have been generated. Store them securely.",
+    });
+  };
+
+  const getDeviceIcon = (type: string) => {
+    switch (type) {
+      case 'mobile': return '📱';
+      case 'desktop': return '💻';
+      case 'tablet': return '📋';
+      default: return '🖥️';
+    }
+  };
 
   return (
     <div className="space-y-6">
-      {/* Anti-Phishing Code */}
-      <Card className="border-purple-100 shadow-sm">
-        <CardHeader className="pb-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <Shield className="h-5 w-5 text-purple-600" />
-            </div>
-            <div>
-              <CardTitle className="text-lg font-semibold">Anti-Phishing Protection</CardTitle>
-              <p className="text-sm text-gray-600 mt-1">Set a 6-digit code that appears in all our emails to verify authenticity</p>
-            </div>
-          </div>
+      {/* Password Management */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Key className="h-5 w-5" />
+            Password Management
+          </CardTitle>
+          <CardDescription>Change your account password and manage security settings</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-            <div className="flex items-center gap-3">
-              <div>
-                <p className="font-medium text-gray-900">Enable Anti-Phishing Code</p>
-                <p className="text-sm text-gray-600">Show your personal code in system emails</p>
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="currentPassword">Current Password</Label>
+              <Input
+                id="currentPassword"
+                type="password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                placeholder="Enter current password"
+              />
             </div>
-            <Switch 
-              checked={antiPhishingEnabled} 
-              onCheckedChange={setAntiPhishingEnabled}
-            />
+            <div className="space-y-2">
+              <Label htmlFor="newPassword">New Password</Label>
+              <Input
+                id="newPassword"
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Enter new password"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirm new password"
+              />
+            </div>
           </div>
-          
-          {antiPhishingEnabled && (
-            <div className="space-y-4 p-4 bg-purple-50 rounded-lg border border-purple-200">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Your Anti-Phishing Code</label>
-                <InputOTP maxLength={6} value={antiPhishingCode} onChange={setAntiPhishingCode}>
-                  <InputOTPGroup>
-                    <InputOTPSlot index={0} />
-                    <InputOTPSlot index={1} />
-                    <InputOTPSlot index={2} />
-                    <InputOTPSlot index={3} />
-                    <InputOTPSlot index={4} />
-                    <InputOTPSlot index={5} />
-                  </InputOTPGroup>
-                </InputOTP>
-                <p className="text-xs text-gray-600 mt-2">This code will appear in all emails from MyPay to verify authenticity</p>
-              </div>
-              <div className="flex gap-2">
-                <Button size="sm">Save Code</Button>
-                <Button variant="outline" size="sm">Generate Random</Button>
-              </div>
-            </div>
-          )}
+          <Button onClick={handlePasswordChange} className="w-full md:w-auto">
+            Update Password
+          </Button>
         </CardContent>
       </Card>
 
       {/* Two-Factor Authentication */}
-      <Card className="border-blue-100 shadow-sm">
-        <CardHeader className="pb-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Smartphone className="h-5 w-5 text-blue-600" />
-            </div>
-            <div>
-              <CardTitle className="text-lg font-semibold">Two-Factor Authentication</CardTitle>
-              <p className="text-sm text-gray-600 mt-1">Add an extra layer of security to your account</p>
-            </div>
-          </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Shield className="h-5 w-5" />
+            Two-Factor Authentication
+          </CardTitle>
+          <CardDescription>Add an extra layer of security to your account</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-            <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-full ${twoFAEnabled ? 'bg-green-100' : 'bg-gray-100'}`}>
-                <Shield className={`h-4 w-4 ${twoFAEnabled ? 'text-green-600' : 'text-gray-400'}`} />
-              </div>
-              <div>
-                <p className="font-medium text-gray-900">2FA Status</p>
-                <p className="text-sm text-gray-600">
-                  {twoFAEnabled ? 'Two-factor authentication is active' : 'Two-factor authentication is disabled'}
-                </p>
-              </div>
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <Label>Enable Two-Factor Authentication</Label>
+              <p className="text-sm text-gray-500">
+                Require a verification code in addition to your password
+              </p>
             </div>
-            <Badge variant={twoFAEnabled ? 'default' : 'secondary'}>
-              {twoFAEnabled ? 'Active' : 'Inactive'}
-            </Badge>
+            <Switch
+              checked={twoFactorEnabled}
+              onCheckedChange={setTwoFactorEnabled}
+            />
           </div>
 
-          {!twoFAEnabled ? (
-            <div className="space-y-4">
-              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <h4 className="font-medium text-blue-900 mb-2">Setup Two-Factor Authentication</h4>
-                <p className="text-sm text-blue-700 mb-4">Choose your preferred 2FA method:</p>
-                <div className="space-y-2">
-                  <Button className="w-full justify-start" variant="outline">
-                    <Smartphone className="h-4 w-4 mr-2" />
-                    Authenticator App (Recommended)
+          {twoFactorEnabled && (
+            <div className="space-y-4 pt-4 border-t">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <Label>Backup Codes</Label>
+                  <p className="text-sm text-gray-500">
+                    Use these codes if you don't have access to your authenticator app
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowBackupCodes(!showBackupCodes)}
+                  >
+                    {showBackupCodes ? 'Hide' : 'Show'} Codes
                   </Button>
-                  <Button className="w-full justify-start" variant="outline">
-                    📱 SMS Verification
-                  </Button>
-                  <Button className="w-full justify-start" variant="outline">
-                    📧 Email OTP
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleGenerateBackupCodes}
+                  >
+                    Generate New
                   </Button>
                 </div>
               </div>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Button variant="outline">Reset 2FA</Button>
-                <Button variant="outline">Backup Codes</Button>
-              </div>
-              <Button 
-                variant="destructive" 
-                size="sm"
-                onClick={() => setTwoFAEnabled(false)}
-              >
-                Disable 2FA
-              </Button>
+
+              {showBackupCodes && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 p-4 bg-gray-50 rounded-lg">
+                  {backupCodes.map((code, index) => (
+                    <div key={index} className="font-mono text-sm p-2 bg-white rounded border">
+                      {code}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </CardContent>
       </Card>
 
-      {/* Password Management */}
-      <Card className="border-green-100 shadow-sm">
-        <CardHeader className="pb-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <Shield className="h-5 w-5 text-green-600" />
-            </div>
-            <div>
-              <CardTitle className="text-lg font-semibold">Password & Login Settings</CardTitle>
-              <p className="text-sm text-gray-600 mt-1">Manage your password and login preferences</p>
-            </div>
-          </div>
+      {/* Security Alerts */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <AlertTriangle className="h-5 w-5" />
+            Security Alerts
+          </CardTitle>
+          <CardDescription>Configure security notification preferences</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="space-y-4">
-            <h4 className="font-medium text-gray-900">Change Password</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
-                <div className="relative">
-                  <Input 
-                    type={showCurrentPassword ? "text" : "password"} 
-                    placeholder="Enter current password"
-                  />
-                  <button
-                    type="button"
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2"
-                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                  >
-                    {showCurrentPassword ? <EyeOff className="h-4 w-4 text-gray-400" /> : <Eye className="h-4 w-4 text-gray-400" />}
-                  </button>
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">New Password</label>
-                <div className="relative">
-                  <Input 
-                    type={showNewPassword ? "text" : "password"} 
-                    placeholder="Enter new password"
-                  />
-                  <button
-                    type="button"
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2"
-                    onClick={() => setShowNewPassword(!showNewPassword)}
-                  >
-                    {showNewPassword ? <EyeOff className="h-4 w-4 text-gray-400" /> : <Eye className="h-4 w-4 text-gray-400" />}
-                  </button>
-                </div>
-              </div>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <Label>Login Alerts</Label>
+              <p className="text-sm text-gray-500">
+                Receive notifications when someone logs into your account
+              </p>
             </div>
-            <Button>Update Password</Button>
-          </div>
-
-          <hr className="border-gray-200" />
-
-          <div className="space-y-4">
-            <h4 className="font-medium text-gray-900">Login Preferences</h4>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div>
-                  <p className="font-medium text-gray-900">Require OTP for new devices</p>
-                  <p className="text-sm text-gray-600">Send OTP when logging in from unrecognized devices</p>
-                </div>
-                <Switch defaultChecked />
-              </div>
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div>
-                  <p className="font-medium text-gray-900">Email login notifications</p>
-                  <p className="text-sm text-gray-600">Get notified of all login attempts</p>
-                </div>
-                <Switch defaultChecked />
-              </div>
-            </div>
+            <Switch
+              checked={loginAlertsEnabled}
+              onCheckedChange={setLoginAlertsEnabled}
+            />
           </div>
         </CardContent>
       </Card>
 
-      {/* Device & Login History */}
-      <Card className="border-orange-100 shadow-sm">
-        <CardHeader className="pb-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-orange-100 rounded-lg">
-              <Globe className="h-5 w-5 text-orange-600" />
-            </div>
-            <div>
-              <CardTitle className="text-lg font-semibold">Device & Login History</CardTitle>
-              <p className="text-sm text-gray-600 mt-1">Monitor devices and locations accessing your account</p>
-            </div>
-          </div>
+      {/* Trusted Devices */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Smartphone className="h-5 w-5" />
+            Trusted Devices
+          </CardTitle>
+          <CardDescription>Manage devices that don't require two-factor authentication</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-3">
-            {deviceHistory.map((device, index) => (
-              <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-full ${device.current ? 'bg-green-100' : 'bg-gray-100'}`}>
-                    <Globe className={`h-4 w-4 ${device.current ? 'text-green-600' : 'text-gray-400'}`} />
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900">{device.device}</p>
-                    <p className="text-sm text-gray-600">{device.location} • {device.ip}</p>
-                    <p className="text-xs text-gray-500">Last active: {device.lastActive}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  {device.current && <Badge variant="default">Current</Badge>}
-                  {!device.current && (
-                    <Button variant="outline" size="sm">
-                      <Trash2 className="h-3 w-3 mr-1" />
-                      Revoke
-                    </Button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Device</TableHead>
+                <TableHead>Last Active</TableHead>
+                <TableHead>Location</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {trustedDevices.map((device) => (
+                <TableRow key={device.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">{getDeviceIcon(device.type)}</span>
+                      <span className="font-medium">{device.name}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-4 w-4 text-gray-500" />
+                      {device.lastActive}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      <MapPin className="h-4 w-4 text-gray-500" />
+                      {device.location}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {device.current ? (
+                      <Badge variant="default">Current Device</Badge>
+                    ) : (
+                      <Badge variant="secondary">Trusted</Badge>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {!device.current && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveDevice(device.id)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
 
-      {/* IP Whitelisting */}
-      <Card className="border-indigo-100 shadow-sm">
-        <CardHeader className="pb-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-indigo-100 rounded-lg">
-              <Shield className="h-5 w-5 text-indigo-600" />
-            </div>
-            <div>
-              <CardTitle className="text-lg font-semibold">IP Address Whitelisting</CardTitle>
-              <p className="text-sm text-gray-600 mt-1">Restrict account access to specific IP addresses</p>
-            </div>
-          </div>
+      {/* Active Sessions */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Clock className="h-5 w-5" />
+            Active Login Sessions
+          </CardTitle>
+          <CardDescription>Monitor and manage your active login sessions</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-            <div>
-              <p className="font-medium text-gray-900">Enable IP Whitelisting</p>
-              <p className="text-sm text-gray-600">Only allow login from specified IP addresses</p>
-            </div>
-            <Switch />
-          </div>
-
-          <div className="space-y-3">
-            <div className="flex gap-2">
-              <Input placeholder="Enter IP address (e.g., 192.168.1.1)" className="flex-1" />
-              <Input placeholder="Label (optional)" className="w-40" />
-              <Button>Add IP</Button>
-            </div>
-            
-            {whitelistedIPs.map((item, index) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div>
-                  <p className="font-medium text-gray-900">{item.ip}</p>
-                  <p className="text-sm text-gray-600">{item.label} • Added: {item.added}</p>
-                </div>
-                <Button variant="outline" size="sm">
-                  <Trash2 className="h-3 w-3 mr-1" />
-                  Remove
-                </Button>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Account Closure */}
-      <Card className="border-red-100 shadow-sm">
-        <CardHeader className="pb-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-red-100 rounded-lg">
-              <AlertTriangle className="h-5 w-5 text-red-600" />
-            </div>
-            <div>
-              <CardTitle className="text-lg font-semibold text-red-900">Danger Zone</CardTitle>
-              <p className="text-sm text-gray-600 mt-1">Irreversible account actions</p>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="p-4 bg-red-50 rounded-lg border border-red-200">
-            <h4 className="font-medium text-red-900 mb-2">Request Account Closure</h4>
-            <p className="text-sm text-red-700 mb-4">
-              This will initiate the account closure process. All data will be permanently deleted after a 30-day grace period.
-            </p>
-            <Button variant="destructive">Request Account Closure</Button>
-          </div>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Device & Browser</TableHead>
+                <TableHead>Location</TableHead>
+                <TableHead>Login Time</TableHead>
+                <TableHead>Last Active</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {loginSessions.map((session) => (
+                <TableRow key={session.id}>
+                  <TableCell className="font-medium">{session.device}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      <MapPin className="h-4 w-4 text-gray-500" />
+                      {session.location}
+                    </div>
+                  </TableCell>
+                  <TableCell>{session.loginTime}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {session.current ? (
+                        <Badge variant="default">Current Session</Badge>
+                      ) : (
+                        <span>{session.lastActive}</span>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {!session.current && (
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleTerminateSession(session.id)}
+                      >
+                        Terminate
+                      </Button>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
     </div>

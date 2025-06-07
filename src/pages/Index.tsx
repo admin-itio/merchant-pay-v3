@@ -8,7 +8,7 @@ import OrchestrationRules from '@/components/orchestration/OrchestrationRules';
 import Settlements from '@/components/settlements/Settlements';
 import PaymentMethods from '@/components/payment-methods/PaymentMethods';
 import ProfileEnhanced from '@/components/profile/ProfileEnhanced';
-import ApiDeveloperTools from '@/components/api/ApiDeveloperTools';
+import ApiDeveloperToolsEnhanced from '@/components/api/ApiDeveloperToolsEnhanced';
 import SupportCenter from '@/components/support/SupportCenter';
 import ReferralManagement from '@/components/referrals/ReferralManagement';
 import NotificationCenter from '@/components/notifications/NotificationCenter';
@@ -67,7 +67,7 @@ const Index = () => {
       case 'profile':
         return <ProfileEnhanced />;
       case 'api-tools':
-        return <ApiDeveloperTools />;
+        return <ApiDeveloperToolsEnhanced />;
       case 'support':
         return <SupportCenter />;
       case 'referrals':

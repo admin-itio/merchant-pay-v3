@@ -1,125 +1,191 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
-  Bell, 
-  Mail, 
-  Smartphone, 
-  AlertTriangle, 
-  CheckCircle, 
-  CreditCard,
-  Clock,
-  Shield,
-  Settings
-} from 'lucide-react';
+import { Bell, Mail, Smartphone, Volume2, Clock, Shield, AlertTriangle } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+
+interface NotificationSettings {
+  email: {
+    transactions: boolean;
+    settlements: boolean;
+    security: boolean;
+    reports: boolean;
+    marketing: boolean;
+    system: boolean;
+  };
+  push: {
+    transactions: boolean;
+    settlements: boolean;
+    security: boolean;
+    reports: boolean;
+    system: boolean;
+  };
+  sms: {
+    security: boolean;
+    urgent: boolean;
+  };
+  frequency: {
+    reports: 'daily' | 'weekly' | 'monthly';
+    summaries: 'daily' | 'weekly' | 'monthly';
+  };
+  thresholds: {
+    transactionAmount: string;
+    failureRate: string;
+    lowBalance: string;
+  };
+}
 
 const ProfileNotificationSettings = () => {
-  const [emailNotifications, setEmailNotifications] = useState({
-    transactionAlerts: true,
-    chargebackNotifications: true,
-    settlementUpdates: true,
-    fraudAlerts: true,
-    systemMaintenance: false,
-    weeklyReports: true,
-    monthlyReports: true
+  const { toast } = useToast();
+  const [settings, setSettings] = useState<NotificationSettings>({
+    email: {
+      transactions: true,
+      settlements: true,
+      security: true,
+      reports: true,
+      marketing: false,
+      system: true,
+    },
+    push: {
+      transactions: true,
+      settlements: true,
+      security: true,
+      reports: false,
+      system: true,
+    },
+    sms: {
+      security: true,
+      urgent: true,
+    },
+    frequency: {
+      reports: 'weekly',
+      summaries: 'daily',
+    },
+    thresholds: {
+      transactionAmount: '10000',
+      failureRate: '5',
+      lowBalance: '1000',
+    },
   });
 
-  const [smsNotifications, setSmsNotifications] = useState({
-    criticalAlerts: true,
-    chargebacks: true,
-    largeTransactions: false,
-    systemDowntime: true
-  });
+  const handleSave = () => {
+    toast({
+      title: "Settings Saved",
+      description: "Your notification preferences have been updated",
+    });
+  };
 
-  const notificationCategories = [
+  const updateSetting = (category: keyof NotificationSettings, key: string, value: any) => {
+    setSettings(prev => ({
+      ...prev,
+      [category]: {
+        ...prev[category],
+        [key]: value
+      }
+    }));
+  };
+
+  const notificationTypes = [
     {
-      title: 'Transaction Notifications',
-      icon: CreditCard,
-      description: 'Get notified about payment activities',
-      settings: [
-        { key: 'transactionAlerts', label: 'Transaction Alerts', description: 'Failed, successful, and pending transactions' },
-        { key: 'largeTransactions', label: 'Large Transaction Alerts', description: 'Transactions above ₹50,000' },
-        { key: 'settlementUpdates', label: 'Settlement Updates', description: 'Daily settlement notifications' }
-      ]
+      key: 'transactions',
+      label: 'Transaction Notifications',
+      description: 'Alerts for new transactions, refunds, and chargebacks',
+      icon: '💳'
     },
     {
-      title: 'Security & Fraud',
-      icon: Shield,
-      description: 'Important security notifications',
-      settings: [
-        { key: 'fraudAlerts', label: 'Fraud Alerts', description: 'Suspicious transaction patterns' },
-        { key: 'chargebackNotifications', label: 'Chargeback Notifications', description: 'New chargeback initiated' },
-        { key: 'criticalAlerts', label: 'Critical Security Alerts', description: 'Account security issues' }
-      ]
+      key: 'settlements',
+      label: 'Settlement Notifications',
+      description: 'Updates on payouts and settlement processing',
+      icon: '💰'
     },
     {
-      title: 'System & Reports',
-      icon: Settings,
-      description: 'System updates and reports',
-      settings: [
-        { key: 'systemMaintenance', label: 'System Maintenance', description: 'Scheduled maintenance notifications' },
-        { key: 'weeklyReports', label: 'Weekly Reports', description: 'Weekly transaction summary' },
-        { key: 'monthlyReports', label: 'Monthly Reports', description: 'Monthly business reports' }
-      ]
+      key: 'security',
+      label: 'Security Alerts',
+      description: 'Login attempts, API usage, and security events',
+      icon: '🔒'
+    },
+    {
+      key: 'reports',
+      label: 'Reports & Analytics',
+      description: 'Scheduled reports and performance summaries',
+      icon: '📊'
+    },
+    {
+      key: 'system',
+      label: 'System Updates',
+      description: 'Maintenance, outages, and platform updates',
+      icon: '⚙️'
+    },
+    {
+      key: 'marketing',
+      label: 'Marketing Communications',
+      description: 'Product updates, tips, and promotional content',
+      icon: '📢'
     }
   ];
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Bell className="h-5 w-5" />
-            Notification Preferences
+            Notification Settings
           </CardTitle>
-          <p className="text-sm text-gray-600">
+          <CardDescription>
             Configure how and when you want to receive notifications
-          </p>
+          </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Contact Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                <Mail className="h-4 w-4 inline mr-2" />
-                Email Address
-              </label>
-              <Input type="email" defaultValue="admin@techsolutions.com" />
-              <p className="text-xs text-gray-500 mt-1">Primary email for notifications</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                <Smartphone className="h-4 w-4 inline mr-2" />
-                Phone Number
-              </label>
-              <Input type="tel" defaultValue="+91 9876543210" />
-              <p className="text-xs text-gray-500 mt-1">For SMS alerts</p>
-            </div>
-          </div>
-
-          {/* Notification Frequency */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Notification Frequency
-            </label>
-            <Select defaultValue="immediate">
-              <SelectTrigger className="w-full max-w-xs">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="immediate">Immediate</SelectItem>
-                <SelectItem value="hourly">Hourly Digest</SelectItem>
-                <SelectItem value="daily">Daily Digest</SelectItem>
-                <SelectItem value="weekly">Weekly Summary</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
       </Card>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3">
+              <Bell className="h-8 w-8 text-blue-600" />
+              <div>
+                <h3 className="font-medium">All Notifications</h3>
+                <p className="text-sm text-gray-500">Enable/disable all notifications</p>
+              </div>
+            </div>
+            <Switch className="mt-3" defaultChecked />
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3">
+              <Shield className="h-8 w-8 text-red-600" />
+              <div>
+                <h3 className="font-medium">Security Only</h3>
+                <p className="text-sm text-gray-500">Critical security alerts only</p>
+              </div>
+            </div>
+            <Button variant="outline" size="sm" className="mt-3">
+              Apply
+            </Button>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3">
+              <Volume2 className="h-8 w-8 text-gray-600" />
+              <div>
+                <h3 className="font-medium">Do Not Disturb</h3>
+                <p className="text-sm text-gray-500">Pause non-critical notifications</p>
+              </div>
+            </div>
+            <Button variant="outline" size="sm" className="mt-3">
+              Enable
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Email Notifications */}
       <Card>
@@ -128,41 +194,52 @@ const ProfileNotificationSettings = () => {
             <Mail className="h-5 w-5" />
             Email Notifications
           </CardTitle>
+          <CardDescription>Choose which events trigger email notifications</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {notificationCategories.map((category) => {
-            const Icon = category.icon;
-            return (
-              <div key={category.title} className="space-y-4">
-                <div className="flex items-center gap-2 pb-2 border-b">
-                  <Icon className="h-5 w-5 text-blue-600" />
-                  <div>
-                    <h3 className="font-medium">{category.title}</h3>
-                    <p className="text-sm text-gray-600">{category.description}</p>
-                  </div>
-                </div>
-                <div className="space-y-3 ml-7">
-                  {category.settings.map((setting) => (
-                    <div key={setting.key} className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <h4 className="text-sm font-medium">{setting.label}</h4>
-                        <p className="text-xs text-gray-500">{setting.description}</p>
-                      </div>
-                      <Switch
-                        checked={emailNotifications[setting.key as keyof typeof emailNotifications] || false}
-                        onCheckedChange={(checked) => {
-                          setEmailNotifications(prev => ({
-                            ...prev,
-                            [setting.key]: checked
-                          }));
-                        }}
-                      />
-                    </div>
-                  ))}
+          {notificationTypes.map((type) => (
+            <div key={type.key} className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">{type.icon}</span>
+                <div>
+                  <Label className="font-medium">{type.label}</Label>
+                  <p className="text-sm text-gray-500">{type.description}</p>
                 </div>
               </div>
-            );
-          })}
+              <Switch
+                checked={settings.email[type.key as keyof typeof settings.email]}
+                onCheckedChange={(checked) => updateSetting('email', type.key, checked)}
+              />
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
+      {/* Push Notifications */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Smartphone className="h-5 w-5" />
+            Push Notifications
+          </CardTitle>
+          <CardDescription>Real-time notifications on your devices</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {notificationTypes.filter(type => type.key !== 'marketing').map((type) => (
+            <div key={type.key} className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">{type.icon}</span>
+                <div>
+                  <Label className="font-medium">{type.label}</Label>
+                  <p className="text-sm text-gray-500">{type.description}</p>
+                </div>
+              </div>
+              <Switch
+                checked={settings.push[type.key as keyof typeof settings.push]}
+                onCheckedChange={(checked) => updateSetting('push', type.key, checked)}
+              />
+            </div>
+          ))}
         </CardContent>
       </Card>
 
@@ -173,66 +250,157 @@ const ProfileNotificationSettings = () => {
             <Smartphone className="h-5 w-5" />
             SMS Notifications
           </CardTitle>
-          <p className="text-sm text-gray-600">
-            SMS notifications for critical alerts only
-          </p>
+          <CardDescription>Critical alerts via SMS (charges may apply)</CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
+        <CardContent className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">🔒</span>
               <div>
-                <h4 className="text-sm font-medium">Critical Alerts</h4>
-                <p className="text-xs text-gray-500">System failures and security issues</p>
+                <Label className="font-medium">Security Alerts</Label>
+                <p className="text-sm text-gray-500">Critical security events and breaches</p>
               </div>
-              <Switch
-                checked={smsNotifications.criticalAlerts}
-                onCheckedChange={(checked) => 
-                  setSmsNotifications(prev => ({ ...prev, criticalAlerts: checked }))
-                }
-              />
             </div>
-            <div className="flex items-center justify-between">
+            <Switch
+              checked={settings.sms.security}
+              onCheckedChange={(checked) => updateSetting('sms', 'security', checked)}
+            />
+          </div>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">🚨</span>
               <div>
-                <h4 className="text-sm font-medium">Chargeback Alerts</h4>
-                <p className="text-xs text-gray-500">Immediate chargeback notifications</p>
+                <Label className="font-medium">Urgent Alerts</Label>
+                <p className="text-sm text-gray-500">System outages and critical issues</p>
               </div>
-              <Switch
-                checked={smsNotifications.chargebacks}
-                onCheckedChange={(checked) => 
-                  setSmsNotifications(prev => ({ ...prev, chargebacks: checked }))
-                }
-              />
             </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="text-sm font-medium">Large Transactions</h4>
-                <p className="text-xs text-gray-500">Transactions above ₹1,00,000</p>
-              </div>
-              <Switch
-                checked={smsNotifications.largeTransactions}
-                onCheckedChange={(checked) => 
-                  setSmsNotifications(prev => ({ ...prev, largeTransactions: checked }))
-                }
-              />
+            <Switch
+              checked={settings.sms.urgent}
+              onCheckedChange={(checked) => updateSetting('sms', 'urgent', checked)}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Notification Frequency */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Clock className="h-5 w-5" />
+            Notification Frequency
+          </CardTitle>
+          <CardDescription>Control how often you receive summary notifications</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label>Report Frequency</Label>
+              <Select
+                value={settings.frequency.reports}
+                onValueChange={(value: any) => updateSetting('frequency', 'reports', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="daily">Daily</SelectItem>
+                  <SelectItem value="weekly">Weekly</SelectItem>
+                  <SelectItem value="monthly">Monthly</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="text-sm font-medium">System Downtime</h4>
-                <p className="text-xs text-gray-500">Service interruption alerts</p>
-              </div>
-              <Switch
-                checked={smsNotifications.systemDowntime}
-                onCheckedChange={(checked) => 
-                  setSmsNotifications(prev => ({ ...prev, systemDowntime: checked }))
-                }
-              />
+            <div className="space-y-2">
+              <Label>Summary Frequency</Label>
+              <Select
+                value={settings.frequency.summaries}
+                onValueChange={(value: any) => updateSetting('frequency', 'summaries', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="daily">Daily</SelectItem>
+                  <SelectItem value="weekly">Weekly</SelectItem>
+                  <SelectItem value="monthly">Monthly</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </CardContent>
       </Card>
 
+      {/* Alert Thresholds */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <AlertTriangle className="h-5 w-5" />
+            Alert Thresholds
+          </CardTitle>
+          <CardDescription>Set thresholds for automatic alerts</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label>High-Value Transaction Alert ($)</Label>
+              <Select
+                value={settings.thresholds.transactionAmount}
+                onValueChange={(value) => updateSetting('thresholds', 'transactionAmount', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1000">$1,000</SelectItem>
+                  <SelectItem value="5000">$5,000</SelectItem>
+                  <SelectItem value="10000">$10,000</SelectItem>
+                  <SelectItem value="25000">$25,000</SelectItem>
+                  <SelectItem value="50000">$50,000</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Failure Rate Alert (%)</Label>
+              <Select
+                value={settings.thresholds.failureRate}
+                onValueChange={(value) => updateSetting('thresholds', 'failureRate', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">1%</SelectItem>
+                  <SelectItem value="3">3%</SelectItem>
+                  <SelectItem value="5">5%</SelectItem>
+                  <SelectItem value="10">10%</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Low Balance Alert ($)</Label>
+              <Select
+                value={settings.thresholds.lowBalance}
+                onValueChange={(value) => updateSetting('thresholds', 'lowBalance', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="100">$100</SelectItem>
+                  <SelectItem value="500">$500</SelectItem>
+                  <SelectItem value="1000">$1,000</SelectItem>
+                  <SelectItem value="5000">$5,000</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Save Button */}
       <div className="flex justify-end">
-        <Button>Save Notification Settings</Button>
+        <Button onClick={handleSave} className="w-full md:w-auto">
+          Save Notification Settings
+        </Button>
       </div>
     </div>
   );
