@@ -2,13 +2,22 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { Plus, Edit, Trash2, Shield } from 'lucide-react';
+import { Plus } from 'lucide-react';
+import RuleCard from './RuleCard';
+import RuleModal from './RuleModal';
+
+interface Rule {
+  id: number;
+  name: string;
+  condition: string;
+  action: string;
+  priority: number;
+  enabled: boolean;
+  description: string;
+}
 
 const OrchestrationRules = () => {
-  const [rules, setRules] = useState([
+  const [rules, setRules] = useState<Rule[]>([
     {
       id: 1,
       name: 'High Value Route',
@@ -47,15 +56,8 @@ const OrchestrationRules = () => {
     }
   ]);
 
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [newRule, setNewRule] = useState({
-    name: '',
-    condition: '',
-    action: '',
-    priority: rules.length + 1,
-    enabled: true,
-    description: ''
-  });
+  const [showModal, setShowModal] = useState(false);
+  const [editingRule, setEditingRule] = useState<Rule | null>(null);
 
   const toggleRule = (id: number) => {
     setRules(rules.map(rule => 
@@ -67,22 +69,33 @@ const OrchestrationRules = () => {
     setRules(rules.filter(rule => rule.id !== id));
   };
 
-  const createRule = () => {
-    const rule = {
-      ...newRule,
-      id: Math.max(...rules.map(r => r.id)) + 1
-    };
-    setRules([...rules, rule]);
-    setNewRule({
-      name: '',
-      condition: '',
-      action: '',
-      priority: rules.length + 2,
-      enabled: true,
-      description: ''
-    });
-    setShowCreateForm(false);
+  const handleEdit = (rule: Rule) => {
+    setEditingRule(rule);
+    setShowModal(true);
   };
+
+  const handleCreate = () => {
+    setEditingRule(null);
+    setShowModal(true);
+  };
+
+  const handleSave = (ruleData: Omit<Rule, 'id'> | Rule) => {
+    if ('id' in ruleData) {
+      // Editing existing rule
+      setRules(rules.map(rule => 
+        rule.id === ruleData.id ? ruleData : rule
+      ));
+    } else {
+      // Creating new rule
+      const newRule = {
+        ...ruleData,
+        id: Math.max(...rules.map(r => r.id), 0) + 1
+      };
+      setRules([...rules, newRule]);
+    }
+  };
+
+  const maxPriority = Math.max(...rules.map(r => r.priority), 0);
 
   return (
     <div className="space-y-6">
@@ -91,155 +104,44 @@ const OrchestrationRules = () => {
           <h2 className="text-2xl font-bold text-gray-900">Payment Orchestration</h2>
           <p className="text-gray-600 mt-1">Configure routing rules to optimize payment processing</p>
         </div>
-        <Button 
-          onClick={() => setShowCreateForm(true)}
-          className="flex items-center gap-2"
-        >
+        <Button onClick={handleCreate} className="flex items-center gap-2">
           <Plus className="h-4 w-4" />
           Add Rule
         </Button>
       </div>
 
-      {/* Create Rule Form */}
-      {showCreateForm && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold">Create New Rule</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Rule Name</label>
-                <Input
-                  placeholder="Enter rule name"
-                  value={newRule.name}
-                  onChange={(e) => setNewRule({...newRule, name: e.target.value})}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Priority</label>
-                <Input
-                  type="number"
-                  placeholder="1"
-                  value={newRule.priority}
-                  onChange={(e) => setNewRule({...newRule, priority: parseInt(e.target.value)})}
-                />
-              </div>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Condition</label>
-              <Select value={newRule.condition} onValueChange={(value) => setNewRule({...newRule, condition: value})}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select condition" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Amount > $500">Amount {'>'}$500</SelectItem>
-                  <SelectItem value="Amount > $1000">Amount {'>'}$1000</SelectItem>
-                  <SelectItem value="Card Region = US">Card Region = US</SelectItem>
-                  <SelectItem value="Card Region = EU">Card Region = EU</SelectItem>
-                  <SelectItem value="Device = Mobile">Device = Mobile</SelectItem>
-                  <SelectItem value="Risk Score < 30">Risk Score {'<'} 30</SelectItem>
-                  <SelectItem value="Transaction Failed">Transaction Failed</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Action</label>
-              <Select value={newRule.action} onValueChange={(value) => setNewRule({...newRule, action: value})}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select action" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Route to Stripe">Route to Stripe</SelectItem>
-                  <SelectItem value="Route to Adyen">Route to Adyen</SelectItem>
-                  <SelectItem value="Route to PayPal">Route to PayPal</SelectItem>
-                  <SelectItem value="Route to Square">Route to Square</SelectItem>
-                  <SelectItem value="Retry with PayPal">Retry with PayPal</SelectItem>
-                  <SelectItem value="Block Transaction">Block Transaction</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-              <Input
-                placeholder="Describe what this rule does"
-                value={newRule.description}
-                onChange={(e) => setNewRule({...newRule, description: e.target.value})}
-              />
-            </div>
-
-            <div className="flex gap-2">
-              <Button onClick={createRule}>Create Rule</Button>
-              <Button variant="outline" onClick={() => setShowCreateForm(false)}>Cancel</Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       {/* Rules List */}
       <div className="space-y-4">
-        {rules
-          .sort((a, b) => a.priority - b.priority)
-          .map((rule) => (
-          <Card key={rule.id} className={`border-l-4 ${rule.enabled ? 'border-l-green-500' : 'border-l-gray-300'}`}>
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <Shield className="h-5 w-5 text-blue-600" />
-                    <h3 className="text-lg font-semibold text-gray-900">{rule.name}</h3>
-                    <span className="inline-flex px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
-                      Priority {rule.priority}
-                    </span>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Condition</p>
-                      <p className="text-gray-900">{rule.condition}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Action</p>
-                      <p className="text-gray-900">{rule.action}</p>
-                    </div>
-                  </div>
-                  
-                  <p className="text-sm text-gray-600">{rule.description}</p>
-                </div>
-                
-                <div className="flex items-center gap-3 ml-4">
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      checked={rule.enabled}
-                      onCheckedChange={() => toggleRule(rule.id)}
-                    />
-                    <span className="text-sm text-gray-600">
-                      {rule.enabled ? 'Enabled' : 'Disabled'}
-                    </span>
-                  </div>
-                  
-                  <div className="flex gap-1">
-                    <Button variant="ghost" size="sm">
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => deleteRule(rule.id)}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
+        {rules.length === 0 ? (
+          <Card>
+            <CardContent className="p-8 text-center">
+              <p className="text-gray-500 mb-4">No orchestration rules configured</p>
+              <Button onClick={handleCreate}>Create Your First Rule</Button>
             </CardContent>
           </Card>
-        ))}
+        ) : (
+          rules
+            .sort((a, b) => a.priority - b.priority)
+            .map((rule) => (
+              <RuleCard
+                key={rule.id}
+                rule={rule}
+                onToggle={toggleRule}
+                onEdit={handleEdit}
+                onDelete={deleteRule}
+              />
+            ))
+        )}
       </div>
+
+      {/* Rule Modal */}
+      <RuleModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onSave={handleSave}
+        rule={editingRule}
+        maxPriority={maxPriority}
+      />
     </div>
   );
 };
