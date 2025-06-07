@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,6 +24,7 @@ import TransactionTable from './TransactionTable';
 import TransactionDetailsModal from './TransactionDetailsModal';
 import AdvancedFilters from './AdvancedFilters';
 import TransactionSettings from './TransactionSettings';
+import TransactionPagination from './TransactionPagination';
 
 const TransactionsList = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -33,6 +33,8 @@ const TransactionsList = () => {
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [activeFilters, setActiveFilters] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
   const [tableColumns, setTableColumns] = useState([
     { key: 'id', label: 'Transaction ID', visible: true, order: 0 },
     { key: 'amount', label: 'Amount', visible: true, order: 1 },
@@ -53,7 +55,7 @@ const TransactionsList = () => {
   ]);
 
   // Enhanced mock transaction data with more fields
-  const transactions = [
+  const allTransactions = [
     {
       id: 'TXN001',
       amount: 1250.00,
@@ -113,6 +115,13 @@ const TransactionsList = () => {
     }
   ];
 
+  // Pagination calculations
+  const totalTransactions = allTransactions.length;
+  const totalPages = Math.ceil(totalTransactions / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const transactions = allTransactions.slice(startIndex, endIndex);
+
   const handleViewDetails = (transaction: any) => {
     setSelectedTransaction(transaction);
     setIsDetailsModalOpen(true);
@@ -132,12 +141,25 @@ const TransactionsList = () => {
     setTableColumns(columns);
   };
 
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size);
+    setCurrentPage(1); // Reset to first page when changing page size
+  };
+
+  const handleGoToPage = (page: number) => {
+    setCurrentPage(page);
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Transaction Management</h1>
-          <p className="text-gray-600">Monitor, analyze, and manage all your transactions</p>
+          <h1 className="text-xl lg:text-2xl font-bold text-gray-900">Transaction Management</h1>
+          <p className="text-sm lg:text-base text-gray-600">Monitor, analyze, and manage all your transactions</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm">
@@ -151,64 +173,64 @@ const TransactionsList = () => {
         </div>
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      {/* Quick Stats - More compact on mobile */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-3 lg:p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Volume</p>
-                <p className="text-2xl font-bold text-gray-900">$45,231</p>
+                <p className="text-xs lg:text-sm font-medium text-gray-600">Total Volume</p>
+                <p className="text-lg lg:text-2xl font-bold text-gray-900">$45,231</p>
               </div>
-              <CreditCard className="h-8 w-8 text-blue-600" />
+              <CreditCard className="h-6 w-6 lg:h-8 lg:w-8 text-blue-600" />
             </div>
             <p className="text-xs text-green-600 mt-1">+12.5% from yesterday</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-3 lg:p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Success Rate</p>
-                <p className="text-2xl font-bold text-gray-900">94.2%</p>
+                <p className="text-xs lg:text-sm font-medium text-gray-600">Success Rate</p>
+                <p className="text-lg lg:text-2xl font-bold text-gray-900">94.2%</p>
               </div>
-              <Shield className="h-8 w-8 text-green-600" />
+              <Shield className="h-6 w-6 lg:h-8 lg:w-8 text-green-600" />
             </div>
             <p className="text-xs text-green-600 mt-1">+2.1% from yesterday</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-3 lg:p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Chargebacks</p>
-                <p className="text-2xl font-bold text-gray-900">3</p>
+                <p className="text-xs lg:text-sm font-medium text-gray-600">Chargebacks</p>
+                <p className="text-lg lg:text-2xl font-bold text-gray-900">3</p>
               </div>
-              <AlertTriangle className="h-8 w-8 text-red-600" />
+              <AlertTriangle className="h-6 w-6 lg:h-8 lg:w-8 text-red-600" />
             </div>
             <p className="text-xs text-red-600 mt-1">+1 from yesterday</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-3 lg:p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Avg. Fraud Score</p>
-                <p className="text-2xl font-bold text-gray-900">23</p>
+                <p className="text-xs lg:text-sm font-medium text-gray-600">Avg. Fraud Score</p>
+                <p className="text-lg lg:text-2xl font-bold text-gray-900">23</p>
               </div>
-              <Globe className="h-8 w-8 text-blue-600" />
+              <Globe className="h-6 w-6 lg:h-8 lg:w-8 text-blue-600" />
             </div>
             <p className="text-xs text-green-600 mt-1">-5 from yesterday</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Filters and Search */}
+      {/* Filters and Search - More compact on mobile */}
       <Card>
-        <CardContent className="p-6">
+        <CardContent className="p-4 lg:p-6">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
               <div className="relative">
@@ -240,12 +262,25 @@ const TransactionsList = () => {
       </Card>
 
       {/* Enhanced Transaction Table */}
-      <TransactionTable 
-        transactions={transactions}
-        onViewDetails={handleViewDetails}
-        onBulkAction={handleBulkAction}
-        columns={tableColumns}
-      />
+      <div className="space-y-0">
+        <TransactionTable 
+          transactions={transactions}
+          onViewDetails={handleViewDetails}
+          onBulkAction={handleBulkAction}
+          columns={tableColumns}
+        />
+        
+        {/* Pagination */}
+        <TransactionPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          pageSize={pageSize}
+          totalItems={totalTransactions}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          onGoToPage={handleGoToPage}
+        />
+      </div>
 
       {/* Transaction Details Modal */}
       <TransactionDetailsModal 
