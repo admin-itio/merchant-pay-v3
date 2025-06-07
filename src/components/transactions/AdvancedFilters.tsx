@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -9,13 +8,17 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Separator } from '@/components/ui/separator';
 import { Filter, X, RotateCcw } from 'lucide-react';
 
+interface FilterValues {
+  [key: string]: string;
+}
+
 interface AdvancedFiltersProps {
-  onFiltersChange: (filters: any) => void;
-  activeFilters: any;
+  onFiltersChange: (filters: FilterValues) => void;
+  activeFilters: FilterValues;
 }
 
 const AdvancedFilters = ({ onFiltersChange, activeFilters }: AdvancedFiltersProps) => {
-  const [localFilters, setLocalFilters] = useState({
+  const [localFilters, setLocalFilters] = useState<FilterValues>({
     status: '',
     gateway: '',
     paymentMethod: '',
@@ -240,17 +243,17 @@ const AdvancedFilters = ({ onFiltersChange, activeFilters }: AdvancedFiltersProp
         </PopoverContent>
       </Popover>
 
-      {/* Active Filter Badges */}
+      {/* Active Filter Badges - Fixed TypeScript error */}
       {Object.entries(activeFilters).map(([key, value]) => (
-        value && (
+        value ? (
           <Badge key={key} variant="secondary" className="flex items-center gap-1">
-            {key}: {value}
+            {key}: {String(value)}
             <X 
               className="h-3 w-3 cursor-pointer hover:text-red-500" 
               onClick={() => removeFilter(key)}
             />
           </Badge>
-        )
+        ) : null
       ))}
     </div>
   );
