@@ -32,7 +32,9 @@ const CustomerManagement = () => {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [activeFilters, setActiveFilters] = useState({});
+  const [activeFilters, setActiveFilters] = useState({
+    dateRange: 'last30days' // Default to 30 days
+  });
 
   // Mock customer data
   const customers = [
@@ -112,7 +114,7 @@ const CustomerManagement = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Customer Management</h1>
-          <p className="text-gray-600">Manage and monitor your customer base</p>
+          <p className="text-gray-600">Manage and monitor your customer base (Last 30 days)</p>
         </div>
         <div className="flex gap-2">
           <Button onClick={handleAddCustomer}>
@@ -130,7 +132,7 @@ const CustomerManagement = () => {
         </div>
       </div>
 
-      {/* Quick Stats */}
+      {/* Quick Stats with time filter note */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4">
@@ -141,7 +143,7 @@ const CustomerManagement = () => {
               </div>
               <CreditCard className="h-8 w-8 text-blue-600" />
             </div>
-            <p className="text-xs text-green-600 mt-1">+23 this month</p>
+            <p className="text-xs text-green-600 mt-1">+23 in last 30 days</p>
           </CardContent>
         </Card>
 
@@ -167,7 +169,7 @@ const CustomerManagement = () => {
               </div>
               <TrendingUp className="h-8 w-8 text-blue-600" />
             </div>
-            <p className="text-xs text-green-600 mt-1">+12.3% vs last month</p>
+            <p className="text-xs text-green-600 mt-1">+12.3% vs last 30 days</p>
           </CardContent>
         </Card>
 
@@ -207,7 +209,7 @@ const CustomerManagement = () => {
               />
               <Button variant="outline" size="sm">
                 <Calendar className="h-4 w-4 mr-2" />
-                Date Range
+                Last 30 Days
               </Button>
             </div>
           </div>

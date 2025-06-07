@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -14,9 +13,11 @@ import {
   CheckCircle,
   Clock,
   Wifi,
-  WifiOff
+  WifiOff,
+  Info
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const RealTimeDashboard = () => {
   const [isConnected, setIsConnected] = useState(true);
@@ -157,6 +158,14 @@ const RealTimeDashboard = () => {
         </Button>
       </div>
 
+      {/* Live Transaction Flow Clarification */}
+      <Alert>
+        <Info className="h-4 w-4" />
+        <AlertDescription>
+          This real-time dashboard displays live transaction data with 2-second updates. Transaction flow shows processed payments per second, while the chart visualizes transaction volume over the last 2 minutes. All data is simulated for demonstration purposes.
+        </AlertDescription>
+      </Alert>
+
       {/* Real-time Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {realtimeMetrics.map((metric, index) => {
@@ -192,15 +201,21 @@ const RealTimeDashboard = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Activity className="h-5 w-5" />
-              Live Transaction Flow
+              Live Transaction Flow (TPS)
             </CardTitle>
           </CardHeader>
           <CardContent>
+            <div className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+              Real-time transactions per second over the last 2 minutes
+            </div>
             <ResponsiveContainer width="100%" height={200}>
               <LineChart data={generateRealtimeChart()}>
                 <XAxis dataKey="time" hide />
                 <YAxis hide />
-                <Tooltip />
+                <Tooltip 
+                  labelFormatter={(label) => `Time: ${label}`}
+                  formatter={(value) => [`${value} TPS`, 'Transaction Rate']}
+                />
                 <Line 
                   type="monotone" 
                   dataKey="value" 

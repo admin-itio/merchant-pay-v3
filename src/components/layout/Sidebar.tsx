@@ -1,9 +1,9 @@
+
 import React from 'react';
 import { 
   Home, 
   CreditCard, 
   Settings, 
-  BarChart3, 
   Users, 
   Wallet, 
   FileText, 
@@ -29,11 +29,9 @@ const Sidebar = ({ activeTab, setActiveTab, isOpen, setIsOpen }: SidebarProps) =
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: Home },
     { id: 'transactions', label: 'Transactions', icon: CreditCard },
-    { id: 'analytics', label: 'Analytics', icon: BarChart3 },
     { id: 'orchestration', label: 'Orchestration', icon: Shield },
     { id: 'settlements', label: 'Settlements', icon: Wallet },
     { id: 'payouts', label: 'Payouts', icon: ArrowUpRight },
-    { id: 'customers', label: 'Customers', icon: Users },
     { id: 'payment-methods', label: 'Payment Methods', icon: FileText },
     { id: 'terno', label: 'TerNo Management', icon: Key },
     { id: 'announcements', label: 'Announcements', icon: Megaphone },
