@@ -108,7 +108,7 @@ const TransactionsList = () => {
   const endIndex = startIndex + pageSize;
   const transactions = allTransactions.slice(startIndex, endIndex);
 
-  const handleViewDetails = (transaction: any) => {
+  const handleTransactionClick = (transaction: any) => {
     setSelectedTransaction(transaction);
     setIsDetailsModalOpen(true);
   };
@@ -301,9 +301,8 @@ const TransactionsList = () => {
       <div className="space-y-0">
         <TransactionTable 
           transactions={transactions}
-          onViewDetails={handleViewDetails}
-          onBulkAction={handleBulkAction}
           columns={tableColumns}
+          onTransactionClick={handleTransactionClick}
         />
         
         {/* Pagination */}
