@@ -3,43 +3,37 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Settings, 
   MessageSquare, 
-  Globe, 
+  Trash2, 
+  Download, 
   Shield, 
-  Trash2,
-  Save,
+  Bell,
+  Globe,
+  Moon,
+  Sun,
+  Smartphone,
   AlertTriangle,
-  Clock,
-  Download
+  Star,
+  Send
 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
 
 const AccountSettings = () => {
+  const [activeTab, setActiveTab] = useState('general');
+  const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
+  const [feedback, setFeedback] = useState('');
+  const [rating, setRating] = useState(0);
+  const [feedbackType, setFeedbackType] = useState('');
   const { toast } = useToast();
-  const [settings, setSettings] = useState({
-    timezone: 'UTC-5',
-    language: 'en',
-    currency: 'USD',
-    dateFormat: 'MM/DD/YYYY',
-    twoFactorEnabled: true,
-    sessionTimeout: '30',
-    apiRateLimit: '1000'
-  });
-
-  const [feedback, setFeedback] = useState({
-    category: '',
-    subject: '',
-    message: '',
-    priority: 'medium'
-  });
 
   const handleSaveSettings = () => {
     toast({
@@ -48,75 +42,147 @@ const AccountSettings = () => {
     });
   };
 
+  const handleDeleteAccount = () => {
+    toast({
+      title: "Account Deletion Request",
+      description: "Your account deletion request has been submitted. You will receive an email with next steps.",
+      variant: "destructive"
+    });
+  };
+
+  const handleExportData = () => {
+    toast({
+      title: "Data Export Started",
+      description: "Your data export is being prepared. You will receive a download link via email.",
+    });
+  };
+
   const handleSubmitFeedback = () => {
-    if (!feedback.category || !feedback.subject || !feedback.message) {
+    if (!feedback.trim() || !feedbackType) {
       toast({
         title: "Incomplete Feedback",
-        description: "Please fill in all required fields.",
-        variant: "destructive",
+        description: "Please provide feedback details and select a type.",
+        variant: "destructive"
       });
       return;
     }
 
     toast({
-      title: "Feedback Submitted",
-      description: "Thank you for your feedback. We'll review it and get back to you soon.",
+      title: "Thank you for your feedback!",
+      description: "Your feedback has been submitted successfully. We appreciate your input to help us improve.",
     });
+    
+    setFeedback('');
+    setRating(0);
+    setFeedbackType('');
+    setFeedbackModalOpen(false);
+  };
 
-    setFeedback({
-      category: '',
-      subject: '',
-      message: '',
-      priority: 'medium'
-    });
+  const renderStarRating = () => {
+    return (
+      <div className="flex gap-1">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <button
+            key={star}
+            onClick={() => setRating(star)}
+            className={`h-6 w-6 ${star <= rating ? 'text-yellow-400' : 'text-gray-300'} hover:text-yellow-400 transition-colors`}
+          >
+            <Star className="h-6 w-6 fill-current" />
+          </button>
+        ))}
+      </div>
+    );
   };
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-lg font-semibold">Account Settings & Feedback</h2>
-        <p className="text-sm text-muted-foreground">
-          Manage your account preferences and share your feedback with us.
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Account Settings</h2>
+          <p className="text-gray-600">Manage your account preferences and data</p>
+        </div>
+        <Dialog open={feedbackModalOpen} onOpenChange={setFeedbackModalOpen}>
+          <DialogTrigger asChild>
+            <Button variant="outline">
+              <MessageSquare className="h-4 w-4 mr-2" />
+              Give Feedback
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Share Your Feedback</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="feedbackType">Feedback Type</Label>
+                <Select value={feedbackType} onValueChange={setFeedbackType}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select feedback type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="bug">Bug Report</SelectItem>
+                    <SelectItem value="feature">Feature Request</SelectItem>
+                    <SelectItem value="improvement">Improvement Suggestion</SelectItem>
+                    <SelectItem value="compliment">Compliment</SelectItem>
+                    <SelectItem value="complaint">Complaint</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label>Overall Rating (Optional)</Label>
+                <div className="mt-2">
+                  {renderStarRating()}
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="feedback">Your Feedback</Label>
+                <Textarea
+                  id="feedback"
+                  placeholder="Please share your thoughts, suggestions, or report any issues..."
+                  value={feedback}
+                  onChange={(e) => setFeedback(e.target.value)}
+                  rows={4}
+                />
+              </div>
+
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setFeedbackModalOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleSubmitFeedback}>
+                  <Send className="h-4 w-4 mr-2" />
+                  Submit Feedback
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
-      <Tabs defaultValue="settings" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="settings">Account Settings</TabsTrigger>
-          <TabsTrigger value="feedback">Send Feedback</TabsTrigger>
-          <TabsTrigger value="data">Data & Privacy</TabsTrigger>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="general">General</TabsTrigger>
+          <TabsTrigger value="privacy">Privacy</TabsTrigger>
+          <TabsTrigger value="data">Data & Export</TabsTrigger>
+          <TabsTrigger value="danger">Danger Zone</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="settings" className="space-y-6">
-          {/* Regional Settings */}
+        <TabsContent value="general" className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Globe className="h-5 w-5" />
-                Regional Settings
+                <Settings className="h-5 w-5" />
+                General Settings
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Timezone</Label>
-                  <Select value={settings.timezone} onValueChange={(value) => setSettings(prev => ({ ...prev, timezone: value }))}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="UTC-8">Pacific Time (UTC-8)</SelectItem>
-                      <SelectItem value="UTC-5">Eastern Time (UTC-5)</SelectItem>
-                      <SelectItem value="UTC+0">UTC</SelectItem>
-                      <SelectItem value="UTC+1">Central European Time (UTC+1)</SelectItem>
-                      <SelectItem value="UTC+8">Singapore Time (UTC+8)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Language</Label>
-                  <Select value={settings.language} onValueChange={(value) => setSettings(prev => ({ ...prev, language: value }))}>
+                  <Label htmlFor="language">Language</Label>
+                  <Select defaultValue="en">
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -125,181 +191,120 @@ const AccountSettings = () => {
                       <SelectItem value="es">Spanish</SelectItem>
                       <SelectItem value="fr">French</SelectItem>
                       <SelectItem value="de">German</SelectItem>
-                      <SelectItem value="zh">Chinese</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Default Currency</Label>
-                  <Select value={settings.currency} onValueChange={(value) => setSettings(prev => ({ ...prev, currency: value }))}>
+                  <Label htmlFor="timezone">Timezone</Label>
+                  <Select defaultValue="utc">
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="USD">USD ($)</SelectItem>
-                      <SelectItem value="EUR">EUR (€)</SelectItem>
-                      <SelectItem value="GBP">GBP (£)</SelectItem>
-                      <SelectItem value="SGD">SGD (S$)</SelectItem>
-                      <SelectItem value="MYR">MYR (RM)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Date Format</Label>
-                  <Select value={settings.dateFormat} onValueChange={(value) => setSettings(prev => ({ ...prev, dateFormat: value }))}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="MM/DD/YYYY">MM/DD/YYYY</SelectItem>
-                      <SelectItem value="DD/MM/YYYY">DD/MM/YYYY</SelectItem>
-                      <SelectItem value="YYYY-MM-DD">YYYY-MM-DD</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Security Settings */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Shield className="h-5 w-5" />
-                Security Preferences
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>Two-Factor Authentication</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Require 2FA for all logins
-                  </p>
-                </div>
-                <Switch
-                  checked={settings.twoFactorEnabled}
-                  onCheckedChange={(checked) => setSettings(prev => ({ ...prev, twoFactorEnabled: checked }))}
-                />
-              </div>
-
-              <Separator />
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Session Timeout (minutes)</Label>
-                  <Select value={settings.sessionTimeout} onValueChange={(value) => setSettings(prev => ({ ...prev, sessionTimeout: value }))}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="15">15 minutes</SelectItem>
-                      <SelectItem value="30">30 minutes</SelectItem>
-                      <SelectItem value="60">1 hour</SelectItem>
-                      <SelectItem value="120">2 hours</SelectItem>
-                      <SelectItem value="never">Never</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>API Rate Limit (per hour)</Label>
-                  <Select value={settings.apiRateLimit} onValueChange={(value) => setSettings(prev => ({ ...prev, apiRateLimit: value }))}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="500">500 requests</SelectItem>
-                      <SelectItem value="1000">1,000 requests</SelectItem>
-                      <SelectItem value="5000">5,000 requests</SelectItem>
-                      <SelectItem value="10000">10,000 requests</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <div className="flex justify-end">
-            <Button onClick={handleSaveSettings} className="gap-2">
-              <Save className="h-4 w-4" />
-              Save Settings
-            </Button>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="feedback" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MessageSquare className="h-5 w-5" />
-                Send Feedback
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Category *</Label>
-                  <Select value={feedback.category} onValueChange={(value) => setFeedback(prev => ({ ...prev, category: value }))}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="bug">Bug Report</SelectItem>
-                      <SelectItem value="feature">Feature Request</SelectItem>
-                      <SelectItem value="improvement">Improvement</SelectItem>
-                      <SelectItem value="documentation">Documentation</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Priority</Label>
-                  <Select value={feedback.priority} onValueChange={(value) => setFeedback(prev => ({ ...prev, priority: value }))}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="low">Low</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="high">High</SelectItem>
-                      <SelectItem value="urgent">Urgent</SelectItem>
+                      <SelectItem value="utc">UTC</SelectItem>
+                      <SelectItem value="est">EST</SelectItem>
+                      <SelectItem value="pst">PST</SelectItem>
+                      <SelectItem value="cet">CET</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label>Subject *</Label>
-                <Input
-                  placeholder="Brief description of your feedback"
-                  value={feedback.subject}
-                  onChange={(e) => setFeedback(prev => ({ ...prev, subject: e.target.value }))}
-                />
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <Label>Dark Mode</Label>
+                    <p className="text-sm text-gray-600">Toggle between light and dark theme</p>
+                  </div>
+                  <Switch />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <Label>Compact View</Label>
+                    <p className="text-sm text-gray-600">Use a more compact layout for tables and lists</p>
+                  </div>
+                  <Switch />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <Label>Auto-refresh Dashboard</Label>
+                    <p className="text-sm text-gray-600">Automatically refresh dashboard data every 30 seconds</p>
+                  </div>
+                  <Switch defaultChecked />
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <Label>Message *</Label>
-                <Textarea
-                  placeholder="Please provide detailed information about your feedback..."
-                  value={feedback.message}
-                  onChange={(e) => setFeedback(prev => ({ ...prev, message: e.target.value }))}
-                  rows={6}
-                />
-              </div>
-
-              <Button onClick={handleSubmitFeedback} className="w-full gap-2">
-                <MessageSquare className="h-4 w-4" />
-                Submit Feedback
+              <Button onClick={handleSaveSettings} className="w-full">
+                Save General Settings
               </Button>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="data" className="space-y-6">
+        <TabsContent value="privacy" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="h-5 w-5" />
+                Privacy Settings
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <Label>Data Analytics</Label>
+                    <p className="text-sm text-gray-600">Allow us to collect anonymized usage data to improve our services</p>
+                  </div>
+                  <Switch defaultChecked />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <Label>Marketing Communications</Label>
+                    <p className="text-sm text-gray-600">Receive updates about new features and promotions</p>
+                  </div>
+                  <Switch />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <Label>Profile Visibility</Label>
+                    <p className="text-sm text-gray-600">Make your profile visible to other merchants (for networking)</p>
+                  </div>
+                  <Switch />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <Label>Session Timeout</Label>
+                    <p className="text-sm text-gray-600">Automatically log out after period of inactivity</p>
+                  </div>
+                  <Select defaultValue="30">
+                    <SelectTrigger className="w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="15">15 min</SelectItem>
+                      <SelectItem value="30">30 min</SelectItem>
+                      <SelectItem value="60">1 hour</SelectItem>
+                      <SelectItem value="120">2 hours</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <Button onClick={handleSaveSettings} className="w-full">
+                Save Privacy Settings
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="data" className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -307,29 +312,87 @@ const AccountSettings = () => {
                 Data Management
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
               <div className="space-y-4">
                 <div className="p-4 border rounded-lg">
-                  <h4 className="font-medium mb-2">Export Your Data</h4>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Download a copy of all your account data, transactions, and settings.
+                  <h3 className="font-medium mb-2">Export Account Data</h3>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Download a copy of all your account data including transactions, customers, and settings.
                   </p>
-                  <Button variant="outline" className="gap-2">
-                    <Download className="h-4 w-4" />
+                  <Button onClick={handleExportData} variant="outline">
+                    <Download className="h-4 w-4 mr-2" />
                     Request Data Export
                   </Button>
                 </div>
 
-                <div className="p-4 border rounded-lg border-red-200 bg-red-50 dark:bg-red-950/20">
-                  <h4 className="font-medium mb-2 text-red-800 dark:text-red-200">Danger Zone</h4>
-                  <p className="text-sm text-red-600 dark:text-red-300 mb-3">
-                    Permanently delete your account and all associated data. This action cannot be undone.
+                <div className="p-4 border rounded-lg">
+                  <h3 className="font-medium mb-2">Data Retention</h3>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Configure how long we keep your data after account deletion.
                   </p>
-                  <Button variant="destructive" className="gap-2">
-                    <Trash2 className="h-4 w-4" />
-                    Delete Account
-                  </Button>
+                  <Select defaultValue="90">
+                    <SelectTrigger className="w-48">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="30">30 days</SelectItem>
+                      <SelectItem value="90">90 days</SelectItem>
+                      <SelectItem value="365">1 year</SelectItem>
+                      <SelectItem value="forever">Keep forever</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
+
+                <div className="p-4 border rounded-lg">
+                  <h3 className="font-medium mb-2">Data Processing</h3>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Choose where your data is processed and stored.
+                  </p>
+                  <Select defaultValue="us">
+                    <SelectTrigger className="w-48">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="us">United States</SelectItem>
+                      <SelectItem value="eu">European Union</SelectItem>
+                      <SelectItem value="uk">United Kingdom</SelectItem>
+                      <SelectItem value="ca">Canada</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="danger" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-red-600">
+                <AlertTriangle className="h-5 w-5" />
+                Danger Zone
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="p-4 border border-red-200 rounded-lg bg-red-50">
+                <h3 className="font-medium text-red-800 mb-2">Delete Account</h3>
+                <p className="text-sm text-red-700 mb-4">
+                  Permanently delete your account and all associated data. This action cannot be undone.
+                </p>
+                <Button variant="destructive" onClick={handleDeleteAccount}>
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete Account
+                </Button>
+              </div>
+
+              <div className="p-4 border border-yellow-200 rounded-lg bg-yellow-50">
+                <h3 className="font-medium text-yellow-800 mb-2">Reset All Settings</h3>
+                <p className="text-sm text-yellow-700 mb-4">
+                  Reset all account settings to their default values. Your data will remain intact.
+                </p>
+                <Button variant="outline" className="border-yellow-300 text-yellow-800 hover:bg-yellow-100">
+                  Reset Settings
+                </Button>
               </div>
             </CardContent>
           </Card>

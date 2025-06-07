@@ -4,513 +4,361 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { 
-  Plus, 
   Search, 
-  Filter,
+  Filter, 
+  Plus, 
   MoreHorizontal,
   Settings,
   Eye,
   Edit,
   Trash2,
-  Key,
+  Terminal,
   Globe,
   Shield,
-  Bell,
-  Mail,
-  Copy,
-  CheckCircle,
-  AlertCircle,
-  Clock
+  CreditCard,
+  AlertCircle
 } from 'lucide-react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import TerNoForm from './TerNoForm';
-import TerNoDetails from './TerNoDetails';
-
-interface TerNo {
-  id: string;
-  ternoNumber: string;
-  name: string;
-  description: string;
-  environment: 'sandbox' | 'production';
-  status: 'active' | 'inactive' | 'pending' | 'suspended';
-  businessType: string;
-  country: string;
-  currency: string;
-  createdAt: string;
-  lastUsed?: string;
-  transactionCount: number;
-  monthlyVolume: number;
-  apiKey: string;
-  webhookUrl?: string;
-  callbackUrl?: string;
-}
 
 const TerNoManagement = () => {
-  const [activeTab, setActiveTab] = useState('list');
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [environmentFilter, setEnvironmentFilter] = useState('all');
-  const [selectedTerNo, setSelectedTerNo] = useState<TerNo | null>(null);
+  const [activeTab, setActiveTab] = useState('list');
+  const [selectedTerNo, setSelectedTerNo] = useState(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [customBusinessType, setCustomBusinessType] = useState('');
+  const [showCustomBusinessType, setShowCustomBusinessType] = useState(false);
 
-  const [terNos] = useState<TerNo[]>([
-    {
-      id: '1',
-      ternoNumber: 'TRN001',
-      name: 'Main Store Terminal',
-      description: 'Primary payment terminal for main store operations',
-      environment: 'production',
-      status: 'active',
-      businessType: 'Retail',
-      country: 'MY',
-      currency: 'MYR',
-      createdAt: '2024-01-15T10:00:00Z',
-      lastUsed: '2024-06-07T09:30:00Z',
-      transactionCount: 1547,
-      monthlyVolume: 125000,
-      apiKey: 'pk_live_51H...',
-      webhookUrl: 'https://api.merchant.com/webhook',
-      callbackUrl: 'https://merchant.com/callback'
-    },
-    {
-      id: '2',
-      ternoNumber: 'TRN002',
-      name: 'Online Store API',
-      description: 'API integration for e-commerce website',
-      environment: 'production',
-      status: 'active',
-      businessType: 'E-commerce',
-      country: 'SG',
-      currency: 'SGD',
-      createdAt: '2024-02-01T14:30:00Z',
-      lastUsed: '2024-06-07T11:15:00Z',
-      transactionCount: 3298,
-      monthlyVolume: 485000,
-      apiKey: 'pk_live_52J...',
-      webhookUrl: 'https://shop.merchant.com/payment-webhook'
-    },
-    {
-      id: '3',
-      ternoNumber: 'TRN003',
-      name: 'Mobile App Terminal',
-      description: 'Payment processing for mobile application',
-      environment: 'sandbox',
-      status: 'pending',
-      businessType: 'Mobile App',
-      country: 'TH',
-      currency: 'THB',
-      createdAt: '2024-06-01T09:00:00Z',
-      transactionCount: 45,
-      monthlyVolume: 2500,
-      apiKey: 'pk_test_abc123...'
-    },
-    {
-      id: '4',
-      ternoNumber: 'TRN004',
-      name: 'Branch Office Terminal',
-      description: 'Secondary terminal for branch operations',
-      environment: 'production',
-      status: 'inactive',
-      businessType: 'Retail',
-      country: 'MY',
-      currency: 'MYR',
-      createdAt: '2024-03-10T16:45:00Z',
-      lastUsed: '2024-05-15T14:20:00Z',
-      transactionCount: 892,
-      monthlyVolume: 67500,
-      apiKey: 'pk_live_53K...'
+  // Business classifications with search capability
+  const businessClassifications = [
+    'E-commerce/Online Retail',
+    'Restaurants & Food Services', 
+    'Professional Services',
+    'Healthcare & Medical',
+    'Education & Training',
+    'Travel & Tourism',
+    'Entertainment & Events',
+    'Software & Technology',
+    'Financial Services',
+    'Real Estate',
+    'Automotive',
+    'Beauty & Wellness',
+    'Sports & Fitness',
+    'Non-profit Organizations',
+    'Manufacturing',
+    'Construction',
+    'Agriculture',
+    'Energy & Utilities',
+    'Media & Publishing',
+    'Fashion & Apparel',
+    'Others'
+  ];
+
+  // MCC Codes with search capability
+  const mccCodes = [
+    { code: '5411', description: 'Grocery Stores, Supermarkets' },
+    { code: '5812', description: 'Eating Places, Restaurants' },
+    { code: '5999', description: 'Miscellaneous and Specialty Retail Stores' },
+    { code: '7372', description: 'Computer Programming, Data Processing' },
+    { code: '8299', description: 'Schools and Educational Services' },
+    { code: '4829', description: 'Money Transfer' },
+    { code: '6012', description: 'Financial Institutions' },
+    { code: '5734', description: 'Computer Software Stores' },
+    { code: '5945', description: 'Hobby, Toy, and Game Shops' },
+    { code: '7273', description: 'Dating Services' }
+  ];
+
+  // Generate dummy TerNos
+  const generateDummyTerNos = () => {
+    const ternos = [];
+    for (let i = 1; i <= 15; i++) {
+      ternos.push({
+        id: `TER${String(i).padStart(3, '0')}`,
+        name: `Terminal ${i}`,
+        description: `Payment terminal for business unit ${i}`,
+        businessClassification: businessClassifications[Math.floor(Math.random() * businessClassifications.length)],
+        mccCode: mccCodes[Math.floor(Math.random() * mccCodes.length)],
+        primaryUrl: `https://business${i}.example.com`,
+        status: ['active', 'inactive', 'pending'][Math.floor(Math.random() * 3)],
+        createdAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        transactionCount: Math.floor(Math.random() * 1000) + 100,
+        monthlyVolume: Math.floor(Math.random() * 100000) + 10000
+      });
     }
-  ]);
+    return ternos;
+  };
+
+  const ternos = generateDummyTerNos();
+
+  const filteredTerNos = ternos.filter(terno => 
+    terno.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    terno.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    terno.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300';
-      case 'inactive': return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300';
-      case 'pending': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300';
-      case 'suspended': return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300';
+      case 'active': return 'bg-green-100 text-green-800';
+      case 'inactive': return 'bg-gray-100 text-gray-800';
+      case 'pending': return 'bg-yellow-100 text-yellow-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'active': return CheckCircle;
-      case 'inactive': return AlertCircle;
-      case 'pending': return Clock;
-      case 'suspended': return AlertCircle;
-      default: return Clock;
+  const handleBusinessClassificationChange = (value: string) => {
+    if (value === 'Others') {
+      setShowCustomBusinessType(true);
+    } else {
+      setShowCustomBusinessType(false);
     }
   };
 
-  const getEnvironmentColor = (environment: string) => {
-    return environment === 'production' 
-      ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300'
-      : 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300';
-  };
-
-  const formatCurrency = (amount: number, currency: string) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  const filteredTerNos = terNos.filter(terno => {
-    const matchesSearch = terno.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         terno.ternoNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         terno.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || terno.status === statusFilter;
-    const matchesEnvironment = environmentFilter === 'all' || terno.environment === environmentFilter;
-    
-    return matchesSearch && matchesStatus && matchesEnvironment;
-  });
-
-  const handleViewDetails = (terno: TerNo) => {
+  const handleTerNoDetails = (terno: any) => {
     setSelectedTerNo(terno);
     setActiveTab('details');
   };
 
-  const handleEdit = (terno: TerNo) => {
-    setSelectedTerNo(terno);
-    setActiveTab('form');
-  };
-
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-  };
-
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-gray-100">
-            TerNo Management
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Manage your payment terminal numbers and configurations. Create, configure, and monitor your TerNos.
-          </p>
+          <h1 className="text-2xl font-bold text-gray-900">TerNo Management</h1>
+          <p className="text-gray-600">Manage your payment terminals and configurations</p>
         </div>
-        <Button 
-          onClick={() => {
-            setSelectedTerNo(null);
-            setActiveTab('form');
-          }}
-          className="gap-2"
-          size="lg"
-        >
-          <Plus className="h-4 w-4" />
-          Create New TerNo
+        <Button onClick={() => setIsCreateModalOpen(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Create TerNo
         </Button>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="flex flex-wrap gap-2">
-        <Button variant="outline" size="sm" onClick={() => setStatusFilter('active')}>
-          <CheckCircle className="h-4 w-4 mr-2" />
-          Active TerNos ({terNos.filter(t => t.status === 'active').length})
-        </Button>
-        <Button variant="outline" size="sm" onClick={() => setEnvironmentFilter('production')}>
-          <Shield className="h-4 w-4 mr-2" />
-          Production ({terNos.filter(t => t.environment === 'production').length})
-        </Button>
-        <Button variant="outline" size="sm" onClick={() => setStatusFilter('pending')}>
-          <Clock className="h-4 w-4 mr-2" />
-          Pending ({terNos.filter(t => t.status === 'pending').length})
-        </Button>
-      </div>
-
-      {/* Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="hover:shadow-md transition-shadow">
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-              {terNos.length}
-            </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Total TerNos</div>
-            <div className="text-xs text-gray-500 mt-1">
-              +{terNos.filter(t => new Date(t.createdAt) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)).length} this month
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="hover:shadow-md transition-shadow">
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-              {terNos.filter(t => t.status === 'active').length}
-            </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Active</div>
-            <div className="text-xs text-gray-500 mt-1">
-              {((terNos.filter(t => t.status === 'active').length / terNos.length) * 100).toFixed(1)}% of total
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="hover:shadow-md transition-shadow">
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-              {terNos.filter(t => t.environment === 'production').length}
-            </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Production</div>
-            <div className="text-xs text-gray-500 mt-1">
-              Live payment processing
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="hover:shadow-md transition-shadow">
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-              {terNos.reduce((sum, t) => sum + t.transactionCount, 0).toLocaleString()}
-            </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Total Transactions</div>
-            <div className="text-xs text-gray-500 mt-1">
-              Across all TerNos
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="list" className="gap-2">
-            <Key className="h-4 w-4" />
-            TerNo List
-          </TabsTrigger>
-          <TabsTrigger value="form" className="gap-2">
-            {selectedTerNo ? <Edit className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-            {selectedTerNo ? 'Edit TerNo' : 'Create TerNo'}
-          </TabsTrigger>
-          <TabsTrigger value="details" disabled={!selectedTerNo} className="gap-2">
-            <Eye className="h-4 w-4" />
-            TerNo Details
-          </TabsTrigger>
+          <TabsTrigger value="list">TerNo List</TabsTrigger>
+          <TabsTrigger value="create">Create TerNo</TabsTrigger>
+          <TabsTrigger value="details">TerNo Details</TabsTrigger>
         </TabsList>
 
         <TabsContent value="list" className="space-y-4">
-          {/* Filters */}
           <Card>
-            <CardContent className="p-4">
+            <CardHeader>
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1">
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                     <Input
-                      placeholder="Search by name, TerNo number, or description..."
+                      placeholder="Search by TerNo ID, name, or description..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="pl-10"
                     />
                   </div>
                 </div>
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-full sm:w-40">
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="inactive">Inactive</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="suspended">Suspended</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select value={environmentFilter} onValueChange={setEnvironmentFilter}>
-                  <SelectTrigger className="w-full sm:w-40">
-                    <SelectValue placeholder="Environment" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Environments</SelectItem>
-                    <SelectItem value="production">Production</SelectItem>
-                    <SelectItem value="sandbox">Sandbox</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button 
-                  variant="outline" 
-                  onClick={() => {
-                    setSearchTerm('');
-                    setStatusFilter('all');
-                    setEnvironmentFilter('all');
-                  }}
-                  className="gap-2"
-                >
-                  <Filter className="h-4 w-4" />
-                  Clear
-                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {filteredTerNos.map((terno) => (
+                  <div key={terno.id} className="border rounded-lg p-4 hover:bg-gray-50">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <Terminal className="h-5 w-5 text-blue-600" />
+                          <h3 className="font-semibold text-gray-900">{terno.name}</h3>
+                          <Badge className={getStatusColor(terno.status)}>
+                            {terno.status}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-2">{terno.description}</p>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                          <div>
+                            <span className="font-medium">TerNo ID:</span> {terno.id}
+                          </div>
+                          <div>
+                            <span className="font-medium">Business:</span> {terno.businessClassification}
+                          </div>
+                          <div>
+                            <span className="font-medium">MCC:</span> {terno.mccCode.code}
+                          </div>
+                          <div>
+                            <span className="font-medium">Monthly Volume:</span> ${terno.monthlyVolume.toLocaleString()}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleTerNoDetails(terno)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button variant="outline" size="sm">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button variant="outline" size="sm">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
 
-          {/* Results Summary */}
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Showing {filteredTerNos.length} of {terNos.length} TerNos
-            </p>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                Export List
-              </Button>
-              <Button variant="outline" size="sm">
-                Bulk Actions
-              </Button>
-            </div>
-          </div>
-
-          {/* TerNo Table */}
+        <TabsContent value="create" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>TerNo List ({filteredTerNos.length})</CardTitle>
+              <CardTitle>Create New TerNo</CardTitle>
             </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>TerNo Number</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Environment</TableHead>
-                    <TableHead>Country</TableHead>
-                    <TableHead>Transactions</TableHead>
-                    <TableHead>Monthly Volume</TableHead>
-                    <TableHead>Last Used</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredTerNos.map((terno) => {
-                    const StatusIcon = getStatusIcon(terno.status);
-                    
-                    return (
-                      <TableRow key={terno.id} className="hover:bg-muted/50">
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Key className="h-4 w-4 text-gray-400" />
-                            <span className="font-mono font-medium">{terno.ternoNumber}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div>
-                            <div className="font-medium">{terno.name}</div>
-                            <div className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-48">
-                              {terno.description}
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <StatusIcon className="h-4 w-4" />
-                            <Badge className={getStatusColor(terno.status)}>
-                              {terno.status}
-                            </Badge>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge className={getEnvironmentColor(terno.environment)}>
-                            {terno.environment}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Globe className="h-4 w-4 text-gray-400" />
-                            <span>{terno.country}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <span className="font-medium">{terno.transactionCount.toLocaleString()}</span>
-                        </TableCell>
-                        <TableCell>
-                          <span className="font-medium">
-                            {formatCurrency(terno.monthlyVolume, terno.currency)}
-                          </span>
-                        </TableCell>
-                        <TableCell className="text-sm text-gray-600 dark:text-gray-400">
-                          {terno.lastUsed ? formatDate(terno.lastUsed) : 'Never'}
-                        </TableCell>
-                        <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuItem onClick={() => handleViewDetails(terno)}>
-                                <Eye className="mr-2 h-4 w-4" />
-                                View Details
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleEdit(terno)}>
-                                <Edit className="mr-2 h-4 w-4" />
-                                Edit
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => copyToClipboard(terno.apiKey)}>
-                                <Copy className="mr-2 h-4 w-4" />
-                                Copy API Key
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem className="text-red-600">
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="ternoName">TerNo Name *</Label>
+                  <Input id="ternoName" placeholder="Enter terminal name" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="primaryUrl">Primary URL *</Label>
+                  <Input id="primaryUrl" placeholder="https://yourdomain.com" />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea id="description" placeholder="Describe the purpose of this terminal" />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="businessClassification">Business Classification *</Label>
+                  <Select onValueChange={handleBusinessClassificationChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select business type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <div className="p-2">
+                        <Input placeholder="Search business type..." className="mb-2" />
+                      </div>
+                      {businessClassifications.map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {type}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="mccCode">Merchant Category Code (MCC) *</Label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select MCC code" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <div className="p-2">
+                        <Input placeholder="Search MCC code..." className="mb-2" />
+                      </div>
+                      {mccCodes.map((mcc) => (
+                        <SelectItem key={mcc.code} value={mcc.code}>
+                          {mcc.code} - {mcc.description}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {showCustomBusinessType && (
+                <div className="space-y-2">
+                  <Label htmlFor="customBusinessType">Custom Business Category</Label>
+                  <Input 
+                    id="customBusinessType"
+                    placeholder="Enter your business category"
+                    value={customBusinessType}
+                    onChange={(e) => setCustomBusinessType(e.target.value)}
+                  />
+                </div>
+              )}
+
+              <div className="flex justify-end gap-2">
+                <Button variant="outline">Cancel</Button>
+                <Button>Create TerNo</Button>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="form">
-          <TerNoForm 
-            terno={selectedTerNo} 
-            onSave={() => setActiveTab('list')}
-            onCancel={() => setActiveTab('list')}
-          />
-        </TabsContent>
-
-        <TabsContent value="details">
-          {selectedTerNo && (
-            <TerNoDetails 
-              terno={selectedTerNo}
-              onEdit={() => setActiveTab('form')}
-              onBack={() => setActiveTab('list')}
-            />
+        <TabsContent value="details" className="space-y-4">
+          {selectedTerNo ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>TerNo Details - {selectedTerNo.name}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <h3 className="font-semibold text-lg">Basic Information</h3>
+                    <div className="space-y-2">
+                      <div><strong>TerNo ID:</strong> {selectedTerNo.id}</div>
+                      <div><strong>Name:</strong> {selectedTerNo.name}</div>
+                      <div><strong>Description:</strong> {selectedTerNo.description}</div>
+                      <div><strong>Status:</strong> 
+                        <Badge className={`ml-2 ${getStatusColor(selectedTerNo.status)}`}>
+                          {selectedTerNo.status}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <h3 className="font-semibold text-lg">Business Information</h3>
+                    <div className="space-y-2">
+                      <div><strong>Business Classification:</strong> {selectedTerNo.businessClassification}</div>
+                      <div><strong>MCC Code:</strong> {selectedTerNo.mccCode.code} - {selectedTerNo.mccCode.description}</div>
+                      <div><strong>Primary URL:</strong> {selectedTerNo.primaryUrl}</div>
+                      <div><strong>Created:</strong> {selectedTerNo.createdAt}</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-6">
+                  <h3 className="font-semibold text-lg mb-4">Performance Metrics</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <Card>
+                      <CardContent className="p-4">
+                        <div className="text-2xl font-bold">{selectedTerNo.transactionCount}</div>
+                        <div className="text-sm text-gray-600">Total Transactions</div>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="p-4">
+                        <div className="text-2xl font-bold">${selectedTerNo.monthlyVolume.toLocaleString()}</div>
+                        <div className="text-sm text-gray-600">Monthly Volume</div>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="p-4">
+                        <div className="text-2xl font-bold">98.5%</div>
+                        <div className="text-sm text-gray-600">Success Rate</div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card>
+              <CardContent className="flex items-center justify-center h-64">
+                <div className="text-center">
+                  <Terminal className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No TerNo Selected</h3>
+                  <p className="text-gray-600">Select a TerNo from the list to view details</p>
+                </div>
+              </CardContent>
+            </Card>
           )}
         </TabsContent>
       </Tabs>

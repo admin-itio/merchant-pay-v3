@@ -3,368 +3,279 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { useToast } from '@/hooks/use-toast';
 import { 
+  Share2, 
   Users, 
   DollarSign, 
-  Share2, 
-  Copy, 
   Mail, 
-  Facebook, 
-  Twitter, 
+  Link as LinkIcon,
+  Copy,
+  Twitter,
   MessageCircle,
+  Send,
   Gift,
   TrendingUp,
   Calendar,
-  Check
+  ArrowUpRight
 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
 
 const ReferralManagement = () => {
+  const [activeTab, setActiveTab] = useState('overview');
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [email, setEmail] = useState('');
   const { toast } = useToast();
-  const [referralCode] = useState('REF-ABC123');
-  const [emailInput, setEmailInput] = useState('');
 
-  const referralStats = [
-    {
-      title: 'Total Referrals',
-      value: '24',
-      icon: Users,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50'
-    },
-    {
-      title: 'Active Referrals',
-      value: '18',
-      icon: TrendingUp,
-      color: 'text-green-600',
-      bgColor: 'bg-green-50'
-    },
-    {
-      title: 'Total Earnings',
-      value: '$1,240.50',
-      icon: DollarSign,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-50'
-    },
-    {
-      title: 'Pending Payouts',
-      value: '$320.00',
-      icon: Gift,
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-50'
-    }
-  ];
+  const referralStats = {
+    totalReferred: 24,
+    activeReferrals: 18,
+    totalEarnings: 1250.00,
+    pendingEarnings: 380.00,
+    availableBalance: 870.00,
+    conversionRate: 75,
+    lifetimeCommission: 3420.50
+  };
 
-  const referralHistory = [
-    {
-      id: 'REF-001',
-      email: 'john@example.com',
-      name: 'John Smith',
-      status: 'Active',
-      signupDate: '2024-01-15',
-      commission: '$45.00',
-      transactions: 12
-    },
-    {
-      id: 'REF-002',
-      email: 'sarah@example.com',
-      name: 'Sarah Johnson',
-      status: 'Active',
-      signupDate: '2024-01-10',
-      commission: '$78.50',
-      transactions: 8
-    },
-    {
-      id: 'REF-003',
-      email: 'mike@example.com',
-      name: 'Mike Wilson',
-      status: 'Pending',
-      signupDate: '2024-01-08',
-      commission: '$0.00',
-      transactions: 0
-    },
-    {
-      id: 'REF-004',
-      email: 'emma@example.com',
-      name: 'Emma Davis',
-      status: 'Active',
-      signupDate: '2024-01-05',
-      commission: '$125.75',
-      transactions: 15
-    }
+  const recentReferrals = [
+    { id: 1, name: 'John Smith', email: 'john@example.com', status: 'active', joinDate: '2024-06-01', commission: 50.00 },
+    { id: 2, name: 'Sarah Wilson', email: 'sarah@example.com', status: 'pending', joinDate: '2024-06-05', commission: 0.00 },
+    { id: 3, name: 'Mike Johnson', email: 'mike@example.com', status: 'active', joinDate: '2024-05-28', commission: 75.00 },
+    { id: 4, name: 'Emily Davis', email: 'emily@example.com', status: 'active', joinDate: '2024-05-25', commission: 60.00 },
   ];
 
   const payoutHistory = [
-    {
-      id: 'PAY-001',
-      amount: '$450.00',
-      date: '2024-01-01',
-      status: 'Completed',
-      method: 'Bank Transfer'
-    },
-    {
-      id: 'PAY-002',
-      amount: '$320.50',
-      date: '2023-12-01',
-      status: 'Completed',
-      method: 'PayPal'
-    },
-    {
-      id: 'PAY-003',
-      amount: '$275.25',
-      date: '2023-11-01',
-      status: 'Completed',
-      method: 'Bank Transfer'
-    }
+    { id: 1, amount: 250.00, date: '2024-05-01', status: 'completed', txnId: 'REF001' },
+    { id: 2, amount: 180.00, date: '2024-04-01', status: 'completed', txnId: 'REF002' },
+    { id: 3, amount: 320.00, date: '2024-03-01', status: 'completed', txnId: 'REF003' },
   ];
 
-  const handleCopyReferralCode = () => {
-    navigator.clipboard.writeText(referralCode);
-    toast({
-      title: "Copied!",
-      description: "Referral code copied to clipboard",
-    });
-  };
+  const referralLink = 'https://merchantpay.com/signup?ref=YOUR_CODE';
 
-  const handleCopyReferralLink = () => {
-    const referralLink = `https://app.company.com/signup?ref=${referralCode}`;
+  const handleCopyLink = () => {
     navigator.clipboard.writeText(referralLink);
     toast({
-      title: "Copied!",
-      description: "Referral link copied to clipboard",
+      title: "Link Copied!",
+      description: "Referral link has been copied to your clipboard.",
     });
   };
 
-  const handleSendEmail = () => {
-    if (!emailInput.trim()) {
+  const handleShareEmail = () => {
+    if (!email) {
       toast({
-        title: "Validation Error",
-        description: "Please enter an email address",
-        variant: "destructive",
+        title: "Email Required",
+        description: "Please enter an email address to send the invitation.",
+        variant: "destructive"
       });
       return;
     }
-
+    
     toast({
-      title: "Invitation Sent",
-      description: `Referral invitation sent to ${emailInput}`,
+      title: "You have done a great job!",
+      description: "If your referral joins by this link in the next 30 days, you would be awarded the referral incentive. Your invitation has been sent successfully!",
     });
-    setEmailInput('');
+    setEmail('');
+    setShareModalOpen(false);
   };
 
-  const handleSocialShare = (platform: string) => {
-    const referralLink = `https://app.company.com/signup?ref=${referralCode}`;
-    const message = "Join me on this amazing payment platform and get started with a special bonus!";
+  const handleShareX = () => {
+    const text = "Join MerchantPay and start accepting payments with ease! Use my referral link to get started.";
+    const url = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(referralLink)}`;
+    window.open(url, '_blank');
     
-    let shareUrl = '';
-    switch (platform) {
-      case 'facebook':
-        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(referralLink)}`;
-        break;
-      case 'twitter':
-        shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}&url=${encodeURIComponent(referralLink)}`;
-        break;
-      case 'whatsapp':
-        shareUrl = `https://wa.me/?text=${encodeURIComponent(message + ' ' + referralLink)}`;
-        break;
-    }
-    
-    if (shareUrl) {
-      window.open(shareUrl, '_blank', 'width=600,height=400');
-    }
+    toast({
+      title: "You have done a great job!",
+      description: "If your referral joins by this link in the next 30 days, you would be awarded the referral incentive.",
+    });
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'Active':
-        return <Badge className="bg-green-100 text-green-800">Active</Badge>;
-      case 'Pending':
-        return <Badge className="bg-yellow-100 text-yellow-800">Pending</Badge>;
-      case 'Completed':
-        return <Badge className="bg-blue-100 text-blue-800">Completed</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
-    }
+  const handleShareWhatsApp = () => {
+    const text = `Join MerchantPay and start accepting payments with ease! ${referralLink}`;
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+    
+    toast({
+      title: "You have done a great job!",
+      description: "If your referral joins by this link in the next 30 days, you would be awarded the referral incentive.",
+    });
+  };
+
+  const handleShareTelegram = () => {
+    const text = `Join MerchantPay and start accepting payments with ease! ${referralLink}`;
+    const url = `https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+    
+    toast({
+      title: "You have done a great job!",
+      description: "If your referral joins by this link in the next 30 days, you would be awarded the referral incentive.",
+    });
+  };
+
+  const handleMoveToMainBalance = () => {
+    toast({
+      title: "Balance Transfer Initiated",
+      description: `$${referralStats.availableBalance.toFixed(2)} has been moved to your main balance. A new transaction has been created.`,
+    });
   };
 
   return (
-    <div className="space-y-6 p-4 lg:p-0">
-      <div className="flex flex-col gap-4 lg:flex-row lg:justify-between lg:items-center">
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Referral Management</h2>
-          <p className="text-gray-600 mt-1">Invite friends and earn rewards for every successful referral</p>
+          <h1 className="text-2xl font-bold text-gray-900">Referral Program</h1>
+          <p className="text-gray-600">Earn rewards by referring new merchants to MerchantPay</p>
         </div>
-        <Button className="flex items-center gap-2">
-          <Share2 className="h-4 w-4" />
+        <Button onClick={() => setShareModalOpen(true)}>
+          <Share2 className="h-4 w-4 mr-2" />
           Share Program
         </Button>
       </div>
 
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {referralStats.map((stat, index) => {
-          const Icon = stat.icon;
-          return (
-            <Card key={index}>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                    <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
-                  </div>
-                  <div className={`p-3 rounded-lg ${stat.bgColor}`}>
-                    <Icon className={`h-6 w-6 ${stat.color}`} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-
-      <Tabs defaultValue="overview" className="space-y-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="referrals">My Referrals</TabsTrigger>
-          <TabsTrigger value="payouts">Payouts</TabsTrigger>
+          <TabsTrigger value="payouts">Payout History</TabsTrigger>
           <TabsTrigger value="invite">Invite Friends</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-6">
-          {/* Referral Code Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Your Referral Code</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Input 
-                  value={referralCode} 
-                  readOnly 
-                  className="bg-gray-50 font-mono"
-                />
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={handleCopyReferralCode}
-                  className="flex items-center gap-2"
-                >
-                  <Copy className="h-4 w-4" />
-                  Copy
-                </Button>
-              </div>
-              <div className="flex items-center gap-2">
-                <Input 
-                  value={`https://app.company.com/signup?ref=${referralCode}`}
-                  readOnly 
-                  className="bg-gray-50 text-sm"
-                />
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={handleCopyReferralLink}
-                  className="flex items-center gap-2"
-                >
-                  <Copy className="h-4 w-4" />
-                  Copy Link
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Program Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Referral Program Details</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h4 className="font-semibold mb-2">How it works</h4>
-                  <ul className="space-y-2 text-sm text-gray-600">
-                    <li className="flex items-center gap-2">
-                      <Check className="h-4 w-4 text-green-600" />
-                      Share your referral link with friends
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Check className="h-4 w-4 text-green-600" />
-                      They sign up and complete verification
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Check className="h-4 w-4 text-green-600" />
-                      You earn 5% of their transaction fees
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Check className="h-4 w-4 text-green-600" />
-                      Get paid monthly via your preferred method
-                    </li>
-                  </ul>
-                </div>
-                <div>
-                  <h4 className="font-semibold mb-2">Reward Structure</h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span>Commission Rate:</span>
-                      <span className="font-medium">5% of transaction fees</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Minimum Payout:</span>
-                      <span className="font-medium">$50.00</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Payout Schedule:</span>
-                      <span className="font-medium">Monthly</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Cookie Duration:</span>
-                      <span className="font-medium">30 days</span>
-                    </div>
+        <TabsContent value="overview" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Total Referred</p>
+                    <p className="text-2xl font-bold text-gray-900">{referralStats.totalReferred}</p>
                   </div>
+                  <Users className="h-8 w-8 text-blue-600" />
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+                <p className="text-xs text-green-600 mt-1">+3 this month</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Active Referrals</p>
+                    <p className="text-2xl font-bold text-gray-900">{referralStats.activeReferrals}</p>
+                  </div>
+                  <TrendingUp className="h-8 w-8 text-green-600" />
+                </div>
+                <p className="text-xs text-green-600 mt-1">{referralStats.conversionRate}% conversion rate</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Available Balance</p>
+                    <p className="text-2xl font-bold text-gray-900">${referralStats.availableBalance.toFixed(2)}</p>
+                  </div>
+                  <DollarSign className="h-8 w-8 text-green-600" />
+                </div>
+                <p className="text-xs text-gray-600 mt-1">Ready to withdraw</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Total Earnings</p>
+                    <p className="text-2xl font-bold text-gray-900">${referralStats.lifetimeCommission.toFixed(2)}</p>
+                  </div>
+                  <Gift className="h-8 w-8 text-purple-600" />
+                </div>
+                <p className="text-xs text-green-600 mt-1">Lifetime commission</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Referral Balance</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Available Balance:</span>
+                  <span className="text-2xl font-bold text-green-600">${referralStats.availableBalance.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Pending Earnings:</span>
+                  <span className="text-lg font-semibold text-yellow-600">${referralStats.pendingEarnings.toFixed(2)}</span>
+                </div>
+                <Button 
+                  className="w-full" 
+                  onClick={handleMoveToMainBalance}
+                  disabled={referralStats.availableBalance === 0}
+                >
+                  <ArrowUpRight className="h-4 w-4 mr-2" />
+                  Move to Main Balance
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Quick Share</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <Input value={referralLink} readOnly className="flex-1" />
+                  <Button variant="outline" size="sm" onClick={handleCopyLink}>
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button variant="outline" onClick={handleShareX} className="flex items-center gap-2">
+                    <Twitter className="h-4 w-4" />
+                    Share on X
+                  </Button>
+                  <Button variant="outline" onClick={handleShareWhatsApp} className="flex items-center gap-2">
+                    <MessageCircle className="h-4 w-4" />
+                    WhatsApp
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
         <TabsContent value="referrals" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Referral History</CardTitle>
+              <CardTitle>Recent Referrals</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-gray-200">
-                      <th className="text-left py-3 px-4 font-medium text-gray-600">Name</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-600">Email</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-600">Status</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-600">Signup Date</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-600">Transactions</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-600">Commission</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {referralHistory.map((referral) => (
-                      <tr key={referral.id} className="border-b border-gray-100 hover:bg-gray-50">
-                        <td className="py-3 px-4">
-                          <div>
-                            <div className="font-medium">{referral.name}</div>
-                            <div className="text-sm text-gray-500">{referral.id}</div>
-                          </div>
-                        </td>
-                        <td className="py-3 px-4 text-sm">{referral.email}</td>
-                        <td className="py-3 px-4">{getStatusBadge(referral.status)}</td>
-                        <td className="py-3 px-4 text-sm">{referral.signupDate}</td>
-                        <td className="py-3 px-4 text-sm">{referral.transactions}</td>
-                        <td className="py-3 px-4 font-medium">{referral.commission}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="space-y-4">
+                {recentReferrals.map((referral) => (
+                  <div key={referral.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="flex items-center space-x-4">
+                      <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
+                        <Users className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <h3 className="font-medium text-gray-900">{referral.name}</h3>
+                        <p className="text-sm text-gray-600">{referral.email}</p>
+                        <p className="text-xs text-gray-500">Joined: {new Date(referral.joinDate).toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <Badge className={referral.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}>
+                        {referral.status}
+                      </Badge>
+                      <p className="text-sm font-medium text-gray-900 mt-1">
+                        ${referral.commission.toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
@@ -378,24 +289,22 @@ const ReferralManagement = () => {
             <CardContent>
               <div className="space-y-4">
                 {payoutHistory.map((payout) => (
-                  <div key={payout.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
-                    <div className="flex items-center gap-4">
-                      <div className="p-2 bg-green-50 rounded-lg">
+                  <div key={payout.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="flex items-center space-x-4">
+                      <div className="h-10 w-10 bg-green-100 rounded-full flex items-center justify-center">
                         <DollarSign className="h-5 w-5 text-green-600" />
                       </div>
                       <div>
-                        <div className="font-medium">{payout.amount}</div>
-                        <div className="text-sm text-gray-600">via {payout.method}</div>
+                        <h3 className="font-medium text-gray-900">Referral Payout</h3>
+                        <p className="text-sm text-gray-600">Transaction ID: {payout.txnId}</p>
+                        <p className="text-xs text-gray-500">{new Date(payout.date).toLocaleDateString()}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="flex items-center gap-2">
-                        {getStatusBadge(payout.status)}
-                      </div>
-                      <div className="text-sm text-gray-600 mt-1">
-                        <Calendar className="h-3 w-3 inline mr-1" />
-                        {payout.date}
-                      </div>
+                      <p className="text-lg font-semibold text-green-600">${payout.amount.toFixed(2)}</p>
+                      <Badge className="bg-green-100 text-green-800">
+                        {payout.status}
+                      </Badge>
                     </div>
                   </div>
                 ))}
@@ -405,72 +314,102 @@ const ReferralManagement = () => {
         </TabsContent>
 
         <TabsContent value="invite" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Email Invitation */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Mail className="h-5 w-5" />
-                  Email Invitation
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email Address</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={emailInput}
-                    onChange={(e) => setEmailInput(e.target.value)}
-                    placeholder="friend@example.com"
-                  />
-                </div>
-                <Button onClick={handleSendEmail} className="w-full">
-                  Send Invitation
-                </Button>
-              </CardContent>
-            </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Invite Friends</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="text-center space-y-4">
+                <Gift className="h-16 w-16 text-purple-600 mx-auto" />
+                <h3 className="text-xl font-semibold">Earn $50 for each referral!</h3>
+                <p className="text-gray-600">Share MerchantPay with your network and earn rewards when they join.</p>
+              </div>
 
-            {/* Social Media Sharing */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Share2 className="h-5 w-5" />
-                  Social Media Sharing
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 gap-2">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => handleSocialShare('facebook')}
-                    className="flex items-center gap-2 justify-start"
-                  >
-                    <Facebook className="h-4 w-4" />
-                    Share on Facebook
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Your Referral Link</label>
+                  <div className="flex items-center space-x-2">
+                    <Input value={referralLink} readOnly className="flex-1" />
+                    <Button variant="outline" onClick={handleCopyLink}>
+                      <Copy className="h-4 w-4 mr-2" />
+                      Copy
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Button variant="outline" onClick={handleShareX} className="flex items-center justify-center gap-2 h-12">
+                    <Twitter className="h-5 w-5" />
+                    Share on X
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    onClick={() => handleSocialShare('twitter')}
-                    className="flex items-center gap-2 justify-start"
-                  >
-                    <Twitter className="h-4 w-4" />
-                    Share on Twitter
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    onClick={() => handleSocialShare('whatsapp')}
-                    className="flex items-center gap-2 justify-start"
-                  >
-                    <MessageCircle className="h-4 w-4" />
+                  <Button variant="outline" onClick={handleShareWhatsApp} className="flex items-center justify-center gap-2 h-12">
+                    <MessageCircle className="h-5 w-5" />
                     Share on WhatsApp
                   </Button>
+                  <Button variant="outline" onClick={handleShareTelegram} className="flex items-center justify-center gap-2 h-12">
+                    <Send className="h-5 w-5" />
+                    Share on Telegram
+                  </Button>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
+
+      <Dialog open={shareModalOpen} onOpenChange={setShareModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Share Referral Program</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Send via Email</label>
+              <div className="flex items-center space-x-2">
+                <Input
+                  type="email"
+                  placeholder="Enter email address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="flex-1"
+                />
+                <Button onClick={handleShareEmail}>
+                  <Mail className="h-4 w-4 mr-2" />
+                  Send
+                </Button>
+              </div>
+            </div>
+
+            <div className="border-t pt-4">
+              <p className="text-sm font-medium text-gray-700 mb-3">Share on Social Media</p>
+              <div className="grid grid-cols-3 gap-2">
+                <Button variant="outline" onClick={handleShareX} className="flex items-center justify-center gap-2">
+                  <Twitter className="h-4 w-4" />
+                  X
+                </Button>
+                <Button variant="outline" onClick={handleShareWhatsApp} className="flex items-center justify-center gap-2">
+                  <MessageCircle className="h-4 w-4" />
+                  WhatsApp
+                </Button>
+                <Button variant="outline" onClick={handleShareTelegram} className="flex items-center justify-center gap-2">
+                  <Send className="h-4 w-4" />
+                  Telegram
+                </Button>
+              </div>
+            </div>
+
+            <div className="border-t pt-4">
+              <p className="text-sm font-medium text-gray-700 mb-2">Referral Link</p>
+              <div className="flex items-center space-x-2">
+                <Input value={referralLink} readOnly className="flex-1" />
+                <Button variant="outline" onClick={handleCopyLink}>
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

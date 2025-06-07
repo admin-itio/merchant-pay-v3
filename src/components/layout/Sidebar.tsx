@@ -3,20 +3,19 @@ import React from 'react';
 import { 
   Home, 
   CreditCard, 
-  Settings, 
-  Users, 
   Wallet, 
   FileText, 
   Shield,
   Menu,
   X,
-  HeadphonesIcon,
   Gift,
   Key,
   Megaphone,
-  ArrowUpRight
+  ArrowUpRight,
+  Users as UsersIcon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 interface SidebarProps {
   activeTab: string;
@@ -26,6 +25,9 @@ interface SidebarProps {
 }
 
 const Sidebar = ({ activeTab, setActiveTab, isOpen, setIsOpen }: SidebarProps) => {
+  // Mock announcement count - in real app this would come from API
+  const unreadAnnouncementsCount = 3;
+
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: Home },
     { id: 'transactions', label: 'Transactions', icon: CreditCard },
@@ -34,10 +36,13 @@ const Sidebar = ({ activeTab, setActiveTab, isOpen, setIsOpen }: SidebarProps) =
     { id: 'payouts', label: 'Payouts', icon: ArrowUpRight },
     { id: 'payment-methods', label: 'Payment Methods', icon: FileText },
     { id: 'terno', label: 'TerNo Management', icon: Key },
-    { id: 'announcements', label: 'Announcements', icon: Megaphone },
+    { 
+      id: 'announcements', 
+      label: 'Announcements', 
+      icon: Megaphone,
+      badge: unreadAnnouncementsCount > 0 ? unreadAnnouncementsCount : null
+    },
     { id: 'referrals', label: 'Referrals', icon: Gift },
-    { id: 'support', label: 'Support', icon: HeadphonesIcon },
-    { id: 'profile', label: 'Profile', icon: Settings },
   ];
 
   return (
@@ -80,15 +85,24 @@ const Sidebar = ({ activeTab, setActiveTab, isOpen, setIsOpen }: SidebarProps) =
                   setIsOpen(false);
                 }}
                 className={`
-                  w-full flex items-center gap-2 lg:gap-3 px-2 lg:px-3 py-2 rounded-lg text-left transition-colors text-sm lg:text-base
+                  w-full flex items-center justify-between gap-2 lg:gap-3 px-2 lg:px-3 py-2 rounded-lg text-left transition-colors text-sm lg:text-base
                   ${activeTab === item.id 
                     ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800' 
                     : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100'
                   }
                 `}
               >
-                <Icon className="h-4 w-4 lg:h-5 lg:w-5 flex-shrink-0" />
-                <span className="font-medium">{item.label}</span>
+                <div className="flex items-center gap-2 lg:gap-3">
+                  <Icon className="h-4 w-4 lg:h-5 lg:w-5 flex-shrink-0" />
+                  <span className="font-medium">{item.label}</span>
+                </div>
+                {item.badge && (
+                  <Badge 
+                    className="bg-red-500 hover:bg-red-500 text-white text-xs h-5 w-5 flex items-center justify-center p-0"
+                  >
+                    {item.badge}
+                  </Badge>
+                )}
               </button>
             );
           })}

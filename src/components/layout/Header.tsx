@@ -16,7 +16,8 @@ import {
   MessageSquare,
   Building,
   Users,
-  Mail
+  Mail,
+  LifeBuoy
 } from 'lucide-react';
 import { 
   DropdownMenu,
@@ -87,7 +88,7 @@ const Header = ({ onToggleSidebar, activeTab, setActiveTab }: HeaderProps) => {
                 </Badge>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-80">
+            <DropdownMenuContent align="end" className="w-80 bg-white dark:bg-gray-800">
               <div className="p-4">
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="font-medium">Notifications</h4>
@@ -121,16 +122,38 @@ const Header = ({ onToggleSidebar, activeTab, setActiveTab }: HeaderProps) => {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Support */}
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="p-2 hidden sm:flex"
-            onClick={() => setActiveTab('support')}
-          >
-            <HelpCircle className="h-4 w-4" />
-            <span className="hidden lg:inline ml-2">Help</span>
-          </Button>
+          {/* Support Center */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="p-2 hidden sm:flex"
+              >
+                <HelpCircle className="h-4 w-4" />
+                <span className="hidden lg:inline ml-2">Support</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56 bg-white dark:bg-gray-800">
+              <DropdownMenuItem onClick={() => setActiveTab('support')}>
+                <LifeBuoy className="mr-2 h-4 w-4" />
+                Support Center
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setActiveTab('support')}>
+                <MessageSquare className="mr-2 h-4 w-4" />
+                Live Chat
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setActiveTab('support')}>
+                <HelpCircle className="mr-2 h-4 w-4" />
+                Knowledge Base
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                <Mail className="mr-2 h-4 w-4" />
+                Contact Us
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           {/* Profile Menu */}
           <DropdownMenu>
@@ -142,7 +165,7 @@ const Header = ({ onToggleSidebar, activeTab, setActiveTab }: HeaderProps) => {
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end">
+            <DropdownMenuContent className="w-56 bg-white dark:bg-gray-800" align="end">
               <div className="flex items-center justify-start gap-2 p-2">
                 <div className="flex flex-col space-y-1 leading-none">
                   <p className="font-medium">John Doe</p>
@@ -152,7 +175,7 @@ const Header = ({ onToggleSidebar, activeTab, setActiveTab }: HeaderProps) => {
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setActiveTab('profile')}>
                 <User className="mr-2 h-4 w-4" />
-                Profile Settings
+                User Profile
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setActiveTab('profile')}>
                 <Building className="mr-2 h-4 w-4" />
@@ -160,7 +183,7 @@ const Header = ({ onToggleSidebar, activeTab, setActiveTab }: HeaderProps) => {
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setActiveTab('profile')}>
                 <Shield className="mr-2 h-4 w-4" />
-                Security
+                Security Settings
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setActiveTab('profile')}>
                 <Users className="mr-2 h-4 w-4" />
@@ -170,10 +193,13 @@ const Header = ({ onToggleSidebar, activeTab, setActiveTab }: HeaderProps) => {
                 <Mail className="mr-2 h-4 w-4" />
                 Authorized Emails
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => setActiveTab('support')}>
-                <MessageSquare className="mr-2 h-4 w-4" />
-                Support Center
+              <DropdownMenuItem onClick={() => setActiveTab('profile')}>
+                <CreditCard className="mr-2 h-4 w-4" />
+                Billing & Plans
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setActiveTab('profile')}>
+                <Settings className="mr-2 h-4 w-4" />
+                Account Settings
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
