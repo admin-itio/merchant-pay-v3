@@ -1,10 +1,10 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BarChart3, List, Settings } from 'lucide-react';
+import { BarChart3, List, Settings, Activity } from 'lucide-react';
 import TransactionManagement from './TransactionManagement';
 import TransactionsList from './TransactionsList';
 import TransactionAnalytics from './TransactionAnalytics';
+import TransactionMonitoring from './TransactionMonitoring';
 
 // Mock transaction data - in a real app this would come from an API
 const mockTransactions = [
@@ -80,7 +80,7 @@ const TransactionDashboard = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="analytics" className="flex items-center gap-2">
             <BarChart3 className="h-4 w-4" />
             Analytics
@@ -88,6 +88,10 @@ const TransactionDashboard = () => {
           <TabsTrigger value="transactions" className="flex items-center gap-2">
             <List className="h-4 w-4" />
             Transactions
+          </TabsTrigger>
+          <TabsTrigger value="monitoring" className="flex items-center gap-2">
+            <Activity className="h-4 w-4" />
+            Monitoring
           </TabsTrigger>
           <TabsTrigger value="management" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
@@ -101,6 +105,10 @@ const TransactionDashboard = () => {
 
         <TabsContent value="transactions" className="mt-6">
           <TransactionsList />
+        </TabsContent>
+
+        <TabsContent value="monitoring" className="mt-6">
+          <TransactionMonitoring />
         </TabsContent>
 
         <TabsContent value="management" className="mt-6">
