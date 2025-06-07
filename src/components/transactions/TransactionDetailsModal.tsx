@@ -4,18 +4,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { 
-  CreditCard, 
-  User, 
-  Globe, 
-  Shield, 
-  Clock, 
-  AlertTriangle,
-  CheckCircle,
-  Download,
-  RefreshCw,
-  Eye
-} from 'lucide-react';
+import { Copy, ExternalLink, AlertTriangle } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface Transaction {
   id: string;
@@ -46,13 +36,16 @@ interface TransactionDetailsModalProps {
 const TransactionDetailsModal = ({ transaction, isOpen, onClose }: TransactionDetailsModalProps) => {
   if (!transaction) return null;
 
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success('Copied to clipboard');
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed': return 'bg-green-100 text-green-800';
       case 'pending': return 'bg-yellow-100 text-yellow-800';
       case 'failed': return 'bg-red-100 text-red-800';
-      case 'refunded': return 'bg-blue-100 text-blue-800';
-      case 'chargeback': return 'bg-purple-100 text-purple-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -63,147 +56,129 @@ const TransactionDetailsModal = ({ transaction, isOpen, onClose }: TransactionDe
     return 'text-red-600';
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'completed': return <CheckCircle className="h-4 w-4" />;
-      case 'pending': return <Clock className="h-4 w-4" />;
-      case 'failed': return <AlertTriangle className="h-4 w-4" />;
-      default: return <CreditCard className="h-4 w-4" />;
-    }
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            {getStatusIcon(transaction.status)}
-            Transaction Details - {transaction.id}
+            Transaction Details
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => copyToClipboard(transaction.id)}
+            >
+              <Copy className="h-4 w-4" />
+            </Button>
           </DialogTitle>
         </DialogHeader>
-
+        
         <div className="space-y-6">
-          {/* Status and Amount */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          {/* Basic Info */}
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <div className="flex items-center gap-2 mb-2">
+              <label className="text-sm font-medium text-muted-foreground">Transaction ID</label>
+              <p className="font-mono text-sm">{transaction.id}</p>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-muted-foreground">Status</label>
+              <div className="mt-1">
                 <Badge className={getStatusColor(transaction.status)}>
                   {transaction.status.toUpperCase()}
                 </Badge>
-                <span className={`font-medium ${getFraudScoreColor(transaction.fraudScore)}`}>
-                  Fraud Score: {transaction.fraudScore}
-                </span>
               </div>
-              <p className="text-2xl font-bold">
-                {transaction.currency} {transaction.amount.toFixed(2)}
-              </p>
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                <Download className="h-4 w-4 mr-2" />
-                Receipt
-              </Button>
-              <Button variant="outline" size="sm">
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Retry
-              </Button>
+            <div>
+              <label className="text-sm font-medium text-muted-foreground">Amount</label>
+              <p className="text-lg font-semibold">{transaction.currency} {transaction.amount.toFixed(2)}</p>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-muted-foreground">Date/Time</label>
+              <p className="text-sm">{new Date(transaction.timestamp).toLocaleString()}</p>
             </div>
           </div>
 
           <Separator />
 
-          {/* Transaction Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold flex items-center gap-2">
-                <CreditCard className="h-5 w-5" />
-                Payment Details
-              </h3>
-              <div className="space-y-3">
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Transaction ID</label>
-                  <p className="font-mono">{transaction.id}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Merchant Reference</label>
-                  <p>{transaction.merchantRef}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Payment Method</label>
-                  <p>{transaction.paymentMethod}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Gateway</label>
-                  <p>{transaction.gateway}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Response Code</label>
-                  <p className="font-mono">{transaction.responseCode}</p>
-                </div>
+          {/* Customer Info */}
+          <div>
+            <h3 className="font-medium mb-3">Customer Information</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Name</label>
+                <p>{transaction.customer}</p>
               </div>
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold flex items-center gap-2">
-                <User className="h-5 w-5" />
-                Customer Information
-              </h3>
-              <div className="space-y-3">
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Customer Name</label>
-                  <p>{transaction.customer}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Email</label>
-                  <p>{transaction.customerEmail}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Phone</label>
-                  <p>{transaction.customerPhone}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Country</label>
-                  <p className="flex items-center gap-2">
-                    <Globe className="h-4 w-4" />
-                    {transaction.country}
-                  </p>
-                </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Email</label>
+                <p>{transaction.customerEmail}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Phone</label>
+                <p>{transaction.customerPhone}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Country</label>
+                <p>{transaction.country}</p>
               </div>
             </div>
           </div>
 
           <Separator />
 
-          {/* Technical Details */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold flex items-center gap-2">
-              <Shield className="h-5 w-5" />
-              Technical Details
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Payment Info */}
+          <div>
+            <h3 className="font-medium mb-3">Payment Information</h3>
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-gray-500">Timestamp</label>
-                <p>{new Date(transaction.timestamp).toLocaleString()}</p>
+                <label className="text-sm font-medium text-muted-foreground">Payment Method</label>
+                <p>{transaction.paymentMethod}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-500">IP Address</label>
-                <p className="font-mono">{transaction.ipAddress}</p>
+                <label className="text-sm font-medium text-muted-foreground">Gateway</label>
+                <p>{transaction.gateway}</p>
               </div>
-              <div className="md:col-span-2">
-                <label className="text-sm font-medium text-gray-500">User Agent</label>
-                <p className="text-sm break-all">{transaction.userAgent}</p>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Merchant Reference</label>
+                <p>{transaction.merchantRef}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Response Code</label>
+                <p>{transaction.responseCode}</p>
               </div>
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex justify-end gap-2 pt-4">
+          <Separator />
+
+          {/* Security Info */}
+          <div>
+            <h3 className="font-medium mb-3">Security Information</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Fraud Score</label>
+                <div className="flex items-center gap-2">
+                  <span className={`font-semibold ${getFraudScoreColor(transaction.fraudScore)}`}>
+                    {transaction.fraudScore}
+                  </span>
+                  {transaction.fraudScore > 70 && (
+                    <AlertTriangle className="h-4 w-4 text-red-500" />
+                  )}
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">IP Address</label>
+                <p className="font-mono text-sm">{transaction.ipAddress}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-2 pt-4">
             <Button variant="outline" onClick={onClose}>
               Close
             </Button>
-            <Button>
-              <Eye className="h-4 w-4 mr-2" />
-              View Full Timeline
+            <Button variant="outline">
+              <ExternalLink className="h-4 w-4 mr-2" />
+              View in Gateway
             </Button>
           </div>
         </div>

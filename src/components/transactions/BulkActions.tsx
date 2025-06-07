@@ -1,109 +1,78 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Separator } from '@/components/ui/separator';
-import { 
-  Download, 
-  RefreshCw, 
-  Trash2, 
-  CheckCircle, 
-  XCircle,
-  MoreHorizontal
-} from 'lucide-react';
+import { X, Download, RefreshCw, Check, Ban, Trash } from 'lucide-react';
 
 interface BulkActionsProps {
   selectedCount: number;
   selectedIds: string[];
-  onBulkAction: (action: string, ids: string[]) => void;
+  onBulkAction: (action: string, selectedIds: string[]) => void;
   onClearSelection: () => void;
 }
 
 const BulkActions = ({ selectedCount, selectedIds, onBulkAction, onClearSelection }: BulkActionsProps) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [selectedAction, setSelectedAction] = React.useState<string>('');
+
+  const handleActionSubmit = () => {
+    if (selectedAction && selectedIds.length > 0) {
+      onBulkAction(selectedAction, selectedIds);
+      setSelectedAction('');
+    }
+  };
+
+  const bulkActions = [
+    { value: 'export', label: 'Export Selected', icon: Download },
+    { value: 'retry', label: 'Retry Failed', icon: RefreshCw },
+    { value: 'approve', label: 'Approve Pending', icon: Check },
+    { value: 'cancel', label: 'Cancel Transactions', icon: Ban },
+    { value: 'delete', label: 'Delete Records', icon: Trash }
+  ];
 
   if (selectedCount === 0) return null;
 
-  const handleAction = (action: string) => {
-    onBulkAction(action, selectedIds);
-    setIsOpen(false);
-  };
-
   return (
-    <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-      <Badge variant="secondary" className="bg-blue-100 text-blue-800">
-        {selectedCount} selected
-      </Badge>
-      
-      <div className="flex items-center gap-1">
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={() => handleAction('export')}
-        >
-          <Download className="h-4 w-4 mr-1" />
-          Export
-        </Button>
+    <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border">
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
+          <Badge variant="secondary">
+            {selectedCount} selected
+          </Badge>
+          <Button variant="ghost" size="sm" onClick={onClearSelection}>
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
         
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={() => handleAction('retry')}
-        >
-          <RefreshCw className="h-4 w-4 mr-1" />
-          Retry
-        </Button>
-
-        <Popover open={isOpen} onOpenChange={setIsOpen}>
-          <PopoverTrigger asChild>
-            <Button variant="outline" size="sm">
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-48" align="start">
-            <div className="space-y-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full justify-start text-green-600 hover:text-green-700 hover:bg-green-50"
-                onClick={() => handleAction('approve')}
-              >
-                <CheckCircle className="h-4 w-4 mr-2" />
-                Mark as Completed
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
-                onClick={() => handleAction('cancel')}
-              >
-                <XCircle className="h-4 w-4 mr-2" />
-                Cancel Transactions
-              </Button>
-              <Separator className="my-1" />
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
-                onClick={() => handleAction('delete')}
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete Records
-              </Button>
-            </div>
-          </PopoverContent>
-        </Popover>
+        <div className="flex items-center gap-2">
+          <Select value={selectedAction} onValueChange={setSelectedAction}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Choose action..." />
+            </SelectTrigger>
+            <SelectContent>
+              {bulkActions.map((action) => {
+                const Icon = action.icon;
+                return (
+                  <SelectItem key={action.value} value={action.value}>
+                    <div className="flex items-center gap-2">
+                      <Icon className="h-4 w-4" />
+                      {action.label}
+                    </div>
+                  </SelectItem>
+                );
+              })}
+            </SelectContent>
+          </Select>
+          
+          <Button 
+            onClick={handleActionSubmit} 
+            disabled={!selectedAction}
+            size="sm"
+          >
+            Apply
+          </Button>
+        </div>
       </div>
-
-      <Button 
-        variant="ghost" 
-        size="sm"
-        onClick={onClearSelection}
-        className="ml-auto"
-      >
-        Clear Selection
-      </Button>
     </div>
   );
 };
