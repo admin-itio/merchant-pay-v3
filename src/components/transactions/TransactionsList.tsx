@@ -7,7 +7,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Search, 
   Filter, 
-  Download, 
   RefreshCw, 
   MoreHorizontal,
   Eye,
@@ -25,6 +24,7 @@ import TransactionDetailsModal from './TransactionDetailsModal';
 import AdvancedFilters from './AdvancedFilters';
 import TransactionSettings from './TransactionSettings';
 import TransactionPagination from './TransactionPagination';
+import ExportModal from '@/components/common/ExportModal';
 
 const TransactionsList = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -154,6 +154,24 @@ const TransactionsList = () => {
     setCurrentPage(page);
   };
 
+  const handleExport = (config: { from: Date; to: Date; format: string }) => {
+    console.log('Exporting transactions:', config);
+    // Implementation for exporting transaction data
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        console.log('Transaction export complete');
+        resolve(true);
+      }, 2000);
+    });
+  };
+
+  const transactionExportFormats = [
+    { value: 'csv', label: 'CSV Spreadsheet' },
+    { value: 'excel', label: 'Excel Workbook' },
+    { value: 'pdf', label: 'PDF Report' },
+    { value: 'json', label: 'JSON Data' }
+  ];
+
   return (
     <div className="space-y-4 lg:space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -162,10 +180,13 @@ const TransactionsList = () => {
           <p className="text-sm lg:text-base text-gray-600">Monitor, analyze, and manage all your transactions</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
+          <ExportModal
+            title="Export Transaction Data"
+            description="Export your transaction data with custom date ranges and formats for analysis or reporting."
+            triggerText="Export"
+            exportFormats={transactionExportFormats}
+            onExport={handleExport}
+          />
           <Button variant="outline" size="sm">
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh

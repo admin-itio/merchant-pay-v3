@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Download, RefreshCw } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import AlertsPanel from '@/components/analytics/AlertsPanel';
 import MetricsCards from '@/components/analytics/MetricsCards';
 import AnalyticsCharts from '@/components/analytics/AnalyticsCharts';
@@ -13,9 +13,28 @@ import HourlyTrends from '@/components/analytics/HourlyTrends';
 import ReportsSection from '@/components/analytics/ReportsSection';
 import AnalyticsEnhanced from '@/components/analytics/AnalyticsEnhanced';
 import TransactionsAnalytics from '@/components/analytics/TransactionsAnalytics';
+import ExportModal from '@/components/common/ExportModal';
 
 const DashboardAnalytics = () => {
   const [dateRange, setDateRange] = useState('7d');
+
+  const handleExport = (config: { from: Date; to: Date; format: string }) => {
+    console.log('Exporting analytics report:', config);
+    // Implementation for exporting analytics data
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        console.log('Analytics export complete');
+        resolve(true);
+      }, 2000);
+    });
+  };
+
+  const analyticsExportFormats = [
+    { value: 'pdf', label: 'PDF Dashboard Report' },
+    { value: 'excel', label: 'Excel Analytics Workbook' },
+    { value: 'powerpoint', label: 'PowerPoint Presentation' },
+    { value: 'csv', label: 'Raw Data (CSV)' }
+  ];
 
   return (
     <div className="space-y-6">
@@ -44,10 +63,13 @@ const DashboardAnalytics = () => {
             Refresh
           </Button>
           
-          <Button size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Export Report
-          </Button>
+          <ExportModal
+            title="Export Analytics Report"
+            description="Generate a comprehensive analytics report with your selected date range and format."
+            triggerText="Export Report"
+            exportFormats={analyticsExportFormats}
+            onExport={handleExport}
+          />
         </div>
       </div>
 
