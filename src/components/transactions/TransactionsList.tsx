@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -37,26 +38,40 @@ const TransactionsList = () => {
     { key: 'amount', label: 'Amount', visible: true, order: 1 },
     { key: 'customer', label: 'Customer', visible: true, order: 2 },
     { key: 'status', label: 'Status', visible: true, order: 3 },
-    { key: 'fraudScore', label: 'Fraud Score', visible: true, order: 4 },
-    { key: 'gateway', label: 'Gateway', visible: true, order: 5 },
-    { key: 'country', label: 'Country', visible: true, order: 6 }
+    { key: 'paymentMethod', label: 'Payment Method', visible: true, order: 4 },
+    { key: 'timestamp', label: 'Date & Time', visible: true, order: 5 },
+    { key: 'fraudScore', label: 'Fraud Score', visible: true, order: 6 },
+    { key: 'gateway', label: 'Gateway', visible: true, order: 7 },
+    { key: 'country', label: 'Country', visible: true, order: 8 },
+    { key: 'currency', label: 'Currency', visible: false, order: 9 },
+    { key: 'merchantRef', label: 'Merchant Ref', visible: false, order: 10 },
+    { key: 'customerEmail', label: 'Customer Email', visible: false, order: 11 },
+    { key: 'customerPhone', label: 'Customer Phone', visible: false, order: 12 },
+    { key: 'ipAddress', label: 'IP Address', visible: false, order: 13 },
+    { key: 'userAgent', label: 'User Agent', visible: false, order: 14 },
+    { key: 'responseCode', label: 'Response Code', visible: false, order: 15 }
   ]);
 
-  // Mock transaction data
+  // Enhanced mock transaction data with more fields
   const transactions = [
     {
       id: 'TXN001',
       amount: 1250.00,
       currency: 'USD',
       status: 'completed',
-      paymentMethod: 'Card',
-      customer: 'john.doe@email.com',
+      paymentMethod: 'Visa ****1234',
+      customer: 'John Doe',
+      customerEmail: 'john.doe@email.com',
+      customerPhone: '+1-555-0123',
       merchantRef: 'ORD-2024-001',
       timestamp: '2024-01-15 14:30:25',
       fraudScore: 15,
       gateway: 'Stripe',
-      country: 'US',
-      category: 'E-commerce'
+      country: 'United States',
+      category: 'E-commerce',
+      ipAddress: '192.168.1.100',
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+      responseCode: '00'
     },
     {
       id: 'TXN002',
@@ -64,46 +79,39 @@ const TransactionsList = () => {
       currency: 'EUR',
       status: 'refunded',
       paymentMethod: 'PayPal',
-      customer: 'mary.smith@email.com',
+      customer: 'Mary Smith',
+      customerEmail: 'mary.smith@email.com',
+      customerPhone: '+49-123-456789',
       merchantRef: 'ORD-2024-002',
       timestamp: '2024-01-15 13:15:10',
       fraudScore: 8,
       gateway: 'PayPal',
-      country: 'DE',
-      category: 'Digital'
+      country: 'Germany',
+      category: 'Digital',
+      ipAddress: '193.168.2.50',
+      userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+      responseCode: '00'
     },
     {
       id: 'TXN003',
       amount: 2100.00,
       currency: 'USD',
       status: 'chargeback',
-      paymentMethod: 'Card',
-      customer: 'suspicious@email.com',
+      paymentMethod: 'Mastercard ****5678',
+      customer: 'Suspicious User',
+      customerEmail: 'suspicious@email.com',
+      customerPhone: '+1-000-000000',
       merchantRef: 'ORD-2024-003',
       timestamp: '2024-01-15 12:45:33',
       fraudScore: 85,
       gateway: 'Stripe',
       country: 'Unknown',
-      category: 'High-value'
+      category: 'High-value',
+      ipAddress: '10.0.0.1',
+      userAgent: 'Unknown',
+      responseCode: '05'
     }
   ];
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed': return 'bg-green-100 text-green-800';
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'failed': return 'bg-red-100 text-red-800';
-      case 'refunded': return 'bg-blue-100 text-blue-800';
-      case 'chargeback': return 'bg-purple-100 text-purple-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getFraudScoreColor = (score: number) => {
-    if (score < 30) return 'text-green-600';
-    if (score < 70) return 'text-yellow-600';
-    return 'text-red-600';
-  };
 
   const handleViewDetails = (transaction: any) => {
     setSelectedTransaction(transaction);
@@ -236,6 +244,7 @@ const TransactionsList = () => {
         transactions={transactions}
         onViewDetails={handleViewDetails}
         onBulkAction={handleBulkAction}
+        columns={tableColumns}
       />
 
       {/* Transaction Details Modal */}
