@@ -16,6 +16,8 @@ import TerNoManagement from "@/components/terno/TerNoManagement";
 import AnnouncementCenter from "@/components/announcements/AnnouncementCenter";
 import ReferralManagement from "@/components/referrals/ReferralManagement";
 import SupportCenter from "@/components/support/SupportCenter";
+import AccountSettings from "@/components/profile/AccountSettings";
+import Feedback from "@/components/profile/Feedback";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -47,6 +49,10 @@ const Index = () => {
         return <ReferralManagement />;
       case 'support':
         return <SupportCenter />;
+      case 'account-settings':
+        return <AccountSettings />;
+      case 'feedback':
+        return <Feedback />;
       default:
         return <DashboardEnhanced />;
     }

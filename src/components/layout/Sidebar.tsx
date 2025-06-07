@@ -11,8 +11,7 @@ import {
   Gift,
   Key,
   Megaphone,
-  ArrowUpRight,
-  Users as UsersIcon
+  ArrowUpRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
