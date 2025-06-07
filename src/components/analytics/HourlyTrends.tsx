@@ -39,6 +39,10 @@ const HourlyTrends = () => {
           <Clock className="h-5 w-5" />
           Hourly Transaction Pattern
         </CardTitle>
+        <p className="text-sm text-gray-600">
+          Analyze your transaction patterns throughout the day to identify peak hours, optimize staffing, 
+          and plan maintenance windows. This data shows both transaction count and volume trends across 24 hours.
+        </p>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={400}>
@@ -53,6 +57,23 @@ const HourlyTrends = () => {
             <Area type="monotone" dataKey="transactions" stroke="#06B6D4" fill="#06B6D4" fillOpacity={0.3} />
           </AreaChart>
         </ResponsiveContainer>
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+          <div className="p-3 bg-blue-50 rounded-lg">
+            <p className="font-medium text-blue-900">Peak Hours</p>
+            <p className="text-blue-700">3:00 PM - 5:00 PM</p>
+            <p className="text-xs text-blue-600">Highest transaction volume</p>
+          </div>
+          <div className="p-3 bg-green-50 rounded-lg">
+            <p className="font-medium text-green-900">Off-Peak Hours</p>
+            <p className="text-green-700">2:00 AM - 5:00 AM</p>
+            <p className="text-xs text-green-600">Best for maintenance</p>
+          </div>
+          <div className="p-3 bg-purple-50 rounded-lg">
+            <p className="font-medium text-purple-900">Business Hours</p>
+            <p className="text-purple-700">9:00 AM - 9:00 PM</p>
+            <p className="text-xs text-purple-600">85% of daily volume</p>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
