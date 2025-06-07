@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -73,10 +72,30 @@ const TransferManagement = () => {
   ]);
 
   const formatAmount = (amount: number, currency: string) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency
-    }).format(amount);
+    // List of known cryptocurrencies and other non-ISO currencies
+    const cryptoCurrencies = ['USDT', 'BTC', 'ETH', 'USDC', 'BNB', 'ADA', 'DOT', 'MATIC'];
+    
+    if (cryptoCurrencies.includes(currency.toUpperCase())) {
+      // For cryptocurrencies, use a simple format with the currency symbol
+      return `${amount.toLocaleString('en-US', { 
+        minimumFractionDigits: 2, 
+        maximumFractionDigits: 2 
+      })} ${currency}`;
+    }
+    
+    // For standard ISO currencies, use the Intl.NumberFormat
+    try {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: currency
+      }).format(amount);
+    } catch (error) {
+      // Fallback for any unrecognized currency codes
+      return `${amount.toLocaleString('en-US', { 
+        minimumFractionDigits: 2, 
+        maximumFractionDigits: 2 
+      })} ${currency}`;
+    }
   };
 
   const getStatusColor = (status: string) => {
