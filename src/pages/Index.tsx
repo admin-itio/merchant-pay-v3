@@ -2,7 +2,7 @@
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import DashboardEnhanced from '@/components/dashboard/DashboardEnhanced';
-import TransactionManagement from '@/components/transactions/TransactionManagement';
+import TransactionDashboard from '@/components/transactions/TransactionDashboard';
 import { CreditCard, BarChart3, Users, Settings } from 'lucide-react';
 
 const Index = () => {
@@ -34,7 +34,7 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="transactions">
-            <TransactionManagement />
+            <TransactionDashboard />
           </TabsContent>
 
           <TabsContent value="customers">
