@@ -2,145 +2,238 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
-import RuleCard from './RuleCard';
-import RuleModal from './RuleModal';
-
-interface Rule {
-  id: number;
-  name: string;
-  condition: string;
-  action: string;
-  priority: number;
-  enabled: boolean;
-  description: string;
-}
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Search, Plus, Edit, Trash2, ToggleLeft, ToggleRight } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import EditRuleModal from './EditRuleModal';
+import { useToast } from '@/hooks/use-toast';
 
 const OrchestrationRules = () => {
-  const [rules, setRules] = useState<Rule[]>([
+  const [searchTerm, setSearchTerm] = useState('');
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedRule, setSelectedRule] = useState(null);
+  const [rules, setRules] = useState([
     {
-      id: 1,
-      name: 'High Value Route',
-      condition: 'Amount > $1000',
-      action: 'Route to Stripe',
-      priority: 1,
-      enabled: true,
-      description: 'Route high-value transactions through Stripe for better success rates'
+      id: 'ORG-001',
+      name: 'High Value Transactions',
+      description: 'Route high-value transactions to premium processor',
+      conditions: 'Amount > $1000',
+      actions: 'Route to Stripe',
+      priority: 'High',
+      status: 'Active',
+      lastModified: '2024-01-15'
     },
     {
-      id: 2,
-      name: 'EU Card Route',
-      condition: 'Card Region = EU',
-      action: 'Route to Adyen',
-      priority: 2,
-      enabled: true,
-      description: 'Route European cards through Adyen for optimal processing'
+      id: 'ORG-002',
+      name: 'EU Transactions',
+      description: 'Handle European transactions with local processors',
+      conditions: 'Country in EU',
+      actions: 'Route to Adyen',
+      priority: 'Medium',
+      status: 'Active',
+      lastModified: '2024-01-14'
     },
     {
-      id: 3,
-      name: 'Retry Logic',
-      condition: 'Transaction Failed',
-      action: 'Retry with PayPal',
-      priority: 3,
-      enabled: true,
-      description: 'Automatically retry failed transactions through alternative gateway'
-    },
-    {
-      id: 4,
-      name: 'Low Risk Mobile',
-      condition: 'Device = Mobile AND Risk Score < 30',
-      action: 'Route to Square',
-      priority: 4,
-      enabled: false,
-      description: 'Route low-risk mobile transactions through Square'
+      id: 'ORG-003',
+      name: 'Failed Payment Retry',
+      description: 'Retry failed payments with alternative processor',
+      conditions: 'Status = Failed',
+      actions: 'Retry with PayPal',
+      priority: 'Low',
+      status: 'Inactive',
+      lastModified: '2024-01-13'
     }
   ]);
 
-  const [showModal, setShowModal] = useState(false);
-  const [editingRule, setEditingRule] = useState<Rule | null>(null);
+  const { toast } = useToast();
 
-  const toggleRule = (id: number) => {
-    setRules(rules.map(rule => 
-      rule.id === id ? { ...rule, enabled: !rule.enabled } : rule
-    ));
+  const filteredRules = rules.filter(rule => 
+    rule.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    rule.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    rule.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleEditRule = (rule: any) => {
+    setSelectedRule(rule);
+    setEditModalOpen(true);
   };
 
-  const deleteRule = (id: number) => {
-    setRules(rules.filter(rule => rule.id !== id));
+  const handleCreateRule = () => {
+    setSelectedRule(null);
+    setEditModalOpen(true);
   };
 
-  const handleEdit = (rule: Rule) => {
-    setEditingRule(rule);
-    setShowModal(true);
-  };
-
-  const handleCreate = () => {
-    setEditingRule(null);
-    setShowModal(true);
-  };
-
-  const handleSave = (ruleData: Omit<Rule, 'id'> | Rule) => {
-    if ('id' in ruleData) {
-      // Editing existing rule
-      setRules(rules.map(rule => 
-        rule.id === ruleData.id ? ruleData : rule
-      ));
+  const handleSaveRule = (ruleData: any) => {
+    if (selectedRule) {
+      // Update existing rule
+      setRules(rules.map(rule => rule.id === selectedRule.id ? {...rule, ...ruleData} : rule));
+      toast({
+        title: "Rule Updated",
+        description: "Orchestration rule has been updated successfully.",
+      });
     } else {
-      // Creating new rule
-      const newRule = {
-        ...ruleData,
-        id: Math.max(...rules.map(r => r.id), 0) + 1
-      };
-      setRules([...rules, newRule]);
+      // Create new rule
+      setRules([...rules, {...ruleData, status: 'Active', lastModified: new Date().toISOString().split('T')[0]}]);
+      toast({
+        title: "Rule Created",
+        description: "New orchestration rule has been created successfully.",
+      });
     }
   };
 
-  const maxPriority = Math.max(...rules.map(r => r.priority), 0);
+  const handleDeleteRule = (ruleId: string) => {
+    setRules(rules.filter(rule => rule.id !== ruleId));
+    toast({
+      title: "Rule Deleted",
+      description: "Orchestration rule has been deleted successfully.",
+    });
+  };
+
+  const toggleRuleStatus = (ruleId: string) => {
+    setRules(rules.map(rule => 
+      rule.id === ruleId 
+        ? {...rule, status: rule.status === 'Active' ? 'Inactive' : 'Active'}
+        : rule
+    ));
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'High': return 'bg-red-100 text-red-800';
+      case 'Medium': return 'bg-yellow-100 text-yellow-800';
+      case 'Low': return 'bg-green-100 text-green-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    return status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
+  };
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
+      <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Payment Orchestration</h2>
-          <p className="text-gray-600 mt-1">Configure routing rules to optimize payment processing</p>
+          <h1 className="text-3xl font-bold">Orchestration Rules</h1>
+          <p className="text-gray-600">Configure payment routing and processing rules</p>
         </div>
-        <Button onClick={handleCreate} className="flex items-center gap-2">
-          <Plus className="h-4 w-4" />
-          Add Rule
+        <Button onClick={handleCreateRule}>
+          <Plus className="h-4 w-4 mr-2" />
+          Create Rule
         </Button>
       </div>
 
-      {/* Rules List */}
-      <div className="space-y-4">
-        {rules.length === 0 ? (
-          <Card>
-            <CardContent className="p-8 text-center">
-              <p className="text-gray-500 mb-4">No orchestration rules configured</p>
-              <Button onClick={handleCreate}>Create Your First Rule</Button>
-            </CardContent>
-          </Card>
-        ) : (
-          rules
-            .sort((a, b) => a.priority - b.priority)
-            .map((rule) => (
-              <RuleCard
-                key={rule.id}
-                rule={rule}
-                onToggle={toggleRule}
-                onEdit={handleEdit}
-                onDelete={deleteRule}
-              />
-            ))
-        )}
-      </div>
+      <Card>
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <CardTitle>Active Rules</CardTitle>
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  placeholder="Search by rule ID, name, or description..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 w-80"
+                />
+              </div>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Rule ID</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Conditions</TableHead>
+                <TableHead>Actions</TableHead>
+                <TableHead>Priority</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Last Modified</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredRules.map((rule) => (
+                <TableRow key={rule.id}>
+                  <TableCell className="font-medium">{rule.id}</TableCell>
+                  <TableCell>
+                    <div>
+                      <p className="font-medium">{rule.name}</p>
+                      <p className="text-sm text-gray-600">{rule.description}</p>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-sm">{rule.conditions}</TableCell>
+                  <TableCell className="text-sm">{rule.actions}</TableCell>
+                  <TableCell>
+                    <Badge className={getPriorityColor(rule.priority)}>
+                      {rule.priority}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge className={getStatusColor(rule.status)}>
+                      {rule.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-sm">{rule.lastModified}</TableCell>
+                  <TableCell>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => toggleRuleStatus(rule.id)}
+                      >
+                        {rule.status === 'Active' ? (
+                          <ToggleLeft className="h-4 w-4" />
+                        ) : (
+                          <ToggleRight className="h-4 w-4" />
+                        )}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEditRule(rule)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="outline" size="sm">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Orchestration Rule</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to delete the rule "{rule.name}"? This action cannot be undone and may affect payment processing.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleDeleteRule(rule.id)}>
+                              Delete Rule
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
-      {/* Rule Modal */}
-      <RuleModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        onSave={handleSave}
-        rule={editingRule}
-        maxPriority={maxPriority}
+      <EditRuleModal 
+        isOpen={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        rule={selectedRule}
+        onSave={handleSaveRule}
       />
     </div>
   );
