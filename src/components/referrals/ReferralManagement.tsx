@@ -1,351 +1,329 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 import { 
   Users, 
-  UserPlus, 
-  Shield, 
   DollarSign, 
-  TrendingUp, 
+  Share2, 
+  Copy, 
+  Mail, 
+  Facebook, 
+  Twitter, 
+  MessageCircle,
   Gift,
-  Copy,
-  Mail,
-  Settings,
-  Eye,
-  Edit,
-  Trash2,
-  Award,
-  Target
+  TrendingUp,
+  Calendar,
+  Check
 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const ReferralManagement = () => {
-  const [activeTab, setActiveTab] = useState('overview');
-  const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
-  const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
+  const { toast } = useToast();
+  const [referralCode] = useState('REF-ABC123');
+  const [emailInput, setEmailInput] = useState('');
 
-  // Mock data for referrals
-  const referralStats = {
-    totalReferrals: 24,
-    activeReferrals: 18,
-    totalCommissions: 12500.00,
-    pendingCommissions: 2350.00,
-    conversionRate: 68.5
+  const referralStats = [
+    {
+      title: 'Total Referrals',
+      value: '24',
+      icon: Users,
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-50'
+    },
+    {
+      title: 'Active Referrals',
+      value: '18',
+      icon: TrendingUp,
+      color: 'text-green-600',
+      bgColor: 'bg-green-50'
+    },
+    {
+      title: 'Total Earnings',
+      value: '$1,240.50',
+      icon: DollarSign,
+      color: 'text-purple-600',
+      bgColor: 'bg-purple-50'
+    },
+    {
+      title: 'Pending Payouts',
+      value: '$320.00',
+      icon: Gift,
+      color: 'text-orange-600',
+      bgColor: 'bg-orange-50'
+    }
+  ];
+
+  const referralHistory = [
+    {
+      id: 'REF-001',
+      email: 'john@example.com',
+      name: 'John Smith',
+      status: 'Active',
+      signupDate: '2024-01-15',
+      commission: '$45.00',
+      transactions: 12
+    },
+    {
+      id: 'REF-002',
+      email: 'sarah@example.com',
+      name: 'Sarah Johnson',
+      status: 'Active',
+      signupDate: '2024-01-10',
+      commission: '$78.50',
+      transactions: 8
+    },
+    {
+      id: 'REF-003',
+      email: 'mike@example.com',
+      name: 'Mike Wilson',
+      status: 'Pending',
+      signupDate: '2024-01-08',
+      commission: '$0.00',
+      transactions: 0
+    },
+    {
+      id: 'REF-004',
+      email: 'emma@example.com',
+      name: 'Emma Davis',
+      status: 'Active',
+      signupDate: '2024-01-05',
+      commission: '$125.75',
+      transactions: 15
+    }
+  ];
+
+  const payoutHistory = [
+    {
+      id: 'PAY-001',
+      amount: '$450.00',
+      date: '2024-01-01',
+      status: 'Completed',
+      method: 'Bank Transfer'
+    },
+    {
+      id: 'PAY-002',
+      amount: '$320.50',
+      date: '2023-12-01',
+      status: 'Completed',
+      method: 'PayPal'
+    },
+    {
+      id: 'PAY-003',
+      amount: '$275.25',
+      date: '2023-11-01',
+      status: 'Completed',
+      method: 'Bank Transfer'
+    }
+  ];
+
+  const handleCopyReferralCode = () => {
+    navigator.clipboard.writeText(referralCode);
+    toast({
+      title: "Copied!",
+      description: "Referral code copied to clipboard",
+    });
   };
 
-  const referralTiers = [
-    { name: 'Bronze', minReferrals: 1, commission: 2.5, color: 'bg-amber-600' },
-    { name: 'Silver', minReferrals: 10, commission: 3.0, color: 'bg-gray-400' },
-    { name: 'Gold', minReferrals: 25, commission: 3.5, color: 'bg-yellow-500' },
-    { name: 'Platinum', minReferrals: 50, commission: 4.0, color: 'bg-purple-500' }
-  ];
+  const handleCopyReferralLink = () => {
+    const referralLink = `https://app.company.com/signup?ref=${referralCode}`;
+    navigator.clipboard.writeText(referralLink);
+    toast({
+      title: "Copied!",
+      description: "Referral link copied to clipboard",
+    });
+  };
 
-  const currentTier = referralTiers.find(tier => 
-    referralStats.totalReferrals >= tier.minReferrals
-  ) || referralTiers[0];
-
-  const nextTier = referralTiers.find(tier => 
-    referralStats.totalReferrals < tier.minReferrals
-  );
-
-  const subAccounts = [
-    {
-      id: '1',
-      name: 'John Smith',
-      email: 'john@example.com',
-      role: 'Admin',
-      status: 'Active',
-      lastLogin: '2 hours ago',
-      permissions: ['View', 'Manage Transactions', 'API Access']
-    },
-    {
-      id: '2',
-      name: 'Sarah Johnson',
-      email: 'sarah@example.com',
-      role: 'Manager',
-      status: 'Active',
-      lastLogin: '1 day ago',
-      permissions: ['View', 'Manage Transactions']
-    },
-    {
-      id: '3',
-      name: 'Mike Davis',
-      email: 'mike@example.com',
-      role: 'Viewer',
-      status: 'Inactive',
-      lastLogin: '1 week ago',
-      permissions: ['View']
+  const handleSendEmail = () => {
+    if (!emailInput.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Please enter an email address",
+        variant: "destructive",
+      });
+      return;
     }
-  ];
 
-  const referrals = [
-    {
-      id: '1',
-      name: 'Tech Solutions Inc',
-      email: 'contact@techsolutions.com',
-      status: 'Active',
-      joinDate: '2024-01-15',
-      volume: 45000,
-      commission: 1350.00,
-      tier: 'Gold'
-    },
-    {
-      id: '2',
-      name: 'Digital Commerce Ltd',
-      email: 'info@digitalcommerce.com',
-      status: 'Active',
-      joinDate: '2024-02-08',
-      volume: 28000,
-      commission: 840.00,
-      tier: 'Silver'
-    },
-    {
-      id: '3',
-      name: 'StartupX',
-      email: 'hello@startupx.com',
-      status: 'Pending',
-      joinDate: '2024-03-20',
-      volume: 0,
-      commission: 0,
-      tier: 'Bronze'
+    toast({
+      title: "Invitation Sent",
+      description: `Referral invitation sent to ${emailInput}`,
+    });
+    setEmailInput('');
+  };
+
+  const handleSocialShare = (platform: string) => {
+    const referralLink = `https://app.company.com/signup?ref=${referralCode}`;
+    const message = "Join me on this amazing payment platform and get started with a special bonus!";
+    
+    let shareUrl = '';
+    switch (platform) {
+      case 'facebook':
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(referralLink)}`;
+        break;
+      case 'twitter':
+        shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}&url=${encodeURIComponent(referralLink)}`;
+        break;
+      case 'whatsapp':
+        shareUrl = `https://wa.me/?text=${encodeURIComponent(message + ' ' + referralLink)}`;
+        break;
     }
-  ];
+    
+    if (shareUrl) {
+      window.open(shareUrl, '_blank', 'width=600,height=400');
+    }
+  };
 
-  const copyReferralLink = () => {
-    navigator.clipboard.writeText('https://merchantpay.com/ref/your-unique-code');
-    // You would show a toast notification here
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'Active':
+        return <Badge className="bg-green-100 text-green-800">Active</Badge>;
+      case 'Pending':
+        return <Badge className="bg-yellow-100 text-yellow-800">Pending</Badge>;
+      case 'Completed':
+        return <Badge className="bg-blue-100 text-blue-800">Completed</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 p-4 lg:p-0">
+      <div className="flex flex-col gap-4 lg:flex-row lg:justify-between lg:items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Referral & Sub-Account Management</h1>
-          <p className="text-muted-foreground">
-            Manage your referral program and sub-account permissions
-          </p>
+          <h2 className="text-2xl font-bold text-gray-900">Referral Management</h2>
+          <p className="text-gray-600 mt-1">Invite friends and earn rewards for every successful referral</p>
         </div>
-        <div className="flex gap-2">
-          <Dialog open={isInviteDialogOpen} onOpenChange={setIsInviteDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <UserPlus className="mr-2 h-4 w-4" />
-                Invite User
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Invite New User</DialogTitle>
-                <DialogDescription>
-                  Send an invitation to create a sub-account with specific permissions
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="email">Email Address</Label>
-                  <Input id="email" placeholder="user@example.com" />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="role">Role</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="manager">Manager</SelectItem>
-                      <SelectItem value="viewer">Viewer</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid gap-3">
-                  <Label>Permissions</Label>
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <Switch id="view" />
-                      <Label htmlFor="view">View Dashboard</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Switch id="transactions" />
-                      <Label htmlFor="transactions">Manage Transactions</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Switch id="api" />
-                      <Label htmlFor="api">API Access</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Switch id="users" />
-                      <Label htmlFor="users">Manage Users</Label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setIsInviteDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button>Send Invitation</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
+        <Button className="flex items-center gap-2">
+          <Share2 className="h-4 w-4" />
+          Share Program
+        </Button>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList>
+      {/* Stats Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {referralStats.map((stat, index) => {
+          const Icon = stat.icon;
+          return (
+            <Card key={index}>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">{stat.title}</p>
+                    <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
+                  </div>
+                  <div className={`p-3 rounded-lg ${stat.bgColor}`}>
+                    <Icon className={`h-6 w-6 ${stat.color}`} />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      <Tabs defaultValue="overview" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="referrals">Referrals</TabsTrigger>
-          <TabsTrigger value="sub-accounts">Sub-Accounts</TabsTrigger>
-          <TabsTrigger value="commissions">Commissions</TabsTrigger>
+          <TabsTrigger value="referrals">My Referrals</TabsTrigger>
+          <TabsTrigger value="payouts">Payouts</TabsTrigger>
+          <TabsTrigger value="invite">Invite Friends</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-4">
-          {/* Referral Stats */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Referrals</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{referralStats.totalReferrals}</div>
-                <p className="text-xs text-muted-foreground">
-                  +4 from last month
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Active Referrals</CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{referralStats.activeReferrals}</div>
-                <p className="text-xs text-muted-foreground">
-                  {((referralStats.activeReferrals / referralStats.totalReferrals) * 100).toFixed(1)}% conversion
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Commissions</CardTitle>
-                <DollarSign className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">${referralStats.totalCommissions.toLocaleString()}</div>
-                <p className="text-xs text-muted-foreground">
-                  +12% from last month
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Pending Commissions</CardTitle>
-                <Award className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">${referralStats.pendingCommissions.toLocaleString()}</div>
-                <p className="text-xs text-muted-foreground">
-                  Next payout in 5 days
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Current Tier & Progress */}
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Award className="h-5 w-5" />
-                  Current Tier: {currentTier.name}
-                </CardTitle>
-                <CardDescription>
-                  {currentTier.commission}% commission rate
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className={`w-12 h-12 rounded-full ${currentTier.color}`}></div>
-                  {nextTier && (
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Progress to {nextTier.name}</span>
-                        <span>{referralStats.totalReferrals}/{nextTier.minReferrals}</span>
-                      </div>
-                      <Progress 
-                        value={(referralStats.totalReferrals / nextTier.minReferrals) * 100} 
-                        className="w-full"
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        {nextTier.minReferrals - referralStats.totalReferrals} more referrals needed
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Gift className="h-5 w-5" />
-                  Referral Link
-                </CardTitle>
-                <CardDescription>
-                  Share your unique referral link
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-2">
-                    <Input 
-                      value="https://merchantpay.com/ref/your-unique-code" 
-                      readOnly 
-                      className="flex-1"
-                    />
-                    <Button size="sm" onClick={copyReferralLink}>
-                      <Copy className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <Button className="w-full" variant="outline">
-                    <Mail className="mr-2 h-4 w-4" />
-                    Share via Email
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Tier Information */}
+        <TabsContent value="overview" className="space-y-6">
+          {/* Referral Code Section */}
           <Card>
             <CardHeader>
-              <CardTitle>Referral Tiers</CardTitle>
-              <CardDescription>
-                Unlock higher commission rates as you refer more merchants
-              </CardDescription>
+              <CardTitle>Your Referral Code</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Input 
+                  value={referralCode} 
+                  readOnly 
+                  className="bg-gray-50 font-mono"
+                />
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleCopyReferralCode}
+                  className="flex items-center gap-2"
+                >
+                  <Copy className="h-4 w-4" />
+                  Copy
+                </Button>
+              </div>
+              <div className="flex items-center gap-2">
+                <Input 
+                  value={`https://app.company.com/signup?ref=${referralCode}`}
+                  readOnly 
+                  className="bg-gray-50 text-sm"
+                />
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleCopyReferralLink}
+                  className="flex items-center gap-2"
+                >
+                  <Copy className="h-4 w-4" />
+                  Copy Link
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Program Details */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Referral Program Details</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                {referralTiers.map((tier) => (
-                  <div key={tier.name} className="text-center space-y-2">
-                    <div className={`w-16 h-16 rounded-full ${tier.color} mx-auto`}></div>
-                    <h3 className="font-semibold">{tier.name}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {tier.minReferrals}+ referrals
-                    </p>
-                    <p className="text-lg font-bold">{tier.commission}%</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-semibold mb-2">How it works</h4>
+                  <ul className="space-y-2 text-sm text-gray-600">
+                    <li className="flex items-center gap-2">
+                      <Check className="h-4 w-4 text-green-600" />
+                      Share your referral link with friends
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="h-4 w-4 text-green-600" />
+                      They sign up and complete verification
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="h-4 w-4 text-green-600" />
+                      You earn 5% of their transaction fees
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="h-4 w-4 text-green-600" />
+                      Get paid monthly via your preferred method
+                    </li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-2">Reward Structure</h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>Commission Rate:</span>
+                      <span className="font-medium">5% of transaction fees</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Minimum Payout:</span>
+                      <span className="font-medium">$50.00</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Payout Schedule:</span>
+                      <span className="font-medium">Monthly</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Cookie Duration:</span>
+                      <span className="font-medium">30 days</span>
+                    </div>
                   </div>
-                ))}
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -354,216 +332,143 @@ const ReferralManagement = () => {
         <TabsContent value="referrals" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Your Referrals</CardTitle>
-              <CardDescription>
-                Track the merchants you've referred and their performance
-              </CardDescription>
+              <CardTitle>Referral History</CardTitle>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Merchant</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Join Date</TableHead>
-                    <TableHead>Volume</TableHead>
-                    <TableHead>Commission</TableHead>
-                    <TableHead>Tier</TableHead>
-                    <TableHead className="w-[100px]">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {referrals.map((referral) => (
-                    <TableRow key={referral.id}>
-                      <TableCell>
-                        <div>
-                          <p className="font-medium">{referral.name}</p>
-                          <p className="text-sm text-muted-foreground">{referral.email}</p>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={referral.status === 'Active' ? 'default' : 'secondary'}>
-                          {referral.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{referral.joinDate}</TableCell>
-                      <TableCell>${referral.volume.toLocaleString()}</TableCell>
-                      <TableCell>${referral.commission.toFixed(2)}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{referral.tier}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Button variant="ghost" size="sm">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-200">
+                      <th className="text-left py-3 px-4 font-medium text-gray-600">Name</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-600">Email</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-600">Status</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-600">Signup Date</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-600">Transactions</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-600">Commission</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {referralHistory.map((referral) => (
+                      <tr key={referral.id} className="border-b border-gray-100 hover:bg-gray-50">
+                        <td className="py-3 px-4">
+                          <div>
+                            <div className="font-medium">{referral.name}</div>
+                            <div className="text-sm text-gray-500">{referral.id}</div>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4 text-sm">{referral.email}</td>
+                        <td className="py-3 px-4">{getStatusBadge(referral.status)}</td>
+                        <td className="py-3 px-4 text-sm">{referral.signupDate}</td>
+                        <td className="py-3 px-4 text-sm">{referral.transactions}</td>
+                        <td className="py-3 px-4 font-medium">{referral.commission}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="sub-accounts" className="space-y-4">
+        <TabsContent value="payouts" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Sub-Account Management</CardTitle>
-              <CardDescription>
-                Manage user access and permissions for your merchant account
-              </CardDescription>
+              <CardTitle>Payout History</CardTitle>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>User</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Last Login</TableHead>
-                    <TableHead>Permissions</TableHead>
-                    <TableHead className="w-[100px]">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {subAccounts.map((user) => (
-                    <TableRow key={user.id}>
-                      <TableCell>
-                        <div>
-                          <p className="font-medium">{user.name}</p>
-                          <p className="text-sm text-muted-foreground">{user.email}</p>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{user.role}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={user.status === 'Active' ? 'default' : 'secondary'}>
-                          {user.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{user.lastLogin}</TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap gap-1">
-                          {user.permissions.map((permission) => (
-                            <Badge key={permission} variant="secondary" className="text-xs">
-                              {permission}
-                            </Badge>
-                          ))}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1">
-                          <Button variant="ghost" size="sm">
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm">
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <div className="space-y-4">
+                {payoutHistory.map((payout) => (
+                  <div key={payout.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                    <div className="flex items-center gap-4">
+                      <div className="p-2 bg-green-50 rounded-lg">
+                        <DollarSign className="h-5 w-5 text-green-600" />
+                      </div>
+                      <div>
+                        <div className="font-medium">{payout.amount}</div>
+                        <div className="text-sm text-gray-600">via {payout.method}</div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="flex items-center gap-2">
+                        {getStatusBadge(payout.status)}
+                      </div>
+                      <div className="text-sm text-gray-600 mt-1">
+                        <Calendar className="h-3 w-3 inline mr-1" />
+                        {payout.date}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="commissions" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-3">
+        <TabsContent value="invite" className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Email Invitation */}
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">This Month</CardTitle>
-                <Target className="h-4 w-4 text-muted-foreground" />
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Mail className="h-5 w-5" />
+                  Email Invitation
+                </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">$3,450.00</div>
-                <p className="text-xs text-muted-foreground">
-                  +23% from last month
-                </p>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email Address</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={emailInput}
+                    onChange={(e) => setEmailInput(e.target.value)}
+                    placeholder="friend@example.com"
+                  />
+                </div>
+                <Button onClick={handleSendEmail} className="w-full">
+                  Send Invitation
+                </Button>
               </CardContent>
             </Card>
+
+            {/* Social Media Sharing */}
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Pending Payout</CardTitle>
-                <DollarSign className="h-4 w-4 text-muted-foreground" />
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Share2 className="h-5 w-5" />
+                  Social Media Sharing
+                </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">$2,350.00</div>
-                <p className="text-xs text-muted-foreground">
-                  Available in 5 days
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Earned</CardTitle>
-                <Award className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">$12,500.00</div>
-                <p className="text-xs text-muted-foreground">
-                  Since program start
-                </p>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 gap-2">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => handleSocialShare('facebook')}
+                    className="flex items-center gap-2 justify-start"
+                  >
+                    <Facebook className="h-4 w-4" />
+                    Share on Facebook
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => handleSocialShare('twitter')}
+                    className="flex items-center gap-2 justify-start"
+                  >
+                    <Twitter className="h-4 w-4" />
+                    Share on Twitter
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => handleSocialShare('whatsapp')}
+                    className="flex items-center gap-2 justify-start"
+                  >
+                    <MessageCircle className="h-4 w-4" />
+                    Share on WhatsApp
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Commission History</CardTitle>
-              <CardDescription>
-                Track your commission earnings over time
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Period</TableHead>
-                    <TableHead>Referrals</TableHead>
-                    <TableHead>Volume</TableHead>
-                    <TableHead>Commission Rate</TableHead>
-                    <TableHead>Earned</TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <TableRow>
-                    <TableCell>March 2024</TableCell>
-                    <TableCell>6</TableCell>
-                    <TableCell>$125,000</TableCell>
-                    <TableCell>3.5%</TableCell>
-                    <TableCell>$4,375.00</TableCell>
-                    <TableCell>
-                      <Badge>Paid</Badge>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>February 2024</TableCell>
-                    <TableCell>4</TableCell>
-                    <TableCell>$89,000</TableCell>
-                    <TableCell>3.0%</TableCell>
-                    <TableCell>$2,670.00</TableCell>
-                    <TableCell>
-                      <Badge>Paid</Badge>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>January 2024</TableCell>
-                    <TableCell>3</TableCell>
-                    <TableCell>$67,000</TableCell>
-                    <TableCell>2.5%</TableCell>
-                    <TableCell>$1,675.00</TableCell>
-                    <TableCell>
-                      <Badge>Paid</Badge>
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
         </TabsContent>
       </Tabs>
     </div>
