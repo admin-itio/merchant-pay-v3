@@ -15,7 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Clock, Mail, Edit, Trash2, Play, Pause } from 'lucide-react';
+import { Clock, Mail, Edit, Trash2, Play, Pause, Info } from 'lucide-react';
 
 const ScheduledReports = () => {
   const [scheduledReports, setScheduledReports] = useState([
@@ -117,11 +117,26 @@ const ScheduledReports = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Clock className="h-5 w-5" />
-            Schedule New Report
+            <Info className="h-5 w-5 text-blue-600" />
+            Scheduled Reports - Automation Made Easy
           </CardTitle>
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <p className="text-sm text-blue-800">
+              <strong>Purpose:</strong> Set up automated report delivery to save time and ensure stakeholders receive regular updates. 
+              Perfect for daily operational reviews, weekly management summaries, and monthly board reports.
+            </p>
+            <p className="text-xs text-blue-600 mt-2">
+              <strong>Benefits:</strong> Never miss important data updates • Consistent reporting schedule • Automatic delivery to multiple recipients • Reduces manual work
+            </p>
+          </div>
         </CardHeader>
         <CardContent>
+          <div className="bg-amber-50 p-3 rounded-lg mb-4">
+            <p className="text-sm text-amber-800">
+              <strong>How it works:</strong> Choose your report type, set the frequency (daily/weekly/monthly), 
+              select recipients, and we'll automatically generate and email the reports at your specified time.
+            </p>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
               <Label htmlFor="reportName">Report Name</Label>
@@ -148,13 +163,14 @@ const ScheduledReports = () => {
               </Select>
             </div>
             <div>
-              <Label htmlFor="time">Time</Label>
+              <Label htmlFor="time">Delivery Time</Label>
               <Input
                 id="time"
                 type="time"
                 value={newReport.time}
                 onChange={(e) => setNewReport(prev => ({ ...prev, time: e.target.value }))}
               />
+              <p className="text-xs text-gray-500 mt-1">Time when report will be sent</p>
             </div>
             <div>
               <Label>Format</Label>
@@ -179,6 +195,7 @@ const ScheduledReports = () => {
                 onChange={(e) => setNewReport(prev => ({ ...prev, recipients: e.target.value }))}
                 placeholder="admin@company.com, finance@company.com"
               />
+              <p className="text-xs text-gray-500 mt-1">Email addresses who will receive the reports</p>
             </div>
           </div>
           <Button onClick={addNewReport} className="mt-4">
@@ -191,6 +208,9 @@ const ScheduledReports = () => {
       <Card>
         <CardHeader>
           <CardTitle>Active Scheduled Reports</CardTitle>
+          <p className="text-sm text-gray-600">
+            Manage your automated reports. You can pause, edit, or delete any scheduled report below.
+          </p>
         </CardHeader>
         <CardContent>
           <Table>
@@ -237,19 +257,21 @@ const ScheduledReports = () => {
                         variant="ghost"
                         size="sm"
                         onClick={() => toggleReportStatus(report.id)}
+                        title={report.status === 'active' ? 'Pause report' : 'Resume report'}
                       >
                         {report.status === 'active' ? 
                           <Pause className="h-4 w-4" /> : 
                           <Play className="h-4 w-4" />
                         }
                       </Button>
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" title="Edit report">
                         <Edit className="h-4 w-4" />
                       </Button>
                       <Button 
                         variant="ghost" 
                         size="sm"
                         onClick={() => deleteReport(report.id)}
+                        title="Delete report"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

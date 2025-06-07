@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
-import { CalendarIcon, Download, Save, Eye, Trash2 } from 'lucide-react';
+import { CalendarIcon, Download, Save, Eye, Trash2, Info } from 'lucide-react';
 import { format } from 'date-fns';
 
 const ReportBuilder = () => {
@@ -89,7 +89,19 @@ const ReportBuilder = () => {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Custom Report Builder</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Info className="h-5 w-5 text-blue-600" />
+            Custom Report Builder
+          </CardTitle>
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <p className="text-sm text-blue-800">
+              <strong>Purpose:</strong> Create personalized reports tailored to your business needs. Select specific metrics, 
+              apply filters, and choose how to group your data to generate insights that matter most to your business operations.
+            </p>
+            <p className="text-xs text-blue-600 mt-2">
+              Perfect for monthly reviews, stakeholder presentations, or detailed analysis of specific time periods or transaction types.
+            </p>
+          </div>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="setup" className="w-full">
@@ -182,6 +194,12 @@ const ReportBuilder = () => {
             </TabsContent>
 
             <TabsContent value="metrics" className="space-y-4">
+              <div className="bg-amber-50 p-3 rounded-lg mb-4">
+                <p className="text-sm text-amber-800">
+                  <strong>Metrics Selection:</strong> Choose the key performance indicators you want to analyze. 
+                  Financial metrics show revenue and amounts, Performance metrics show success rates, and Risk metrics help identify potential issues.
+                </p>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {availableMetrics.map(metric => (
                   <div key={metric.id} className="flex items-center space-x-2 p-3 border rounded-lg">
@@ -204,6 +222,12 @@ const ReportBuilder = () => {
             </TabsContent>
 
             <TabsContent value="filters" className="space-y-4">
+              <div className="bg-green-50 p-3 rounded-lg mb-4">
+                <p className="text-sm text-green-800">
+                  <strong>Filters:</strong> Narrow down your data by applying specific criteria. 
+                  Use filters to focus on particular transaction types, payment methods, regions, or amount ranges for targeted analysis.
+                </p>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {availableFilters.map(filter => (
                   <div key={filter.id} className="flex items-center space-x-2 p-3 border rounded-lg">
