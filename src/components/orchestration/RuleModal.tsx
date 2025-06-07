@@ -101,12 +101,12 @@ const RuleModal = ({ isOpen, onClose, onSave, rule, maxPriority }: RuleModalProp
                 <SelectValue placeholder="Select condition" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Amount > $500">Amount > $500</SelectItem>
-                <SelectItem value="Amount > $1000">Amount > $1000</SelectItem>
-                <SelectItem value="Card Region = US">Card Region = US</SelectItem>
-                <SelectItem value="Card Region = EU">Card Region = EU</SelectItem>
-                <SelectItem value="Device = Mobile">Device = Mobile</SelectItem>
-                <SelectItem value="Risk Score < 30">Risk Score < 30</SelectItem>
+                <SelectItem value="Amount > $500">Amount greater than $500</SelectItem>
+                <SelectItem value="Amount > $1000">Amount greater than $1000</SelectItem>
+                <SelectItem value="Card Region = US">Card Region equals US</SelectItem>
+                <SelectItem value="Card Region = EU">Card Region equals EU</SelectItem>
+                <SelectItem value="Device = Mobile">Device equals Mobile</SelectItem>
+                <SelectItem value="Risk Score < 30">Risk Score less than 30</SelectItem>
                 <SelectItem value="Transaction Failed">Transaction Failed</SelectItem>
               </SelectContent>
             </Select>
