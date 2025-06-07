@@ -2,237 +2,274 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ArrowLeft, Brain, BarChart3, Users, TrendingUp, Shield, Play } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
-import { 
-  Brain, 
-  Zap, 
-  BarChart3, 
-  Shield,
-  ArrowLeft,
-  Play,
-  CheckCircle,
-  Clock
-} from 'lucide-react';
 
 interface RunNewAnalysisProps {
   onBack: () => void;
 }
 
 const RunNewAnalysis = ({ onBack }: RunNewAnalysisProps) => {
-  const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
+  const [selectedAnalysis, setSelectedAnalysis] = useState('');
   const [isRunning, setIsRunning] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [completedAnalyses, setCompletedAnalyses] = useState<string[]>([]);
+  const [selectedDataSources, setSelectedDataSources] = useState<string[]>([]);
 
   const analysisTypes = [
     {
-      id: 'revenue-optimization',
+      id: 'revenue',
       name: 'Revenue Optimization',
-      description: 'Analyze pricing strategies and revenue opportunities',
-      icon: BarChart3,
-      estimatedTime: '3-5 minutes',
-      impact: 'High'
+      description: 'Identify pricing strategies and revenue growth opportunities',
+      icon: TrendingUp,
+      estimatedTime: '5-10 minutes',
+      dataSources: ['Transactions', 'Customer Data', 'Pricing History']
     },
     {
-      id: 'fraud-detection',
-      name: 'Advanced Fraud Detection',
-      description: 'Deep learning analysis of transaction patterns',
+      id: 'fraud',
+      name: 'Fraud Pattern Detection',
+      description: 'Detect suspicious patterns and potential fraud risks',
       icon: Shield,
-      estimatedTime: '5-8 minutes',
-      impact: 'Critical'
+      estimatedTime: '3-7 minutes',
+      dataSources: ['Transactions', 'Device Data', 'Geographic Data']
     },
     {
-      id: 'customer-segmentation',
-      name: 'Customer Segmentation',
-      description: 'AI-powered customer behavior analysis and segmentation',
-      icon: Brain,
-      estimatedTime: '4-6 minutes',
-      impact: 'Medium'
+      id: 'customer',
+      name: 'Customer Behavior Analysis',
+      description: 'Analyze customer segments and behavior patterns',
+      icon: Users,
+      estimatedTime: '8-12 minutes',
+      dataSources: ['Customer Data', 'Transactions', 'Engagement Data']
     },
     {
-      id: 'market-trends',
-      name: 'Market Trend Analysis',
-      description: 'Identify emerging market opportunities and threats',
-      icon: Zap,
-      estimatedTime: '2-4 minutes',
-      impact: 'High'
+      id: 'market',
+      name: 'Market Opportunity Analysis',
+      description: 'Identify new market opportunities and growth potential',
+      icon: BarChart3,
+      estimatedTime: '10-15 minutes',
+      dataSources: ['Market Data', 'Competitor Data', 'Geographic Data']
     }
   ];
 
-  const handleAnalysisToggle = (analysisId: string) => {
-    setSelectedAnalyses(prev => 
-      prev.includes(analysisId) 
-        ? prev.filter(id => id !== analysisId)
-        : [...prev, analysisId]
-    );
-  };
+  const dataSources = [
+    { id: 'transactions', label: 'Transaction Data', count: '50,000+ records' },
+    { id: 'customers', label: 'Customer Data', count: '2,500+ profiles' },
+    { id: 'pricing', label: 'Pricing History', count: '12 months' },
+    { id: 'devices', label: 'Device Data', count: '15,000+ devices' },
+    { id: 'geographic', label: 'Geographic Data', count: '25+ countries' },
+    { id: 'engagement', label: 'Engagement Data', count: '6 months' },
+    { id: 'market', label: 'Market Data', count: 'External sources' },
+    { id: 'competitor', label: 'Competitor Data', count: 'Industry reports' }
+  ];
 
-  const handleRunAnalysis = async () => {
+  const handleRunAnalysis = () => {
     setIsRunning(true);
     setProgress(0);
-    setCompletedAnalyses([]);
-
-    // Simulate analysis progress
-    const totalSteps = selectedAnalyses.length * 100;
-    let currentProgress = 0;
-
-    for (const analysisId of selectedAnalyses) {
-      // Simulate analysis time
-      for (let i = 0; i <= 100; i += 10) {
-        await new Promise(resolve => setTimeout(resolve, 200));
-        currentProgress += 10;
-        setProgress((currentProgress / totalSteps) * 100);
-      }
-      setCompletedAnalyses(prev => [...prev, analysisId]);
-    }
-
-    setIsRunning(false);
+    
+    const interval = setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setIsRunning(false);
+          return 100;
+        }
+        return prev + Math.random() * 10;
+      });
+    }, 500);
   };
 
-  const getAnalysisStatus = (analysisId: string) => {
-    if (completedAnalyses.includes(analysisId)) return 'completed';
-    if (isRunning && selectedAnalyses.includes(analysisId)) return 'running';
-    return 'pending';
-  };
+  const selectedAnalysisData = analysisTypes.find(a => a.id === selectedAnalysis);
 
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="ghost" onClick={onBack}>
+        <Button variant="outline" size="sm" onClick={onBack}>
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to AI Insights
         </Button>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Run New Analysis</h1>
-          <p className="text-gray-600">Configure and execute AI-powered business analysis</p>
+          <h1 className="text-2xl font-bold">Run New AI Analysis</h1>
+          <p className="text-gray-600">Generate fresh insights with AI-powered data analysis</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Select Analysis Types</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Brain className="h-5 w-5" />
+                Select Analysis Type
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              {analysisTypes.map((analysis) => {
-                const Icon = analysis.icon;
-                const status = getAnalysisStatus(analysis.id);
-                
-                return (
-                  <div 
-                    key={analysis.id}
-                    className={`p-4 border rounded-lg transition-colors ${
-                      selectedAnalyses.includes(analysis.id) ? 'border-blue-500 bg-blue-50' : 'hover:bg-gray-50'
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <Checkbox
-                        checked={selectedAnalyses.includes(analysis.id)}
-                        onCheckedChange={() => handleAnalysisToggle(analysis.id)}
-                        disabled={isRunning}
-                      />
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <Icon className="h-5 w-5 text-blue-600" />
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {analysisTypes.map((analysis) => {
+                  const Icon = analysis.icon;
+                  return (
+                    <div
+                      key={analysis.id}
+                      className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                        selectedAnalysis === analysis.id
+                          ? 'border-blue-500 bg-blue-50'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                      onClick={() => setSelectedAnalysis(analysis.id)}
+                    >
+                      <div className="flex items-start gap-3">
+                        <Icon className={`h-6 w-6 ${
+                          selectedAnalysis === analysis.id ? 'text-blue-600' : 'text-gray-600'
+                        }`} />
+                        <div className="flex-1">
                           <h3 className="font-semibold">{analysis.name}</h3>
-                          <Badge variant={analysis.impact === 'Critical' ? 'destructive' : analysis.impact === 'High' ? 'default' : 'secondary'}>
-                            {analysis.impact} Impact
-                          </Badge>
-                          {status === 'completed' && (
-                            <CheckCircle className="h-5 w-5 text-green-600" />
-                          )}
-                          {status === 'running' && (
-                            <Clock className="h-5 w-5 text-blue-600 animate-spin" />
-                          )}
+                          <p className="text-sm text-gray-600 mt-1">{analysis.description}</p>
+                          <p className="text-xs text-gray-500 mt-2">
+                            Est. time: {analysis.estimatedTime}
+                          </p>
                         </div>
-                        <p className="text-sm text-gray-600 mb-2">{analysis.description}</p>
-                        <p className="text-xs text-gray-500">Estimated time: {analysis.estimatedTime}</p>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </CardContent>
           </Card>
+
+          {selectedAnalysisData && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Data Sources</CardTitle>
+                <p className="text-sm text-gray-600">
+                  Select the data sources to include in your analysis
+                </p>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {dataSources
+                    .filter(source => selectedAnalysisData.dataSources.some(req => 
+                      source.label.toLowerCase().includes(req.toLowerCase().split(' ')[0])
+                    ))
+                    .map((source) => (
+                      <div key={source.id} className="flex items-center space-x-3 p-3 border rounded-lg">
+                        <Checkbox
+                          id={source.id}
+                          checked={selectedDataSources.includes(source.id)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedDataSources([...selectedDataSources, source.id]);
+                            } else {
+                              setSelectedDataSources(selectedDataSources.filter(id => id !== source.id));
+                            }
+                          }}
+                        />
+                        <div className="flex-1">
+                          <label htmlFor={source.id} className="font-medium cursor-pointer">
+                            {source.label}
+                          </label>
+                          <p className="text-sm text-gray-600">{source.count}</p>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Analysis Summary</CardTitle>
+              <CardTitle>Analysis Configuration</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm text-gray-600">Selected Analyses</p>
-                  <p className="font-semibold">{selectedAnalyses.length} of {analysisTypes.length}</p>
-                </div>
-                
-                <div>
-                  <p className="text-sm text-gray-600">Estimated Total Time</p>
-                  <p className="font-semibold">
-                    {selectedAnalyses.length === 0 ? '0 minutes' : 
-                     selectedAnalyses.length < 3 ? '5-15 minutes' : '15-25 minutes'}
-                  </p>
-                </div>
+            <CardContent className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Time Period</label>
+                <Select defaultValue="30d">
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="7d">Last 7 days</SelectItem>
+                    <SelectItem value="30d">Last 30 days</SelectItem>
+                    <SelectItem value="90d">Last 90 days</SelectItem>
+                    <SelectItem value="6m">Last 6 months</SelectItem>
+                    <SelectItem value="1y">Last year</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-                {isRunning && (
-                  <div>
-                    <p className="text-sm text-gray-600 mb-2">Progress</p>
-                    <Progress value={progress} className="w-full" />
-                    <p className="text-xs text-gray-500 mt-1">{Math.round(progress)}% complete</p>
-                  </div>
-                )}
+              <div>
+                <label className="block text-sm font-medium mb-2">Analysis Depth</label>
+                <Select defaultValue="standard">
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="quick">Quick Analysis</SelectItem>
+                    <SelectItem value="standard">Standard Analysis</SelectItem>
+                    <SelectItem value="deep">Deep Analysis</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-                <Button 
-                  className="w-full" 
-                  onClick={handleRunAnalysis}
-                  disabled={selectedAnalyses.length === 0 || isRunning}
-                >
-                  {isRunning ? (
-                    <>
-                      <Clock className="h-4 w-4 mr-2 animate-spin" />
-                      Running Analysis...
-                    </>
-                  ) : (
-                    <>
-                      <Play className="h-4 w-4 mr-2" />
-                      Start Analysis
-                    </>
-                  )}
-                </Button>
+              <div>
+                <label className="block text-sm font-medium mb-2">Output Format</label>
+                <Select defaultValue="dashboard">
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="dashboard">Interactive Dashboard</SelectItem>
+                    <SelectItem value="report">PDF Report</SelectItem>
+                    <SelectItem value="both">Both</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </CardContent>
           </Card>
 
-          {completedAnalyses.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Results Ready</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {completedAnalyses.map((analysisId) => {
-                    const analysis = analysisTypes.find(a => a.id === analysisId);
-                    return (
-                      <div key={analysisId} className="flex items-center gap-2 text-sm">
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                        <span>{analysis?.name}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-                {completedAnalyses.length === selectedAnalyses.length && !isRunning && (
-                  <Button className="w-full mt-4" onClick={onBack}>
-                    View Results
+          <Card>
+            <CardHeader>
+              <CardTitle>Run Analysis</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {!isRunning ? (
+                <div className="space-y-4">
+                  <div className="text-sm text-gray-600">
+                    <p>Ready to run analysis</p>
+                    {selectedAnalysisData && (
+                      <p>Estimated time: {selectedAnalysisData.estimatedTime}</p>
+                    )}
+                  </div>
+                  <Button 
+                    className="w-full" 
+                    onClick={handleRunAnalysis}
+                    disabled={!selectedAnalysis || selectedDataSources.length === 0}
+                  >
+                    <Play className="h-4 w-4 mr-2" />
+                    Start Analysis
                   </Button>
-                )}
-              </CardContent>
-            </Card>
-          )}
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm font-medium mb-2">Analysis in Progress...</p>
+                    <Progress value={progress} className="w-full" />
+                    <p className="text-xs text-gray-600 mt-1">{Math.round(progress)}% complete</p>
+                  </div>
+                  {progress === 100 && (
+                    <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <p className="text-sm text-green-800 font-medium">Analysis Complete!</p>
+                      <Button size="sm" className="mt-2" onClick={onBack}>
+                        View Results
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

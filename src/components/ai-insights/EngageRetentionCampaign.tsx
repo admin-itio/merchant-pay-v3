@@ -1,251 +1,250 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { 
-  Target, 
-  Users, 
-  Mail, 
-  Gift,
-  ArrowLeft,
-  Send,
-  Calendar,
-  TrendingDown
-} from 'lucide-react';
+import { ArrowLeft, Users, Target, Mail, MessageSquare } from 'lucide-react';
 
 interface EngageRetentionCampaignProps {
   onBack: () => void;
 }
 
 const EngageRetentionCampaign = ({ onBack }: EngageRetentionCampaignProps) => {
-  const [selectedSegment, setSelectedSegment] = useState<string>('');
-  const [campaignType, setCampaignType] = useState<string>('');
-
-  const customerSegments = [
+  const churnRiskCustomers = [
     {
-      id: 'high-value-risk',
-      name: 'High-Value at Risk',
-      count: 234,
-      churnRisk: 85,
+      segment: 'High-Value At Risk',
+      count: 23,
       avgValue: '$2,450',
-      description: 'High-value customers showing early churn indicators'
+      churnProbability: '78%',
+      lastActivity: '15 days ago'
     },
     {
-      id: 'declining-engagement',
-      name: 'Declining Engagement',
-      count: 456,
-      churnRisk: 67,
+      segment: 'Regular Customers',
+      count: 45,
       avgValue: '$890',
-      description: 'Customers with decreasing activity over last 60 days'
+      churnProbability: '45%',
+      lastActivity: '22 days ago'
     },
     {
-      id: 'new-customers',
-      name: 'New Customers',
-      count: 789,
-      churnRisk: 45,
-      avgValue: '$345',
-      description: 'Recently acquired customers (last 30 days)'
+      segment: 'New Users',
+      count: 67,
+      avgValue: '$340',
+      churnProbability: '65%',
+      lastActivity: '8 days ago'
     }
   ];
 
   const campaignTemplates = [
     {
-      id: 'personalized-offer',
-      name: 'Personalized Discount Offer',
-      description: 'AI-generated personalized discount based on customer behavior',
-      expectedRetention: '+23%',
-      cost: 'Low'
+      name: 'Win-Back Offer',
+      type: 'Email',
+      description: 'Special discount to re-engage inactive customers',
+      expectedResponse: '12-18%'
     },
     {
-      id: 'loyalty-program',
-      name: 'VIP Loyalty Program Invitation',
-      description: 'Exclusive access to premium features and benefits',
-      expectedRetention: '+31%',
-      cost: 'Medium'
+      name: 'Loyalty Rewards',
+      type: 'In-App',
+      description: 'Points-based incentive for continued usage',
+      expectedResponse: '22-28%'
     },
     {
-      id: 'win-back',
-      name: 'Win-Back Campaign',
-      description: 'Re-engagement series with progressive incentives',
-      expectedRetention: '+18%',
-      cost: 'Low'
+      name: 'Personal Check-in',
+      type: 'SMS',
+      description: 'Personalized message from account manager',
+      expectedResponse: '8-15%'
     }
   ];
 
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="ghost" onClick={onBack}>
+        <Button variant="outline" size="sm" onClick={onBack}>
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to AI Insights
         </Button>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Engage Retention Campaign</h1>
-          <p className="text-gray-600">Launch targeted campaigns to prevent customer churn</p>
+          <h1 className="text-2xl font-bold">Customer Retention Campaign</h1>
+          <p className="text-gray-600">Engage at-risk customers with targeted retention strategies</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Select Target Segment</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {customerSegments.map((segment) => (
-                <div 
-                  key={segment.id}
-                  className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                    selectedSegment === segment.id ? 'border-blue-500 bg-blue-50' : 'hover:bg-gray-50'
-                  }`}
-                  onClick={() => setSelectedSegment(segment.id)}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-semibold">{segment.name}</h3>
-                    <div className="flex gap-2">
-                      <Badge variant="outline">{segment.count} customers</Badge>
-                      <Badge variant={segment.churnRisk > 70 ? 'destructive' : 'secondary'}>
-                        {segment.churnRisk}% risk
-                      </Badge>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-600 mb-3">{segment.description}</p>
-                  <div className="flex justify-between text-xs">
-                    <span>Avg. Value: {segment.avgValue}</span>
-                    <span className="flex items-center gap-1">
-                      <TrendingDown className="h-3 w-3 text-red-500" />
-                      Churn Risk: {segment.churnRisk}%
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Users className="h-5 w-5 text-red-600" />
+              <span className="font-semibold">At Risk</span>
+            </div>
+            <p className="text-2xl font-bold text-red-600">135</p>
+            <p className="text-sm text-gray-600">Customers</p>
+          </CardContent>
+        </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Campaign Templates</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {campaignTemplates.map((template) => (
-                <div 
-                  key={template.id}
-                  className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                    campaignType === template.id ? 'border-blue-500 bg-blue-50' : 'hover:bg-gray-50'
-                  }`}
-                  onClick={() => setCampaignType(template.id)}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-semibold">{template.name}</h3>
-                    <div className="flex gap-2">
-                      <Badge variant="default">{template.expectedRetention}</Badge>
-                      <Badge variant="outline">{template.cost} cost</Badge>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-600">{template.description}</p>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </div>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Target className="h-5 w-5 text-blue-600" />
+              <span className="font-semibold">Revenue at Risk</span>
+            </div>
+            <p className="text-2xl font-bold text-blue-600">$156K</p>
+            <p className="text-sm text-gray-600">Potential loss</p>
+          </CardContent>
+        </Card>
 
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Campaign Setup</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="campaign-name">Campaign Name</Label>
-                <Input 
-                  id="campaign-name" 
-                  placeholder="Enter campaign name"
-                  disabled={!selectedSegment || !campaignType}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="campaign-message">Custom Message</Label>
-                <Textarea 
-                  id="campaign-message" 
-                  placeholder="Customize your campaign message..."
-                  disabled={!selectedSegment || !campaignType}
-                />
-              </div>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Mail className="h-5 w-5 text-green-600" />
+              <span className="font-semibold">Campaign Ready</span>
+            </div>
+            <p className="text-2xl font-bold text-green-600">89</p>
+            <p className="text-sm text-gray-600">Customers</p>
+          </CardContent>
+        </Card>
 
-              <div>
-                <Label htmlFor="schedule">Schedule</Label>
-                <Input 
-                  id="schedule" 
-                  type="datetime-local"
-                  disabled={!selectedSegment || !campaignType}
-                />
-              </div>
-
-              <div className="pt-4 space-y-3">
-                <Button 
-                  className="w-full" 
-                  disabled={!selectedSegment || !campaignType}
-                >
-                  <Send className="h-4 w-4 mr-2" />
-                  Launch Campaign Now
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="w-full"
-                  disabled={!selectedSegment || !campaignType}
-                >
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Schedule for Later
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Expected Impact</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {selectedSegment && campaignType ? (
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between">
-                    <span>Target Customers:</span>
-                    <span className="font-semibold">
-                      {customerSegments.find(s => s.id === selectedSegment)?.count}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Expected Retention:</span>
-                    <span className="font-semibold text-green-600">
-                      {campaignTemplates.find(t => t.id === campaignType)?.expectedRetention}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Estimated Revenue:</span>
-                    <span className="font-semibold">$45,230</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Campaign Cost:</span>
-                    <span className="font-semibold">$1,250</span>
-                  </div>
-                  <hr />
-                  <div className="flex justify-between">
-                    <span>Net ROI:</span>
-                    <span className="font-semibold text-green-600">3,518%</span>
-                  </div>
-                </div>
-              ) : (
-                <p className="text-sm text-gray-600">Select a segment and campaign type to see impact</p>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <MessageSquare className="h-5 w-5 text-purple-600" />
+              <span className="font-semibold">Success Rate</span>
+            </div>
+            <p className="text-2xl font-bold text-purple-600">23%</p>
+            <p className="text-sm text-gray-600">Expected retention</p>
+          </CardContent>
+        </Card>
       </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Customer Segments at Risk</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {churnRiskCustomers.map((segment, index) => (
+                <div key={index} className="p-4 border rounded-lg">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <h3 className="font-semibold">{segment.segment}</h3>
+                      <p className="text-sm text-gray-600">{segment.count} customers</p>
+                    </div>
+                    <Badge variant="destructive">{segment.churnProbability}</Badge>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-gray-600">Avg Value: </span>
+                      <span className="font-medium">{segment.avgValue}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Last Activity: </span>
+                      <span className="font-medium">{segment.lastActivity}</span>
+                    </div>
+                  </div>
+                  <Button size="sm" className="mt-3" variant="outline">
+                    Target This Segment
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Campaign Templates</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {campaignTemplates.map((template, index) => (
+                <div key={index} className="p-4 border rounded-lg">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <h3 className="font-semibold">{template.name}</h3>
+                      <p className="text-sm text-gray-600">{template.description}</p>
+                    </div>
+                    <Badge variant="outline">{template.type}</Badge>
+                  </div>
+                  <div className="flex justify-between items-center mt-3">
+                    <span className="text-sm text-gray-600">
+                      Expected Response: {template.expectedResponse}
+                    </span>
+                    <Button size="sm">Use Template</Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Campaign Launch</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <h3 className="font-semibold mb-3">Select Segments</h3>
+              <div className="space-y-2">
+                <label className="flex items-center space-x-2">
+                  <input type="checkbox" defaultChecked />
+                  <span>High-Value At Risk (23 customers)</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input type="checkbox" />
+                  <span>Regular Customers (45 customers)</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input type="checkbox" />
+                  <span>New Users (67 customers)</span>
+                </label>
+              </div>
+            </div>
+            
+            <div>
+              <h3 className="font-semibold mb-3">Campaign Type</h3>
+              <div className="space-y-2">
+                <label className="flex items-center space-x-2">
+                  <input type="radio" name="campaign" defaultChecked />
+                  <span>Email Campaign</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input type="radio" name="campaign" />
+                  <span>In-App Notification</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input type="radio" name="campaign" />
+                  <span>Multi-Channel</span>
+                </label>
+              </div>
+            </div>
+            
+            <div>
+              <h3 className="font-semibold mb-3">Schedule</h3>
+              <div className="space-y-2">
+                <label className="flex items-center space-x-2">
+                  <input type="radio" name="schedule" defaultChecked />
+                  <span>Send Immediately</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input type="radio" name="schedule" />
+                  <span>Schedule for Later</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input type="radio" name="schedule" />
+                  <span>Automated Trigger</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          
+          <div className="mt-6 flex gap-2">
+            <Button>Launch Campaign</Button>
+            <Button variant="outline">Save as Draft</Button>
+            <Button variant="outline">Preview</Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

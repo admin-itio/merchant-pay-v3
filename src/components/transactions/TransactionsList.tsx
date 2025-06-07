@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -64,6 +65,7 @@ const TransactionsList = () => {
     const gateways = ['Stripe', 'PayPal', 'Square', 'Adyen', 'Authorize.Net'];
     const countries = ['United States', 'United Kingdom', 'Germany', 'France', 'Canada', 'Australia', 'Japan', 'Singapore'];
     const currencies = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'JPY', 'SGD'];
+    const customerNames = ['John Smith', 'Sarah Johnson', 'Mike Davis', 'Emma Wilson', 'David Brown', 'Lisa Miller', 'Chris Taylor', 'Anna Garcia'];
     
     const transactions = [];
     
@@ -79,7 +81,7 @@ const TransactionsList = () => {
         currency: currencies[Math.floor(Math.random() * currencies.length)],
         status: statuses[Math.floor(Math.random() * statuses.length)],
         paymentMethod: paymentMethods[Math.floor(Math.random() * paymentMethods.length)],
-        customer: `Customer ${i}`,
+        customer: customerNames[Math.floor(Math.random() * customerNames.length)],
         customerEmail: `customer${i}@email.com`,
         customerPhone: `+1-555-${String(Math.floor(Math.random() * 10000)).padStart(4, '0')}`,
         merchantRef: `ORD-2024-${String(i).padStart(3, '0')}`,
@@ -116,7 +118,6 @@ const TransactionsList = () => {
       console.log(`Exporting transactions:`, selectedIds);
       // Handle export functionality
     }
-    // Removed archive, delete, and generate report options as requested
   };
 
   const handleFiltersChange = (filters: any) => {

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -70,14 +71,7 @@ const TransactionTable = ({ transactions, onViewDetails, onBulkAction, columns }
     { key: 'timestamp', label: 'Date & Time', visible: true, order: 5 },
     { key: 'fraudScore', label: 'Fraud Score', visible: true, order: 6 },
     { key: 'gateway', label: 'Gateway', visible: true, order: 7 },
-    { key: 'country', label: 'Country', visible: true, order: 8 },
-    { key: 'currency', label: 'Currency', visible: false, order: 9 },
-    { key: 'merchantRef', label: 'Merchant Ref', visible: false, order: 10 },
-    { key: 'customerEmail', label: 'Customer Email', visible: false, order: 11 },
-    { key: 'customerPhone', label: 'Customer Phone', visible: false, order: 12 },
-    { key: 'ipAddress', label: 'IP Address', visible: false, order: 13 },
-    { key: 'userAgent', label: 'User Agent', visible: false, order: 14 },
-    { key: 'responseCode', label: 'Response Code', visible: false, order: 15 }
+    { key: 'country', label: 'Country', visible: true, order: 8 }
   ];
 
   const visibleColumns = (columns || defaultColumns)
