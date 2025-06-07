@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -38,6 +37,7 @@ const TransactionsList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const [dateRange, setDateRange] = useState({ from: null, to: null });
+  const [showDateRangeFilter, setShowDateRangeFilter] = useState(false);
   const [tableColumns, setTableColumns] = useState([
     { key: 'id', label: 'Transaction ID', visible: true, order: 0 },
     { key: 'amount', label: 'Amount', visible: true, order: 1 },
@@ -151,9 +151,16 @@ const TransactionsList = () => {
     });
   };
 
-  const handleDateRangeChange = (from: Date | null, to: Date | null) => {
-    setDateRange({ from, to });
-    console.log('Date range changed:', { from, to });
+  const handleDateRangeExport = (config: { from: Date; to: Date; format: string }) => {
+    setDateRange({ from: config.from, to: config.to });
+    console.log('Date range filter applied:', config);
+    setShowDateRangeFilter(false);
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        console.log('Date range export complete');
+        resolve(true);
+      }, 1000);
+    });
   };
 
   const transactionExportFormats = [
@@ -264,13 +271,28 @@ const TransactionsList = () => {
                 columns={tableColumns}
                 onColumnsChange={handleColumnsChange}
               />
-              <DateRangeFilter
-                onDateRangeChange={handleDateRangeChange}
-                triggerText="Date Range"
-                triggerIcon={Calendar}
-              />
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setShowDateRangeFilter(!showDateRangeFilter)}
+              >
+                <Calendar className="h-4 w-4 mr-2" />
+                Date Range
+              </Button>
             </div>
           </div>
+          
+          {/* Date Range Filter */}
+          {showDateRangeFilter && (
+            <div className="mt-4">
+              <DateRangeFilter
+                onExport={handleDateRangeExport}
+                exportFormats={transactionExportFormats}
+                defaultFormat="csv"
+                showTimeSelection={true}
+              />
+            </div>
+          )}
         </CardContent>
       </Card>
 
