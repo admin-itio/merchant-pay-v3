@@ -16,6 +16,7 @@ import DashboardAnalytics from '@/components/dashboard/DashboardAnalytics';
 import TerNoManagement from '@/components/terno/TerNoManagement';
 import AnnouncementCenter from '@/components/announcements/AnnouncementCenter';
 import PayoutManagement from '@/components/payouts/PayoutManagement';
+import CustomerManagement from '@/components/customers/CustomerManagement';
 
 // For demo purposes - you would use a proper auth system in production
 const isAuthenticated = () => {
@@ -81,14 +82,7 @@ const Index = () => {
       case 'announcements':
         return <AnnouncementCenter />;
       case 'customers':
-        return (
-          <div className="flex items-center justify-center h-64 lg:h-96 p-4">
-            <div className="text-center">
-              <h3 className="text-lg lg:text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Customer Management</h3>
-              <p className="text-sm lg:text-base text-gray-600 dark:text-gray-400">Customer database and management tools coming soon</p>
-            </div>
-          </div>
-        );
+        return <CustomerManagement />;
       default:
         return <DashboardEnhanced />;
     }
