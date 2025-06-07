@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,13 +17,30 @@ import {
   Calendar,
   CreditCard,
   Globe,
-  Shield
+  Shield,
+  Settings
 } from 'lucide-react';
+import TransactionTable from './TransactionTable';
+import TransactionDetailsModal from './TransactionDetailsModal';
+import AdvancedFilters from './AdvancedFilters';
+import TransactionSettings from './TransactionSettings';
 
 const TransactionsList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [selectedTab, setSelectedTab] = useState('all');
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [activeFilters, setActiveFilters] = useState({});
+  const [tableColumns, setTableColumns] = useState([
+    { key: 'id', label: 'Transaction ID', visible: true, order: 0 },
+    { key: 'amount', label: 'Amount', visible: true, order: 1 },
+    { key: 'customer', label: 'Customer', visible: true, order: 2 },
+    { key: 'status', label: 'Status', visible: true, order: 3 },
+    { key: 'fraudScore', label: 'Fraud Score', visible: true, order: 4 },
+    { key: 'gateway', label: 'Gateway', visible: true, order: 5 },
+    { key: 'country', label: 'Country', visible: true, order: 6 }
+  ]);
 
   // Mock transaction data
   const transactions = [
@@ -87,6 +103,25 @@ const TransactionsList = () => {
     if (score < 30) return 'text-green-600';
     if (score < 70) return 'text-yellow-600';
     return 'text-red-600';
+  };
+
+  const handleViewDetails = (transaction: any) => {
+    setSelectedTransaction(transaction);
+    setIsDetailsModalOpen(true);
+  };
+
+  const handleBulkAction = (action: string, selectedIds: string[]) => {
+    console.log(`Bulk action: ${action} on transactions:`, selectedIds);
+    // Implementation for bulk actions
+  };
+
+  const handleFiltersChange = (filters: any) => {
+    setActiveFilters(filters);
+    console.log('Applied filters:', filters);
+  };
+
+  const handleColumnsChange = (columns: any[]) => {
+    setTableColumns(columns);
   };
 
   return (
@@ -179,10 +214,14 @@ const TransactionsList = () => {
               </div>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                <Filter className="h-4 w-4 mr-2" />
-                Filters
-              </Button>
+              <AdvancedFilters 
+                onFiltersChange={handleFiltersChange}
+                activeFilters={activeFilters}
+              />
+              <TransactionSettings 
+                columns={tableColumns}
+                onColumnsChange={handleColumnsChange}
+              />
               <Button variant="outline" size="sm">
                 <Calendar className="h-4 w-4 mr-2" />
                 Date Range
@@ -192,151 +231,19 @@ const TransactionsList = () => {
         </CardContent>
       </Card>
 
-      {/* Transaction Tabs */}
-      <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-6 mb-6 bg-gray-100">
-          <TabsTrigger value="all">All Transactions</TabsTrigger>
-          <TabsTrigger value="completed">Completed</TabsTrigger>
-          <TabsTrigger value="pending">Pending</TabsTrigger>
-          <TabsTrigger value="refunded">Refunded</TabsTrigger>
-          <TabsTrigger value="chargeback">Chargebacks</TabsTrigger>
-          <TabsTrigger value="disputes">Disputes</TabsTrigger>
-        </TabsList>
+      {/* Enhanced Transaction Table */}
+      <TransactionTable 
+        transactions={transactions}
+        onViewDetails={handleViewDetails}
+        onBulkAction={handleBulkAction}
+      />
 
-        <TabsContent value="all" className="mt-0">
-          <Card>
-            <CardHeader>
-              <CardTitle>All Transactions</CardTitle>
-              <CardDescription>Complete transaction history with advanced filtering</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left p-3 font-medium text-gray-600">Transaction ID</th>
-                      <th className="text-left p-3 font-medium text-gray-600">Amount</th>
-                      <th className="text-left p-3 font-medium text-gray-600">Customer</th>
-                      <th className="text-left p-3 font-medium text-gray-600">Status</th>
-                      <th className="text-left p-3 font-medium text-gray-600">Fraud Score</th>
-                      <th className="text-left p-3 font-medium text-gray-600">Gateway</th>
-                      <th className="text-left p-3 font-medium text-gray-600">Country</th>
-                      <th className="text-left p-3 font-medium text-gray-600">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {transactions.map((transaction) => (
-                      <tr key={transaction.id} className="border-b hover:bg-gray-50">
-                        <td className="p-3">
-                          <div>
-                            <p className="font-medium text-gray-900">{transaction.id}</p>
-                            <p className="text-sm text-gray-500">{transaction.merchantRef}</p>
-                          </div>
-                        </td>
-                        <td className="p-3">
-                          <div>
-                            <p className="font-medium text-gray-900">
-                              {transaction.currency} {transaction.amount.toFixed(2)}
-                            </p>
-                            <p className="text-sm text-gray-500">{transaction.paymentMethod}</p>
-                          </div>
-                        </td>
-                        <td className="p-3">
-                          <div>
-                            <p className="font-medium text-gray-900">{transaction.customer}</p>
-                            <p className="text-sm text-gray-500">{transaction.timestamp}</p>
-                          </div>
-                        </td>
-                        <td className="p-3">
-                          <Badge className={getStatusColor(transaction.status)}>
-                            {transaction.status}
-                          </Badge>
-                        </td>
-                        <td className="p-3">
-                          <span className={`font-medium ${getFraudScoreColor(transaction.fraudScore)}`}>
-                            {transaction.fraudScore}
-                          </span>
-                        </td>
-                        <td className="p-3">
-                          <span className="text-gray-900">{transaction.gateway}</span>
-                        </td>
-                        <td className="p-3">
-                          <span className="text-gray-900">{transaction.country}</span>
-                        </td>
-                        <td className="p-3">
-                          <div className="flex gap-1">
-                            <Button variant="ghost" size="sm">
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            {transaction.status === 'completed' && (
-                              <Button variant="ghost" size="sm">
-                                <RotateCcw className="h-4 w-4" />
-                              </Button>
-                            )}
-                            {transaction.status === 'chargeback' && (
-                              <Button variant="ghost" size="sm">
-                                <FileText className="h-4 w-4" />
-                              </Button>
-                            )}
-                            <Button variant="ghost" size="sm">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="chargeback" className="mt-0">
-          <Card>
-            <CardHeader>
-              <CardTitle>Chargeback Management</CardTitle>
-              <CardDescription>Handle chargebacks and upload dispute documentation</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center p-4 border rounded-lg">
-                  <div className="flex-1">
-                    <h3 className="font-medium text-gray-900">Chargeback - TXN003</h3>
-                    <p className="text-sm text-gray-600">Amount: $2,100.00 • Reason: Fraud</p>
-                    <p className="text-sm text-gray-500">Deadline: 7 days remaining</p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm">
-                      <FileText className="h-4 w-4 mr-2" />
-                      Upload Evidence
-                    </Button>
-                    <Button size="sm">
-                      Accept Liability
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="disputes" className="mt-0">
-          <Card>
-            <CardHeader>
-              <CardTitle>Dispute Resolution</CardTitle>
-              <CardDescription>Manage payment disputes and representment cases</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8">
-                <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No Active Disputes</h3>
-                <p className="text-gray-600">Your disputes will appear here when they arise</p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      {/* Transaction Details Modal */}
+      <TransactionDetailsModal 
+        transaction={selectedTransaction}
+        isOpen={isDetailsModalOpen}
+        onClose={() => setIsDetailsModalOpen(false)}
+      />
     </div>
   );
 };
