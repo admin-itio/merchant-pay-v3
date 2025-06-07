@@ -14,6 +14,7 @@ import ReferralManagement from '@/components/referrals/ReferralManagement';
 import NotificationCenter from '@/components/notifications/NotificationCenter';
 import DashboardAnalytics from '@/components/dashboard/DashboardAnalytics';
 import TerNoManagement from '@/components/terno/TerNoManagement';
+import AnnouncementCenter from '@/components/announcements/AnnouncementCenter';
 
 // For demo purposes - you would use a proper auth system in production
 const isAuthenticated = () => {
@@ -74,6 +75,8 @@ const Index = () => {
         return <DashboardAnalytics />;
       case 'terno':
         return <TerNoManagement />;
+      case 'announcements':
+        return <AnnouncementCenter />;
       case 'customers':
         return (
           <div className="flex items-center justify-center h-64 lg:h-96 p-4">

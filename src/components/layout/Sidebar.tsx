@@ -13,7 +13,8 @@ import {
   X,
   HeadphonesIcon,
   Gift,
-  Key
+  Key,
+  Megaphone
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -34,6 +35,7 @@ const Sidebar = ({ activeTab, setActiveTab, isOpen, setIsOpen }: SidebarProps) =
     { id: 'customers', label: 'Customers', icon: Users },
     { id: 'payment-methods', label: 'Payment Methods', icon: FileText },
     { id: 'terno', label: 'TerNo Management', icon: Key },
+    { id: 'announcements', label: 'Announcements', icon: Megaphone },
     { id: 'referrals', label: 'Referrals', icon: Gift },
     { id: 'support', label: 'Support', icon: HeadphonesIcon },
     { id: 'profile', label: 'Profile', icon: Settings },
