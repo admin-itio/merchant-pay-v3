@@ -2,12 +2,13 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { User, Shield, Building, Bell, CreditCard, Users } from 'lucide-react';
+import { User, Shield, Building, Bell, CreditCard, Users, Mail } from 'lucide-react';
 import ProfileSecurity from './ProfileSecurity';
 import ProfileBusinessInfo from './ProfileBusinessInfo';
 import ProfileNotificationSettings from './ProfileNotificationSettings';
 import ProfileBilling from './ProfileBilling';
 import SubAccountManagement from './SubAccountManagement';
+import AuthorizedEmailManagement from './AuthorizedEmailManagement';
 
 const ProfileEnhanced = () => {
   const [activeTab, setActiveTab] = useState('business');
@@ -16,6 +17,7 @@ const ProfileEnhanced = () => {
     { id: 'business', label: 'Business Info', icon: Building, component: ProfileBusinessInfo },
     { id: 'security', label: 'Security', icon: Shield, component: ProfileSecurity },
     { id: 'sub-accounts', label: 'Sub Accounts', icon: Users, component: SubAccountManagement },
+    { id: 'emails', label: 'Authorized Emails', icon: Mail, component: AuthorizedEmailManagement },
     { id: 'notifications', label: 'Notifications', icon: Bell, component: ProfileNotificationSettings },
     { id: 'billing', label: 'Billing', icon: CreditCard, component: ProfileBilling },
   ];
@@ -29,7 +31,7 @@ const ProfileEnhanced = () => {
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="overflow-x-auto pb-2">
-          <TabsList className="grid grid-cols-3 lg:grid-cols-5 w-full min-w-max lg:min-w-0 bg-gray-100 p-1">
+          <TabsList className="grid grid-cols-3 lg:grid-cols-6 w-full min-w-max lg:min-w-0 bg-gray-100 p-1">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
