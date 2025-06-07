@@ -3,298 +3,376 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Edit, Copy, Eye, EyeOff, Key, Globe, Settings, Bell } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  ArrowLeft, 
+  Edit, 
+  Copy, 
+  Key, 
+  Globe, 
+  Shield, 
+  Bell, 
+  Mail,
+  Settings,
+  CheckCircle,
+  AlertCircle,
+  Clock,
+  Eye,
+  EyeOff,
+  Activity,
+  TrendingUp,
+  Users,
+  CreditCard
+} from 'lucide-react';
 
-interface TerNoDetailsProps {
-  terno: any;
-  onClose: () => void;
-  onEdit: () => void;
+interface TerNo {
+  id: string;
+  ternoNumber: string;
+  name: string;
+  description: string;
+  environment: 'sandbox' | 'production';
+  status: 'active' | 'inactive' | 'pending' | 'suspended';
+  businessType: string;
+  country: string;
+  currency: string;
+  createdAt: string;
+  lastUsed?: string;
+  transactionCount: number;
+  monthlyVolume: number;
+  apiKey: string;
+  webhookUrl?: string;
+  callbackUrl?: string;
 }
 
-const TerNoDetails = ({ terno, onClose, onEdit }: TerNoDetailsProps) => {
-  const [showPrivateKey, setShowPrivateKey] = useState(false);
+interface TerNoDetailsProps {
+  terno: TerNo;
+  onEdit: () => void;
+  onBack: () => void;
+}
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    // In real app, show toast notification
-  };
+const TerNoDetails = ({ terno, onEdit, onBack }: TerNoDetailsProps) => {
+  const [activeTab, setActiveTab] = useState('overview');
+  const [showApiKey, setShowApiKey] = useState(false);
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-green-500';
-      case 'inactive': return 'bg-red-500';
-      case 'pending': return 'bg-yellow-500';
-      default: return 'bg-gray-500';
+      case 'active': return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300';
+      case 'inactive': return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300';
+      case 'pending': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300';
+      case 'suspended': return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300';
     }
   };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'active': return CheckCircle;
+      case 'inactive': return AlertCircle;
+      case 'pending': return Clock;
+      case 'suspended': return AlertCircle;
+      default: return Clock;
+    }
+  };
+
+  const getEnvironmentColor = (environment: string) => {
+    return environment === 'production' 
+      ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300'
+      : 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300';
+  };
+
+  const formatCurrency = (amount: number, currency: string) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+  };
+
+  const StatusIcon = getStatusIcon(terno.status);
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" onClick={onClose} className="flex items-center gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            Back to TerNo List
+          <Button variant="ghost" size="sm" onClick={onBack}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to List
           </Button>
           <div>
-            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-gray-100">
-              TerNo Details
-            </h1>
+            <div className="flex items-center gap-3">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                {terno.name}
+              </h2>
+              <div className="flex items-center gap-2">
+                <StatusIcon className="h-4 w-4" />
+                <Badge className={getStatusColor(terno.status)}>
+                  {terno.status}
+                </Badge>
+                <Badge className={getEnvironmentColor(terno.environment)}>
+                  {terno.environment}
+                </Badge>
+              </div>
+            </div>
             <p className="text-gray-600 dark:text-gray-400 mt-1">
-              Complete configuration for {terno.businessName}
+              TerNo: {terno.ternoNumber} • {terno.description}
             </p>
           </div>
         </div>
-        <Button onClick={onEdit} className="flex items-center gap-2">
+        <Button onClick={onEdit} className="gap-2">
           <Edit className="h-4 w-4" />
           Edit TerNo
         </Button>
       </div>
 
-      {/* Status and Basic Info */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Globe className="h-5 w-5" />
-            Basic Information
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Business Details</h3>
-              <div className="space-y-2">
-                <div>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Business Name:</span>
-                  <p className="font-medium">{terno.businessName}</p>
+      {/* Key Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
+                <Activity className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                  {terno.transactionCount.toLocaleString()}
                 </div>
-                <div>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Business URL:</span>
-                  <p className="font-medium text-blue-600 dark:text-blue-400">{terno.businessUrl}</p>
-                </div>
-                <div>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">TerNo:</span>
-                  <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900 dark:text-purple-300">
-                    {terno.terNo}
-                  </Badge>
-                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Total Transactions</div>
               </div>
             </div>
+          </CardContent>
+        </Card>
 
-            <div>
-              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Status & Gateway</h3>
-              <div className="space-y-2">
-                <div>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Status:</span>
-                  <div className="flex items-center gap-2 mt-1">
-                    <div className={`w-2 h-2 rounded-full ${getStatusColor(terno.status)}`} />
-                    <span className="capitalize font-medium">{terno.status}</span>
-                  </div>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-green-100 dark:bg-green-900/20 rounded-lg">
+                <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-400" />
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                  {formatCurrency(terno.monthlyVolume, terno.currency)}
                 </div>
-                <div>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Gateway:</span>
-                  <p className="font-medium">{terno.gateway}</p>
-                </div>
-                <div>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Created:</span>
-                  <p className="font-medium">{terno.createdAt}</p>
-                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Monthly Volume</div>
               </div>
             </div>
+          </CardContent>
+        </Card>
 
-            <div>
-              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Configuration</h3>
-              <div className="space-y-2">
-                <div>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Orchestration Rules:</span>
-                  <Badge variant="secondary" className="ml-2">{terno.orchestrationRules}</Badge>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
+                <Globe className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                  {terno.country}
                 </div>
-                <div>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Terminal Type:</span>
-                  <p className="font-medium">{terno.terminalType || 'Not configured'}</p>
-                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Country</div>
               </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      {/* Keys Management */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Key className="h-5 w-5" />
-            Key Management
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-orange-100 dark:bg-orange-900/20 rounded-lg">
+                <CreditCard className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                  {terno.currency}
+                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Currency</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Details Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-6">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="technical">Technical</TabsTrigger>
+          <TabsTrigger value="security">Security</TabsTrigger>
+          <TabsTrigger value="settings">Settings</TabsTrigger>
+          <TabsTrigger value="logs">Activity Logs</TabsTrigger>
+          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div>
-              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Public Key</h3>
-              <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Public Key (Used for verification)</span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => copyToClipboard(terno.publicKey)}
-                  >
-                    <Copy className="h-4 w-4" />
-                  </Button>
+            {/* Basic Information */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="h-5 w-5" />
+                  Basic Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">TerNo Number</label>
+                  <div className="font-mono font-medium mt-1">{terno.ternoNumber}</div>
                 </div>
-                <code className="text-xs font-mono block break-all bg-white dark:bg-gray-900 p-2 rounded border">
-                  {terno.publicKey}
-                </code>
-              </div>
-            </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Business Type</label>
+                  <div className="mt-1">{terno.businessType}</div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Created At</label>
+                  <div className="mt-1">{formatDate(terno.createdAt)}</div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Last Used</label>
+                  <div className="mt-1">{terno.lastUsed ? formatDate(terno.lastUsed) : 'Never'}</div>
+                </div>
+              </CardContent>
+            </Card>
 
-            <div>
-              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Private Key</h3>
-              <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Private Key (Keep secure)</span>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
+            {/* API Configuration */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Key className="h-5 w-5" />
+                  API Configuration
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">API Key</label>
+                  <div className="flex items-center gap-2 mt-1">
+                    <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-sm font-mono flex-1">
+                      {showApiKey ? terno.apiKey : terno.apiKey.slice(0, 10) + '...'}
+                    </code>
+                    <Button 
+                      variant="ghost" 
                       size="sm"
-                      onClick={() => setShowPrivateKey(!showPrivateKey)}
+                      onClick={() => setShowApiKey(!showApiKey)}
                     >
-                      {showPrivateKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </Button>
-                    <Button
-                      variant="ghost"
+                    <Button 
+                      variant="ghost" 
                       size="sm"
-                      onClick={() => copyToClipboard(terno.privateKey)}
+                      onClick={() => copyToClipboard(terno.apiKey)}
                     >
                       <Copy className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
-                <code className="text-xs font-mono block break-all bg-white dark:bg-gray-900 p-2 rounded border">
-                  {showPrivateKey ? terno.privateKey : '•'.repeat(32)}
-                </code>
-                {!showPrivateKey && (
-                  <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
-                    ⚠️ Private key is hidden for security
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Technical Configuration */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Settings className="h-5 w-5" />
-            Technical Configuration
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div>
-              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">URLs</h3>
-              <div className="space-y-2">
-                {[
-                  { label: 'Return URL', value: terno.returnUrl },
-                  { label: 'Webhook URL', value: terno.webhookUrl },
-                  { label: 'Terms & Conditions', value: terno.termsConditionsUrl },
-                  { label: 'Privacy Policy', value: terno.privacyPolicyUrl }
-                ].map((item, index) => (
-                  <div key={index}>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">{item.label}:</span>
-                    <p className="text-sm font-mono bg-gray-100 dark:bg-gray-800 p-1 rounded">
-                      {item.value || 'Not configured'}
-                    </p>
+                <div>
+                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Webhook URL</label>
+                  <div className="mt-1">
+                    {terno.webhookUrl ? (
+                      <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-sm break-all">
+                        {terno.webhookUrl}
+                      </code>
+                    ) : (
+                      <span className="text-gray-500 dark:text-gray-400">Not configured</span>
+                    )}
                   </div>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Contact Information</h3>
-              <div className="space-y-2">
-                {[
-                  { label: 'Customer Service No.', value: terno.customerServiceNo },
-                  { label: 'Customer Service Email', value: terno.customerServiceEmail },
-                  { label: 'Notification Email', value: terno.notificationEmail }
-                ].map((item, index) => (
-                  <div key={index}>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">{item.label}:</span>
-                    <p className="text-sm font-medium">{item.value || 'Not configured'}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Callback URL</label>
+                  <div className="mt-1">
+                    {terno.callbackUrl ? (
+                      <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-sm break-all">
+                        {terno.callbackUrl}
+                      </code>
+                    ) : (
+                      <span className="text-gray-500 dark:text-gray-400">Not configured</span>
+                    )}
                   </div>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Additional</h3>
-              <div className="space-y-2">
-                {[
-                  { label: 'DBA/Brand Name', value: terno.dbaName },
-                  { label: 'Logo URL', value: terno.logoUrl },
-                  { label: 'Contact US URL', value: terno.contactUsUrl }
-                ].map((item, index) => (
-                  <div key={index}>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">{item.label}:</span>
-                    <p className="text-sm font-medium">{item.value || 'Not configured'}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        </CardContent>
-      </Card>
+        </TabsContent>
 
-      {/* Notification Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Bell className="h-5 w-5" />
-            Notification Settings
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {Object.entries(terno.notificationSettings || {}).map(([key, value]) => (
-              <div key={key} className="flex items-center gap-2">
-                <div className={`w-3 h-3 rounded-full ${value ? 'bg-green-500' : 'bg-gray-300'}`} />
-                <span className="text-sm capitalize">{key}</span>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Orchestration Rules Summary */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Orchestration Rules Summary</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {terno.orchestrationRules > 0 ? (
-            <div className="flex items-center gap-4">
-              <Badge variant="secondary" className="text-lg px-3 py-1">
-                {terno.orchestrationRules} Rules Configured
-              </Badge>
+        <TabsContent value="technical">
+          <Card>
+            <CardHeader>
+              <CardTitle>Technical Configuration</CardTitle>
+            </CardHeader>
+            <CardContent>
               <p className="text-gray-600 dark:text-gray-400">
-                Active orchestration rules managing payment flow and routing
+                Technical configuration details for {terno.ternoNumber} will be displayed here.
               </p>
-            </div>
-          ) : (
-            <div className="text-center py-6">
-              <p className="text-gray-500 dark:text-gray-400 mb-2">No orchestration rules configured</p>
-              <Button variant="outline" onClick={onEdit}>
-                Configure Rules
-              </Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="security">
+          <Card>
+            <CardHeader>
+              <CardTitle>Security Settings</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600 dark:text-gray-400">
+                Security settings and access controls for {terno.ternoNumber} will be displayed here.
+              </p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="settings">
+          <Card>
+            <CardHeader>
+              <CardTitle>TerNo Settings</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600 dark:text-gray-400">
+                Configuration settings for {terno.ternoNumber} will be displayed here.
+              </p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="logs">
+          <Card>
+            <CardHeader>
+              <CardTitle>Activity Logs</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600 dark:text-gray-400">
+                Recent activity and transaction logs for {terno.ternoNumber} will be displayed here.
+              </p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="analytics">
+          <Card>
+            <CardHeader>
+              <CardTitle>Analytics & Reports</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600 dark:text-gray-400">
+                Performance analytics and detailed reports for {terno.ternoNumber} will be displayed here.
+              </p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

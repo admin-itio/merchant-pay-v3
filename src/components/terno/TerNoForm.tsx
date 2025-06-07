@@ -1,114 +1,173 @@
 
 import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Save, ArrowLeft, Settings, Globe, Shield, Bell, Mail, Key } from 'lucide-react';
 import BasicInformation from './sections/BasicInformation';
-import URLsAndPolicies from './sections/URLsAndPolicies';
 import TechnicalConfiguration from './sections/TechnicalConfiguration';
-import KeyGeneration from './sections/KeyGeneration';
-import NotificationSettings from './sections/NotificationSettings';
 import OrchestrationRules from './sections/OrchestrationRules';
+import URLsAndPolicies from './sections/URLsAndPolicies';
+import NotificationSettings from './sections/NotificationSettings';
 import EmailReportSettings from './sections/EmailReportSettings';
+import KeyGeneration from './sections/KeyGeneration';
 
-interface TerNoFormProps {
-  terno?: any;
-  onClose: () => void;
-  onSave: (data: any) => void;
+interface TerNo {
+  id: string;
+  ternoNumber: string;
+  name: string;
+  description: string;
+  environment: 'sandbox' | 'production';
+  status: 'active' | 'inactive' | 'pending' | 'suspended';
+  businessType: string;
+  country: string;
+  currency: string;
+  createdAt: string;
+  lastUsed?: string;
+  transactionCount: number;
+  monthlyVolume: number;
+  apiKey: string;
+  webhookUrl?: string;
+  callbackUrl?: string;
 }
 
-const TerNoForm = ({ terno, onClose, onSave }: TerNoFormProps) => {
+interface TerNoFormProps {
+  terno?: TerNo | null;
+  onSave: () => void;
+  onCancel: () => void;
+}
+
+const TerNoForm = ({ terno, onSave, onCancel }: TerNoFormProps) => {
+  const [activeTab, setActiveTab] = useState('basic');
   const [formData, setFormData] = useState({
-    businessName: terno?.businessName || '',
-    businessUrl: terno?.businessUrl || '',
-    businessDescription: terno?.businessDescription || '',
-    terminalType: terno?.terminalType || '',
-    dbaName: terno?.dbaName || '',
-    customerServiceNo: terno?.customerServiceNo || '',
-    customerServiceEmail: terno?.customerServiceEmail || '',
-    termsConditionsUrl: terno?.termsConditionsUrl || '',
-    refundPolicyUrl: terno?.refundPolicyUrl || '',
-    privacyPolicyUrl: terno?.privacyPolicyUrl || '',
-    contactUsUrl: terno?.contactUsUrl || '',
-    logoUrl: terno?.logoUrl || '',
-    notificationEmail: terno?.notificationEmail || '',
-    returnUrl: terno?.returnUrl || '',
-    webhookUrl: terno?.webhookUrl || '',
-    gateway: terno?.gateway || '',
-    status: terno?.status || 'pending',
-    // Notification settings
-    notificationSettings: terno?.notificationSettings || {
-      approved: false,
-      declined: false,
-      withdraw: false,
-      chargeback: false,
-      refund: false,
-      customer: false
-    },
-    // Email report settings
-    emailReportSettings: terno?.emailReportSettings || {
-      enabled: false,
-      frequency: 'weekly',
-      email: '',
-      reportTypes: {
-        transactions: true,
-        settlements: true,
-        analytics: false
-      },
-      time: '09:00',
-      dayOfWeek: 'monday'
-    },
-    // Orchestration rules - ensure it's always an array
-    orchestrationRules: Array.isArray(terno?.orchestrationRules) ? terno.orchestrationRules : []
+    name: terno?.name || '',
+    description: terno?.description || '',
+    businessType: terno?.businessType || '',
+    country: terno?.country || '',
+    currency: terno?.currency || '',
+    environment: terno?.environment || 'sandbox',
+    // Add more fields as needed
   });
 
-  const [generatedKeys, setGeneratedKeys] = useState<{publicKey: string, privateKey: string} | null>(null);
+  const isEditing = !!terno;
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSave({
-      ...formData,
-      publicKey: generatedKeys?.publicKey,
-      privateKey: generatedKeys?.privateKey
-    });
+  const handleSave = () => {
+    // Handle form submission
+    console.log('Saving TerNo:', formData);
+    onSave();
   };
+
+  const tabs = [
+    { id: 'basic', label: 'Basic Info', icon: Settings },
+    { id: 'technical', label: 'Technical', icon: Globe },
+    { id: 'orchestration', label: 'Orchestration', icon: Shield },
+    { id: 'urls', label: 'URLs & Policies', icon: Globe },
+    { id: 'notifications', label: 'Notifications', icon: Bell },
+    { id: 'email-reports', label: 'Email Reports', icon: Mail },
+    { id: 'keys', label: 'API Keys', icon: Key },
+  ];
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" onClick={onClose} className="flex items-center gap-2">
-          <ArrowLeft className="h-4 w-4" />
-          Back to TerNo List
-        </Button>
-        <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-gray-100">
-            {terno ? 'Edit TerNo' : 'Add New TerNo'}
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Configure terminal number settings and gateway connections
-          </p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="sm" onClick={onCancel}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to List
+          </Button>
+          <div>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+              {isEditing ? `Edit TerNo: ${terno.ternoNumber}` : 'Create New TerNo'}
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400">
+              {isEditing ? 'Update TerNo configuration and settings' : 'Configure your new payment terminal number'}
+            </p>
+          </div>
         </div>
+        <Button onClick={handleSave} className="gap-2">
+          <Save className="h-4 w-4" />
+          {isEditing ? 'Update TerNo' : 'Create TerNo'}
+        </Button>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <BasicInformation formData={formData} setFormData={setFormData} />
-        <URLsAndPolicies formData={formData} setFormData={setFormData} />
-        <TechnicalConfiguration formData={formData} setFormData={setFormData} />
-        <KeyGeneration generatedKeys={generatedKeys} setGeneratedKeys={setGeneratedKeys} />
-        <NotificationSettings formData={formData} setFormData={setFormData} />
-        <EmailReportSettings formData={formData} setFormData={setFormData} />
-        <OrchestrationRules formData={formData} setFormData={setFormData} />
+      {/* Form Tabs */}
+      <Card>
+        <CardContent className="p-6">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <div className="overflow-x-auto pb-2">
+              <TabsList className="grid grid-cols-7 w-full min-w-max bg-gray-100 p-1">
+                {tabs.map((tab) => {
+                  const Icon = tab.icon;
+                  return (
+                    <TabsTrigger 
+                      key={tab.id} 
+                      value={tab.id}
+                      className="flex items-center gap-2 text-sm font-medium px-4 py-2"
+                    >
+                      <Icon className="h-4 w-4 flex-shrink-0" />
+                      <span className="whitespace-nowrap">{tab.label}</span>
+                    </TabsTrigger>
+                  );
+                })}
+              </TabsList>
+            </div>
 
-        {/* Form Actions */}
-        <div className="flex justify-end gap-4">
-          <Button type="button" variant="outline" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button type="submit">
-            {terno ? 'Update TerNo' : 'Create TerNo'}
-          </Button>
-        </div>
-      </form>
+            <div className="mt-6">
+              <TabsContent value="basic">
+                <BasicInformation 
+                  data={formData} 
+                  onChange={setFormData}
+                  isEditing={isEditing}
+                />
+              </TabsContent>
+
+              <TabsContent value="technical">
+                <TechnicalConfiguration 
+                  data={formData} 
+                  onChange={setFormData}
+                />
+              </TabsContent>
+
+              <TabsContent value="orchestration">
+                <OrchestrationRules 
+                  data={formData} 
+                  onChange={setFormData}
+                />
+              </TabsContent>
+
+              <TabsContent value="urls">
+                <URLsAndPolicies 
+                  data={formData} 
+                  onChange={setFormData}
+                />
+              </TabsContent>
+
+              <TabsContent value="notifications">
+                <NotificationSettings 
+                  data={formData} 
+                  onChange={setFormData}
+                />
+              </TabsContent>
+
+              <TabsContent value="email-reports">
+                <EmailReportSettings 
+                  data={formData} 
+                  onChange={setFormData}
+                />
+              </TabsContent>
+
+              <TabsContent value="keys">
+                <KeyGeneration 
+                  data={formData} 
+                  onChange={setFormData}
+                  isEditing={isEditing}
+                />
+              </TabsContent>
+            </div>
+          </Tabs>
+        </CardContent>
+      </Card>
     </div>
   );
 };
