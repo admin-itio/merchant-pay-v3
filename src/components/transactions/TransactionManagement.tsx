@@ -1,16 +1,19 @@
-
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Download, RefreshCw, Plus, TrendingUp, AlertTriangle } from 'lucide-react';
+import { Search, Download, RefreshCw, Plus, TrendingUp, AlertTriangle, Settings2 } from 'lucide-react';
+import { toast } from 'sonner';
 import TransactionTable from './TransactionTable';
 import TransactionDetailsModal from './TransactionDetailsModal';
+import TransactionStatusUpdater from './TransactionStatusUpdater';
 import AdvancedFilters from './AdvancedFilters';
 import TransactionSettings from './TransactionSettings';
 import TransactionPagination from './TransactionPagination';
+import BulkActions from './BulkActions';
+import { exportToCSV, exportToJSON, exportToPDF } from './TransactionExportUtils';
 
 interface Transaction {
   id: string;
@@ -45,8 +48,10 @@ const TransactionManagement = () => {
   const [pageSize, setPageSize] = useState(25);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [isStatusUpdaterOpen, setIsStatusUpdaterOpen] = useState(false);
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
   const [activeTab, setActiveTab] = useState('all');
+  const [selectedTransactionIds, setSelectedTransactionIds] = useState<string[]>([]);
 
   // Mock data - in real app this would come from API
   const mockTransactions: Transaction[] = [
@@ -174,9 +179,57 @@ const TransactionManagement = () => {
     setIsDetailsModalOpen(true);
   };
 
+  const handleStatusUpdate = async (transactionId: string, newStatus: string, reason?: string) => {
+    console.log(`Updating transaction ${transactionId} to ${newStatus}:`, reason);
+    toast.success(`Transaction ${transactionId} status updated to ${newStatus}`);
+    // In real app, this would make an API call
+  };
+
+  const handleBulkAction = (action: string, selectedIds: string[]) => {
+    console.log(`Bulk action ${action} on transactions:`, selectedIds);
+    
+    switch (action) {
+      case 'export':
+        const transactionsToExport = mockTransactions.filter(t => selectedIds.includes(t.id));
+        exportToCSV(transactionsToExport, `transactions_${new Date().toISOString().split('T')[0]}`);
+        break;
+      case 'retry':
+        toast.success(`Retrying ${selectedIds.length} transactions`);
+        break;
+      case 'approve':
+        toast.success(`Approved ${selectedIds.length} transactions`);
+        break;
+      case 'cancel':
+        toast.success(`Cancelled ${selectedIds.length} transactions`);
+        break;
+      case 'delete':
+        toast.success(`Deleted ${selectedIds.length} transaction records`);
+        break;
+    }
+    
+    setSelectedTransactionIds([]);
+  };
+
   const handleExport = () => {
+    const format = 'csv'; // You could make this configurable
     console.log('Exporting transactions...', filteredTransactions);
-    // In real app, this would trigger CSV/Excel export
+    
+    switch (format) {
+      case 'csv':
+        exportToCSV(filteredTransactions);
+        break;
+      case 'json':
+        exportToJSON(filteredTransactions);
+        break;
+      case 'pdf':
+        exportToPDF(filteredTransactions);
+        break;
+    }
+  };
+
+  const openStatusUpdater = (transaction: Transaction) => {
+    setSelectedTransaction(transaction);
+    setIsStatusUpdaterOpen(true);
   };
 
   const getTabCount = (status: string) => {
@@ -222,6 +275,10 @@ const TransactionManagement = () => {
           <Button onClick={handleExport} variant="outline">
             <Download className="h-4 w-4 mr-2" />
             Export
+          </Button>
+          <Button onClick={openStatusUpdater} variant="outline">
+            <Settings2 className="h-4 w-4 mr-2" />
+            Update Status
           </Button>
         </div>
       </div>
@@ -284,6 +341,14 @@ const TransactionManagement = () => {
         </Card>
       </div>
 
+      {/* Bulk Actions */}
+      <BulkActions
+        selectedCount={selectedTransactionIds.length}
+        selectedIds={selectedTransactionIds}
+        onBulkAction={handleBulkAction}
+        onClearSelection={() => setSelectedTransactionIds([])}
+      />
+
       {/* Main Content */}
       <Card>
         <CardHeader>
@@ -334,6 +399,8 @@ const TransactionManagement = () => {
                 transactions={paginatedTransactions}
                 columns={columns}
                 onTransactionClick={handleTransactionClick}
+                selectedIds={selectedTransactionIds}
+                onSelectionChange={setSelectedTransactionIds}
               />
             </TabsContent>
           </Tabs>
@@ -354,11 +421,18 @@ const TransactionManagement = () => {
         onGoToPage={setCurrentPage}
       />
 
-      {/* Transaction Details Modal */}
+      {/* Modals */}
       <TransactionDetailsModal
         transaction={selectedTransaction}
         isOpen={isDetailsModalOpen}
         onClose={() => setIsDetailsModalOpen(false)}
+      />
+
+      <TransactionStatusUpdater
+        transaction={selectedTransaction}
+        isOpen={isStatusUpdaterOpen}
+        onClose={() => setIsStatusUpdaterOpen(false)}
+        onStatusUpdate={handleStatusUpdate}
       />
     </div>
   );
