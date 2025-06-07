@@ -6,7 +6,7 @@ import { Switch } from '@/components/ui/switch';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
 import { Settings, Eye, EyeOff, GripVertical } from 'lucide-react';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 
 interface Column {
   key: string;
@@ -31,7 +31,7 @@ const TransactionSettings = ({ columns, onColumnsChange }: TransactionSettingsPr
     setLocalColumns(updated);
   };
 
-  const handleDragEnd = (result: any) => {
+  const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
 
     const items = Array.from(localColumns);
