@@ -8,6 +8,7 @@ import TechnicalConfiguration from './sections/TechnicalConfiguration';
 import KeyGeneration from './sections/KeyGeneration';
 import NotificationSettings from './sections/NotificationSettings';
 import OrchestrationRules from './sections/OrchestrationRules';
+import EmailReportSettings from './sections/EmailReportSettings';
 
 interface TerNoFormProps {
   terno?: any;
@@ -42,6 +43,19 @@ const TerNoForm = ({ terno, onClose, onSave }: TerNoFormProps) => {
       chargeback: false,
       refund: false,
       customer: false
+    },
+    // Email report settings
+    emailReportSettings: terno?.emailReportSettings || {
+      enabled: false,
+      frequency: 'weekly',
+      email: '',
+      reportTypes: {
+        transactions: true,
+        settlements: true,
+        analytics: false
+      },
+      time: '09:00',
+      dayOfWeek: 'monday'
     },
     // Orchestration rules - ensure it's always an array
     orchestrationRules: Array.isArray(terno?.orchestrationRules) ? terno.orchestrationRules : []
@@ -82,6 +96,7 @@ const TerNoForm = ({ terno, onClose, onSave }: TerNoFormProps) => {
         <TechnicalConfiguration formData={formData} setFormData={setFormData} />
         <KeyGeneration generatedKeys={generatedKeys} setGeneratedKeys={setGeneratedKeys} />
         <NotificationSettings formData={formData} setFormData={setFormData} />
+        <EmailReportSettings formData={formData} setFormData={setFormData} />
         <OrchestrationRules formData={formData} setFormData={setFormData} />
 
         {/* Form Actions */}
