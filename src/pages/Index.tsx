@@ -1,82 +1,56 @@
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Menu } from "lucide-react";
-import Sidebar from "@/components/layout/Sidebar";
-import Header from "@/components/layout/Header";
-import DashboardEnhanced from "@/components/dashboard/DashboardEnhanced";
-import TransactionsList from "@/components/transactions/TransactionsList";
-import CustomerManagement from "@/components/customers/CustomerManagement";
-import PaymentMethods from "@/components/payment-methods/PaymentMethods";
-import ProfileEnhanced from "@/components/profile/ProfileEnhanced";
-import OrchestrationRules from "@/components/orchestration/OrchestrationRules";
-import Settlements from "@/components/settlements/Settlements";
-import PayoutManagement from "@/components/payouts/PayoutManagement";
-import TerNoManagement from "@/components/terno/TerNoManagement";
-import AnnouncementCenter from "@/components/announcements/AnnouncementCenter";
-import ReferralManagement from "@/components/referrals/ReferralManagement";
-import SupportCenter from "@/components/support/SupportCenter";
+import React from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import DashboardEnhanced from '@/components/dashboard/DashboardEnhanced';
+import TransactionManagement from '@/components/transactions/TransactionManagement';
+import { CreditCard, BarChart3, Users, Settings } from 'lucide-react';
 
 const Index = () => {
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'dashboard':
-        return <DashboardEnhanced />;
-      case 'transactions':
-        return <TransactionsList />;
-      case 'customers':
-        return <CustomerManagement />;
-      case 'payment-methods':
-        return <PaymentMethods />;
-      case 'profile':
-        return <ProfileEnhanced />;
-      case 'orchestration':
-        return <OrchestrationRules />;
-      case 'settlements':
-        return <Settlements />;
-      case 'payouts':
-        return <PayoutManagement />;
-      case 'terno':
-        return <TerNoManagement />;
-      case 'announcements':
-        return <AnnouncementCenter />;
-      case 'referrals':
-        return <ReferralManagement />;
-      case 'support':
-        return <SupportCenter />;
-      default:
-        return <DashboardEnhanced />;
-    }
-  };
-
   return (
-    <div className="flex h-screen bg-background overflow-hidden">
-      {/* Sidebar */}
-      <Sidebar 
-        activeTab={activeTab} 
-        setActiveTab={setActiveTab}
-        isOpen={sidebarOpen}
-        setIsOpen={setSidebarOpen}
-      />
-      
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Header */}
-        <Header 
-          onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-        />
-        
-        {/* Content Area */}
-        <main className="flex-1 overflow-y-auto bg-gray-50/50 dark:bg-gray-900/50">
-          <div className="container mx-auto p-4 lg:p-6 max-w-full">
-            {renderContent()}
-          </div>
-        </main>
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto p-6">
+        <Tabs defaultValue="dashboard" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="dashboard" className="flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Dashboard
+            </TabsTrigger>
+            <TabsTrigger value="transactions" className="flex items-center gap-2">
+              <CreditCard className="h-4 w-4" />
+              Transactions
+            </TabsTrigger>
+            <TabsTrigger value="customers" className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              Customers
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="flex items-center gap-2">
+              <Settings className="h-4 w-4" />
+              Settings
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="dashboard">
+            <DashboardEnhanced />
+          </TabsContent>
+
+          <TabsContent value="transactions">
+            <TransactionManagement />
+          </TabsContent>
+
+          <TabsContent value="customers">
+            <div className="text-center py-12">
+              <h2 className="text-2xl font-bold mb-4">Customer Management</h2>
+              <p className="text-muted-foreground">Customer management features coming soon...</p>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="settings">
+            <div className="text-center py-12">
+              <h2 className="text-2xl font-bold mb-4">Settings</h2>
+              <p className="text-muted-foreground">Settings panel coming soon...</p>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
