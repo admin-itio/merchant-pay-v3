@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,10 +15,7 @@ import {
   Eye, 
   MoreHorizontal, 
   Download,
-  RefreshCw,
-  Trash2,
-  Archive,
-  FileText
+  RefreshCw
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -173,19 +169,15 @@ const TransactionTable = ({ transactions, onViewDetails, onBulkAction, columns }
   };
 
   const handleRowClick = (transaction: Transaction, event: React.MouseEvent) => {
-    // Don't trigger if clicking on checkbox or action buttons
     if ((event.target as HTMLElement).closest('input, button, [role="checkbox"]')) {
       return;
     }
     onViewDetails(transaction);
   };
 
-  const bulkActions = [
-    { label: 'Export Selected', action: 'export', icon: Download },
-    { label: 'Archive Selected', action: 'archive', icon: Archive },
-    { label: 'Generate Report', action: 'report', icon: FileText },
-    { label: 'Delete Selected', action: 'delete', icon: Trash2, destructive: true },
-  ];
+  const handleExportSelected = () => {
+    onBulkAction('export', selectedTransactions);
+  };
 
   return (
     <Card>
@@ -194,28 +186,14 @@ const TransactionTable = ({ transactions, onViewDetails, onBulkAction, columns }
           <CardTitle>Transaction Records</CardTitle>
           <div className="flex gap-2">
             {selectedTransactions.length > 0 && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    Bulk Actions ({selectedTransactions.length})
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="bg-white">
-                  {bulkActions.map((action) => {
-                    const Icon = action.icon;
-                    return (
-                      <DropdownMenuItem
-                        key={action.action}
-                        onClick={() => onBulkAction(action.action, selectedTransactions)}
-                        className={action.destructive ? 'text-red-600' : ''}
-                      >
-                        <Icon className="h-4 w-4 mr-2" />
-                        {action.label}
-                      </DropdownMenuItem>
-                    );
-                  })}
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleExportSelected}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Export Selected ({selectedTransactions.length})
+              </Button>
             )}
             <Button variant="outline" size="sm">
               <RefreshCw className="h-4 w-4 mr-2" />
@@ -278,7 +256,6 @@ const TransactionTable = ({ transactions, onViewDetails, onBulkAction, columns }
                         <DropdownMenuItem>Download Receipt</DropdownMenuItem>
                         <DropdownMenuItem>Request Refund</DropdownMenuItem>
                         <DropdownMenuItem>Resend Webhook</DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600">Archive</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>

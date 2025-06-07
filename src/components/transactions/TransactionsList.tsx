@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,6 +26,7 @@ import AdvancedFilters from './AdvancedFilters';
 import TransactionSettings from './TransactionSettings';
 import TransactionPagination from './TransactionPagination';
 import ExportModal from '@/components/common/ExportModal';
+import DateRangeFilter from '@/components/common/DateRangeFilter';
 
 const TransactionsList = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -35,6 +37,7 @@ const TransactionsList = () => {
   const [activeFilters, setActiveFilters] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
+  const [dateRange, setDateRange] = useState({ from: null, to: null });
   const [tableColumns, setTableColumns] = useState([
     { key: 'id', label: 'Transaction ID', visible: true, order: 0 },
     { key: 'amount', label: 'Amount', visible: true, order: 1 },
@@ -54,66 +57,47 @@ const TransactionsList = () => {
     { key: 'responseCode', label: 'Response Code', visible: false, order: 15 }
   ]);
 
-  // Enhanced mock transaction data with more fields
-  const allTransactions = [
-    {
-      id: 'TXN001',
-      amount: 1250.00,
-      currency: 'USD',
-      status: 'completed',
-      paymentMethod: 'Visa ****1234',
-      customer: 'John Doe',
-      customerEmail: 'john.doe@email.com',
-      customerPhone: '+1-555-0123',
-      merchantRef: 'ORD-2024-001',
-      timestamp: '2024-01-15 14:30:25',
-      fraudScore: 15,
-      gateway: 'Stripe',
-      country: 'United States',
-      category: 'E-commerce',
-      ipAddress: '192.168.1.100',
-      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-      responseCode: '00'
-    },
-    {
-      id: 'TXN002',
-      amount: 89.99,
-      currency: 'EUR',
-      status: 'refunded',
-      paymentMethod: 'PayPal',
-      customer: 'Mary Smith',
-      customerEmail: 'mary.smith@email.com',
-      customerPhone: '+49-123-456789',
-      merchantRef: 'ORD-2024-002',
-      timestamp: '2024-01-15 13:15:10',
-      fraudScore: 8,
-      gateway: 'PayPal',
-      country: 'Germany',
-      category: 'Digital',
-      ipAddress: '193.168.2.50',
-      userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-      responseCode: '00'
-    },
-    {
-      id: 'TXN003',
-      amount: 2100.00,
-      currency: 'USD',
-      status: 'chargeback',
-      paymentMethod: 'Mastercard ****5678',
-      customer: 'Suspicious User',
-      customerEmail: 'suspicious@email.com',
-      customerPhone: '+1-000-000000',
-      merchantRef: 'ORD-2024-003',
-      timestamp: '2024-01-15 12:45:33',
-      fraudScore: 85,
-      gateway: 'Stripe',
-      country: 'Unknown',
-      category: 'High-value',
-      ipAddress: '10.0.0.1',
-      userAgent: 'Unknown',
-      responseCode: '05'
+  // Generate 100 dummy transactions
+  const generateDummyTransactions = () => {
+    const statuses = ['completed', 'pending', 'failed', 'refunded', 'chargeback'];
+    const paymentMethods = ['Visa ****1234', 'Mastercard ****5678', 'PayPal', 'Apple Pay', 'Google Pay'];
+    const gateways = ['Stripe', 'PayPal', 'Square', 'Adyen', 'Authorize.Net'];
+    const countries = ['United States', 'United Kingdom', 'Germany', 'France', 'Canada', 'Australia', 'Japan', 'Singapore'];
+    const currencies = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'JPY', 'SGD'];
+    
+    const transactions = [];
+    
+    for (let i = 1; i <= 100; i++) {
+      const randomDate = new Date();
+      randomDate.setDate(randomDate.getDate() - Math.floor(Math.random() * 30));
+      randomDate.setHours(Math.floor(Math.random() * 24));
+      randomDate.setMinutes(Math.floor(Math.random() * 60));
+      
+      transactions.push({
+        id: `TXN${String(i).padStart(3, '0')}`,
+        amount: parseFloat((Math.random() * 5000 + 10).toFixed(2)),
+        currency: currencies[Math.floor(Math.random() * currencies.length)],
+        status: statuses[Math.floor(Math.random() * statuses.length)],
+        paymentMethod: paymentMethods[Math.floor(Math.random() * paymentMethods.length)],
+        customer: `Customer ${i}`,
+        customerEmail: `customer${i}@email.com`,
+        customerPhone: `+1-555-${String(Math.floor(Math.random() * 10000)).padStart(4, '0')}`,
+        merchantRef: `ORD-2024-${String(i).padStart(3, '0')}`,
+        timestamp: randomDate.toISOString().slice(0, 19).replace('T', ' '),
+        fraudScore: Math.floor(Math.random() * 100),
+        gateway: gateways[Math.floor(Math.random() * gateways.length)],
+        country: countries[Math.floor(Math.random() * countries.length)],
+        category: 'E-commerce',
+        ipAddress: `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`,
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        responseCode: Math.random() > 0.1 ? '00' : '05'
+      });
     }
-  ];
+    
+    return transactions.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  };
+
+  const allTransactions = generateDummyTransactions();
 
   // Pagination calculations
   const totalTransactions = allTransactions.length;
@@ -128,8 +112,11 @@ const TransactionsList = () => {
   };
 
   const handleBulkAction = (action: string, selectedIds: string[]) => {
-    console.log(`Bulk action: ${action} on transactions:`, selectedIds);
-    // Implementation for bulk actions
+    if (action === 'export') {
+      console.log(`Exporting transactions:`, selectedIds);
+      // Handle export functionality
+    }
+    // Removed archive, delete, and generate report options as requested
   };
 
   const handleFiltersChange = (filters: any) => {
@@ -147,7 +134,7 @@ const TransactionsList = () => {
 
   const handlePageSizeChange = (size: number) => {
     setPageSize(size);
-    setCurrentPage(1); // Reset to first page when changing page size
+    setCurrentPage(1);
   };
 
   const handleGoToPage = (page: number) => {
@@ -156,13 +143,17 @@ const TransactionsList = () => {
 
   const handleExport = (config: { from: Date; to: Date; format: string }) => {
     console.log('Exporting transactions:', config);
-    // Implementation for exporting transaction data
     return new Promise((resolve) => {
       setTimeout(() => {
         console.log('Transaction export complete');
         resolve(true);
       }, 2000);
     });
+  };
+
+  const handleDateRangeChange = (from: Date | null, to: Date | null) => {
+    setDateRange({ from, to });
+    console.log('Date range changed:', { from, to });
   };
 
   const transactionExportFormats = [
@@ -194,14 +185,14 @@ const TransactionsList = () => {
         </div>
       </div>
 
-      {/* Quick Stats - More compact on mobile */}
+      {/* Quick Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
         <Card>
           <CardContent className="p-3 lg:p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs lg:text-sm font-medium text-gray-600">Total Volume</p>
-                <p className="text-lg lg:text-2xl font-bold text-gray-900">$45,231</p>
+                <p className="text-lg lg:text-2xl font-bold text-gray-900">$245,231</p>
               </div>
               <CreditCard className="h-6 w-6 lg:h-8 lg:w-8 text-blue-600" />
             </div>
@@ -227,11 +218,11 @@ const TransactionsList = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs lg:text-sm font-medium text-gray-600">Chargebacks</p>
-                <p className="text-lg lg:text-2xl font-bold text-gray-900">3</p>
+                <p className="text-lg lg:text-2xl font-bold text-gray-900">8</p>
               </div>
               <AlertTriangle className="h-6 w-6 lg:h-8 lg:w-8 text-red-600" />
             </div>
-            <p className="text-xs text-red-600 mt-1">+1 from yesterday</p>
+            <p className="text-xs text-red-600 mt-1">+3 from yesterday</p>
           </CardContent>
         </Card>
 
@@ -249,7 +240,7 @@ const TransactionsList = () => {
         </Card>
       </div>
 
-      {/* Filters and Search - More compact on mobile */}
+      {/* Filters and Search */}
       <Card>
         <CardContent className="p-4 lg:p-6">
           <div className="flex flex-col sm:flex-row gap-4">
@@ -273,10 +264,11 @@ const TransactionsList = () => {
                 columns={tableColumns}
                 onColumnsChange={handleColumnsChange}
               />
-              <Button variant="outline" size="sm">
-                <Calendar className="h-4 w-4 mr-2" />
-                Date Range
-              </Button>
+              <DateRangeFilter
+                onDateRangeChange={handleDateRangeChange}
+                triggerText="Date Range"
+                triggerIcon={Calendar}
+              />
             </div>
           </div>
         </CardContent>
