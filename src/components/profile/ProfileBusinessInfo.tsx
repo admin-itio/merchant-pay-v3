@@ -7,135 +7,94 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Building, MapPin, Phone, Mail, Globe, FileText, Upload, Check } from 'lucide-react';
+import { Building, MapPin, Phone, Mail, Globe, FileText, Shield } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-
-interface BusinessInfo {
-  companyName: string;
-  legalName: string;
-  businessType: string;
-  industry: string;
-  description: string;
-  website: string;
-  email: string;
-  phone: string;
-  taxId: string;
-  registrationNumber: string;
-  address: {
-    street: string;
-    city: string;
-    state: string;
-    postalCode: string;
-    country: string;
-  };
-  verificationStatus: 'pending' | 'verified' | 'rejected';
-}
 
 const ProfileBusinessInfo = () => {
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
-  const [businessInfo, setBusinessInfo] = useState<BusinessInfo>({
+  const [businessInfo, setBusinessInfo] = useState({
     companyName: 'Acme Corporation',
-    legalName: 'Acme Corporation LLC',
-    businessType: 'LLC',
+    legalName: 'Acme Corporation Ltd.',
+    businessType: 'Corporation',
     industry: 'Technology',
-    description: 'We provide innovative payment solutions for modern businesses.',
-    website: 'https://acme.com',
-    email: 'contact@acme.com',
-    phone: '+1 (555) 123-4567',
-    taxId: 'XX-XXXXXXX',
+    taxId: '12-3456789',
     registrationNumber: 'REG123456789',
+    website: 'https://acme.com',
+    description: 'Leading technology solutions provider focusing on payment processing and financial services.',
     address: {
-      street: '123 Business Ave',
-      city: 'New York',
-      state: 'NY',
-      postalCode: '10001',
+      street: '123 Business Avenue',
+      city: 'San Francisco',
+      state: 'CA',
+      zipCode: '94102',
       country: 'United States'
     },
-    verificationStatus: 'verified'
+    contact: {
+      phone: '+1 (555) 123-4567',
+      email: 'contact@acme.com',
+      supportEmail: 'support@acme.com'
+    },
+    compliance: {
+      pciCompliant: true,
+      kycVerified: true,
+      amlCompliant: true,
+      gdprCompliant: true
+    }
   });
 
+  const handleSave = () => {
+    // Here you would typically save to your backend
+    setIsEditing(false);
+    toast({
+      title: "Business Information Updated",
+      description: "Your business information has been successfully updated.",
+    });
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    // Reset any changes
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setBusinessInfo(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleNestedChange = (section: string, field: string, value: string | boolean) => {
+    setBusinessInfo(prev => ({
+      ...prev,
+      [section]: {
+        ...prev[section as keyof typeof prev] as object,
+        [field]: value
+      }
+    }));
+  };
+
   const businessTypes = [
-    'Sole Proprietorship',
-    'Partnership',
-    'LLC',
     'Corporation',
-    'Non-Profit',
-    'Other'
+    'LLC',
+    'Partnership',
+    'Sole Proprietorship',
+    'Non-Profit'
   ];
 
   const industries = [
     'Technology',
     'E-commerce',
     'Healthcare',
-    'Education',
     'Finance',
-    'Retail',
+    'Education',
     'Manufacturing',
-    'Services',
+    'Retail',
     'Other'
   ];
-
-  const countries = [
-    'United States',
-    'Canada',
-    'United Kingdom',
-    'Germany',
-    'France',
-    'Australia',
-    'Other'
-  ];
-
-  const handleSave = () => {
-    toast({
-      title: "Business Information Updated",
-      description: "Your business information has been successfully updated",
-    });
-    setIsEditing(false);
-  };
-
-  const handleCancel = () => {
-    setIsEditing(false);
-    // Reset form would go here
-  };
-
-  const updateBusinessInfo = (field: string, value: any) => {
-    if (field.includes('.')) {
-      const [parent, child] = field.split('.');
-      setBusinessInfo(prev => ({
-        ...prev,
-        [parent]: {
-          ...prev[parent as keyof BusinessInfo],
-          [child]: value
-        }
-      }));
-    } else {
-      setBusinessInfo(prev => ({
-        ...prev,
-        [field]: value
-      }));
-    }
-  };
-
-  const getVerificationBadge = () => {
-    switch (businessInfo.verificationStatus) {
-      case 'verified':
-        return <Badge className="bg-green-100 text-green-800 border-green-200">
-          <Check className="h-3 w-3 mr-1" />
-          Verified
-        </Badge>;
-      case 'pending':
-        return <Badge variant="secondary">Pending Verification</Badge>;
-      case 'rejected':
-        return <Badge variant="destructive">Verification Failed</Badge>;
-      default:
-        return null;
-    }
-  };
 
   return (
     <div className="space-y-6">
-      {/* Header with Verification Status */}
+      {/* Header */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -144,34 +103,24 @@ const ProfileBusinessInfo = () => {
                 <Building className="h-5 w-5" />
                 Business Information
               </CardTitle>
-              <CardDescription>Manage your business details and verification status</CardDescription>
+              <CardDescription>Manage your company details and compliance status</CardDescription>
             </div>
-            <div className="flex items-center gap-3">
-              {getVerificationBadge()}
-              {!isEditing ? (
-                <Button onClick={() => setIsEditing(true)}>
-                  Edit Information
-                </Button>
-              ) : (
-                <div className="flex gap-2">
-                  <Button variant="outline" onClick={handleCancel}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleSave}>
-                    Save Changes
-                  </Button>
-                </div>
-              )}
-            </div>
+            {!isEditing ? (
+              <Button onClick={() => setIsEditing(true)}>Edit Information</Button>
+            ) : (
+              <div className="flex gap-2">
+                <Button onClick={handleSave}>Save Changes</Button>
+                <Button variant="outline" onClick={handleCancel}>Cancel</Button>
+              </div>
+            )}
           </div>
         </CardHeader>
       </Card>
 
-      {/* Basic Business Information */}
+      {/* Company Details */}
       <Card>
         <CardHeader>
           <CardTitle>Company Details</CardTitle>
-          <CardDescription>Basic information about your business</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -180,16 +129,16 @@ const ProfileBusinessInfo = () => {
               <Input
                 id="companyName"
                 value={businessInfo.companyName}
-                onChange={(e) => updateBusinessInfo('companyName', e.target.value)}
+                onChange={(e) => handleInputChange('companyName', e.target.value)}
                 disabled={!isEditing}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="legalName">Legal Business Name</Label>
+              <Label htmlFor="legalName">Legal Name</Label>
               <Input
                 id="legalName"
                 value={businessInfo.legalName}
-                onChange={(e) => updateBusinessInfo('legalName', e.target.value)}
+                onChange={(e) => handleInputChange('legalName', e.target.value)}
                 disabled={!isEditing}
               />
             </div>
@@ -200,7 +149,7 @@ const ProfileBusinessInfo = () => {
               <Label htmlFor="businessType">Business Type</Label>
               <Select
                 value={businessInfo.businessType}
-                onValueChange={(value) => updateBusinessInfo('businessType', value)}
+                onValueChange={(value) => handleInputChange('businessType', value)}
                 disabled={!isEditing}
               >
                 <SelectTrigger>
@@ -217,7 +166,7 @@ const ProfileBusinessInfo = () => {
               <Label htmlFor="industry">Industry</Label>
               <Select
                 value={businessInfo.industry}
-                onValueChange={(value) => updateBusinessInfo('industry', value)}
+                onValueChange={(value) => handleInputChange('industry', value)}
                 disabled={!isEditing}
               >
                 <SelectTrigger>
@@ -232,15 +181,106 @@ const ProfileBusinessInfo = () => {
             </div>
           </div>
 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="taxId">Tax ID</Label>
+              <Input
+                id="taxId"
+                value={businessInfo.taxId}
+                onChange={(e) => handleInputChange('taxId', e.target.value)}
+                disabled={!isEditing}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="registrationNumber">Registration Number</Label>
+              <Input
+                id="registrationNumber"
+                value={businessInfo.registrationNumber}
+                onChange={(e) => handleInputChange('registrationNumber', e.target.value)}
+                disabled={!isEditing}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="website">Website</Label>
+            <Input
+              id="website"
+              value={businessInfo.website}
+              onChange={(e) => handleInputChange('website', e.target.value)}
+              disabled={!isEditing}
+            />
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="description">Business Description</Label>
             <Textarea
               id="description"
               value={businessInfo.description}
-              onChange={(e) => updateBusinessInfo('description', e.target.value)}
-              placeholder="Describe your business and what you do"
+              onChange={(e) => handleInputChange('description', e.target.value)}
               disabled={!isEditing}
               rows={3}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Address Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MapPin className="h-5 w-5" />
+            Address Information
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="street">Street Address</Label>
+            <Input
+              id="street"
+              value={businessInfo.address.street}
+              onChange={(e) => handleNestedChange('address', 'street', e.target.value)}
+              disabled={!isEditing}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="city">City</Label>
+              <Input
+                id="city"
+                value={businessInfo.address.city}
+                onChange={(e) => handleNestedChange('address', 'city', e.target.value)}
+                disabled={!isEditing}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="state">State</Label>
+              <Input
+                id="state"
+                value={businessInfo.address.state}
+                onChange={(e) => handleNestedChange('address', 'state', e.target.value)}
+                disabled={!isEditing}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="zipCode">ZIP Code</Label>
+              <Input
+                id="zipCode"
+                value={businessInfo.address.zipCode}
+                onChange={(e) => handleNestedChange('address', 'zipCode', e.target.value)}
+                disabled={!isEditing}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="country">Country</Label>
+            <Input
+              id="country"
+              value={businessInfo.address.country}
+              onChange={(e) => handleNestedChange('address', 'country', e.target.value)}
+              disabled={!isEditing}
             />
           </div>
         </CardContent>
@@ -253,193 +293,75 @@ const ProfileBusinessInfo = () => {
             <Phone className="h-5 w-5" />
             Contact Information
           </CardTitle>
-          <CardDescription>How customers and partners can reach you</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Business Email</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input
-                  id="email"
-                  type="email"
-                  value={businessInfo.email}
-                  onChange={(e) => updateBusinessInfo('email', e.target.value)}
-                  disabled={!isEditing}
-                  className="pl-10"
-                />
-              </div>
-            </div>
             <div className="space-y-2">
               <Label htmlFor="phone">Phone Number</Label>
-              <div className="relative">
-                <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input
-                  id="phone"
-                  value={businessInfo.phone}
-                  onChange={(e) => updateBusinessInfo('phone', e.target.value)}
-                  disabled={!isEditing}
-                  className="pl-10"
-                />
-              </div>
+              <Input
+                id="phone"
+                value={businessInfo.contact.phone}
+                onChange={(e) => handleNestedChange('contact', 'phone', e.target.value)}
+                disabled={!isEditing}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Business Email</Label>
+              <Input
+                id="email"
+                value={businessInfo.contact.email}
+                onChange={(e) => handleNestedChange('contact', 'email', e.target.value)}
+                disabled={!isEditing}
+              />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="website">Website</Label>
-            <div className="relative">
-              <Globe className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-              <Input
-                id="website"
-                type="url"
-                value={businessInfo.website}
-                onChange={(e) => updateBusinessInfo('website', e.target.value)}
-                disabled={!isEditing}
-                className="pl-10"
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Legal Information */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5" />
-            Legal Information
-          </CardTitle>
-          <CardDescription>Tax and registration details</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="taxId">Tax ID</Label>
-              <Input
-                id="taxId"
-                value={businessInfo.taxId}
-                onChange={(e) => updateBusinessInfo('taxId', e.target.value)}
-                disabled={!isEditing}
-                placeholder="XX-XXXXXXX"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="registrationNumber">Registration Number</Label>
-              <Input
-                id="registrationNumber"
-                value={businessInfo.registrationNumber}
-                onChange={(e) => updateBusinessInfo('registrationNumber', e.target.value)}
-                disabled={!isEditing}
-                placeholder="Business registration number"
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Business Address */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MapPin className="h-5 w-5" />
-            Business Address
-          </CardTitle>
-          <CardDescription>Your registered business location</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="street">Street Address</Label>
+            <Label htmlFor="supportEmail">Support Email</Label>
             <Input
-              id="street"
-              value={businessInfo.address.street}
-              onChange={(e) => updateBusinessInfo('address.street', e.target.value)}
+              id="supportEmail"
+              value={businessInfo.contact.supportEmail}
+              onChange={(e) => handleNestedChange('contact', 'supportEmail', e.target.value)}
               disabled={!isEditing}
             />
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="city">City</Label>
-              <Input
-                id="city"
-                value={businessInfo.address.city}
-                onChange={(e) => updateBusinessInfo('address.city', e.target.value)}
-                disabled={!isEditing}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="state">State/Province</Label>
-              <Input
-                id="state"
-                value={businessInfo.address.state}
-                onChange={(e) => updateBusinessInfo('address.state', e.target.value)}
-                disabled={!isEditing}
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="postalCode">Postal Code</Label>
-              <Input
-                id="postalCode"
-                value={businessInfo.address.postalCode}
-                onChange={(e) => updateBusinessInfo('address.postalCode', e.target.value)}
-                disabled={!isEditing}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="country">Country</Label>
-              <Select
-                value={businessInfo.address.country}
-                onValueChange={(value) => updateBusinessInfo('address.country', value)}
-                disabled={!isEditing}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {countries.map((country) => (
-                    <SelectItem key={country} value={country}>{country}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
         </CardContent>
       </Card>
 
-      {/* Document Upload */}
+      {/* Compliance Status */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Upload className="h-5 w-5" />
-            Verification Documents
+            <Shield className="h-5 w-5" />
+            Compliance Status
           </CardTitle>
-          <CardDescription>Upload required documents for business verification</CardDescription>
+          <CardDescription>Your current compliance certifications and status</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-6 border-2 border-dashed border-gray-300 rounded-lg text-center">
-              <Upload className="mx-auto h-12 w-12 text-gray-400" />
-              <div className="mt-4">
-                <h3 className="text-sm font-medium text-gray-900">Business License</h3>
-                <p className="text-xs text-gray-500 mt-1">Upload your business license or registration certificate</p>
-                <Button variant="outline" size="sm" className="mt-2">
-                  Upload File
-                </Button>
-              </div>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="text-center p-4 border rounded-lg">
+              <Badge variant={businessInfo.compliance.pciCompliant ? "default" : "destructive"} className="mb-2">
+                {businessInfo.compliance.pciCompliant ? "Certified" : "Pending"}
+              </Badge>
+              <p className="text-sm font-medium">PCI DSS</p>
             </div>
-            <div className="p-6 border-2 border-dashed border-gray-300 rounded-lg text-center">
-              <Upload className="mx-auto h-12 w-12 text-gray-400" />
-              <div className="mt-4">
-                <h3 className="text-sm font-medium text-gray-900">Tax Documents</h3>
-                <p className="text-xs text-gray-500 mt-1">Upload tax ID verification or similar documents</p>
-                <Button variant="outline" size="sm" className="mt-2">
-                  Upload File
-                </Button>
-              </div>
+            <div className="text-center p-4 border rounded-lg">
+              <Badge variant={businessInfo.compliance.kycVerified ? "default" : "destructive"} className="mb-2">
+                {businessInfo.compliance.kycVerified ? "Verified" : "Pending"}
+              </Badge>
+              <p className="text-sm font-medium">KYC</p>
+            </div>
+            <div className="text-center p-4 border rounded-lg">
+              <Badge variant={businessInfo.compliance.amlCompliant ? "default" : "destructive"} className="mb-2">
+                {businessInfo.compliance.amlCompliant ? "Compliant" : "Pending"}
+              </Badge>
+              <p className="text-sm font-medium">AML</p>
+            </div>
+            <div className="text-center p-4 border rounded-lg">
+              <Badge variant={businessInfo.compliance.gdprCompliant ? "default" : "destructive"} className="mb-2">
+                {businessInfo.compliance.gdprCompliant ? "Compliant" : "Pending"}
+              </Badge>
+              <p className="text-sm font-medium">GDPR</p>
             </div>
           </div>
         </CardContent>
