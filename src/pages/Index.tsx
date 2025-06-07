@@ -15,6 +15,7 @@ import NotificationCenter from '@/components/notifications/NotificationCenter';
 import DashboardAnalytics from '@/components/dashboard/DashboardAnalytics';
 import TerNoManagement from '@/components/terno/TerNoManagement';
 import AnnouncementCenter from '@/components/announcements/AnnouncementCenter';
+import PayoutManagement from '@/components/payouts/PayoutManagement';
 
 // For demo purposes - you would use a proper auth system in production
 const isAuthenticated = () => {
@@ -59,6 +60,8 @@ const Index = () => {
         return <OrchestrationRules />;
       case 'settlements':
         return <Settlements />;
+      case 'payouts':
+        return <PayoutManagement />;
       case 'payment-methods':
         return <PaymentMethods />;
       case 'profile':
