@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -52,6 +53,7 @@ const TransactionManagement = () => {
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
   const [activeTab, setActiveTab] = useState('all');
   const [selectedTransactionIds, setSelectedTransactionIds] = useState<string[]>([]);
+  const [exportFormat, setExportFormat] = useState<'csv' | 'json' | 'pdf'>('csv');
 
   // Mock data - in real app this would come from API
   const mockTransactions: Transaction[] = [
@@ -211,10 +213,9 @@ const TransactionManagement = () => {
   };
 
   const handleExport = () => {
-    const format = 'csv'; // You could make this configurable
     console.log('Exporting transactions...', filteredTransactions);
     
-    switch (format) {
+    switch (exportFormat) {
       case 'csv':
         exportToCSV(filteredTransactions);
         break;
@@ -227,9 +228,16 @@ const TransactionManagement = () => {
     }
   };
 
-  const openStatusUpdater = (transaction: Transaction) => {
-    setSelectedTransaction(transaction);
-    setIsStatusUpdaterOpen(true);
+  const handleStatusUpdaterOpen = () => {
+    if (selectedTransactionIds.length === 1) {
+      const transaction = mockTransactions.find(t => t.id === selectedTransactionIds[0]);
+      if (transaction) {
+        setSelectedTransaction(transaction);
+        setIsStatusUpdaterOpen(true);
+      }
+    } else {
+      toast.error('Please select exactly one transaction to update status');
+    }
   };
 
   const getTabCount = (status: string) => {
@@ -276,7 +284,7 @@ const TransactionManagement = () => {
             <Download className="h-4 w-4 mr-2" />
             Export
           </Button>
-          <Button onClick={openStatusUpdater} variant="outline">
+          <Button onClick={handleStatusUpdaterOpen} variant="outline">
             <Settings2 className="h-4 w-4 mr-2" />
             Update Status
           </Button>
@@ -399,8 +407,6 @@ const TransactionManagement = () => {
                 transactions={paginatedTransactions}
                 columns={columns}
                 onTransactionClick={handleTransactionClick}
-                selectedIds={selectedTransactionIds}
-                onSelectionChange={setSelectedTransactionIds}
               />
             </TabsContent>
           </Tabs>
