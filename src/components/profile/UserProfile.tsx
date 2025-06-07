@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,11 +7,16 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { User, Mail, Lock, Shield, Globe, Clock, Smartphone, Key } from 'lucide-react';
+import { User, Mail, Lock, Shield, Globe, Clock, Smartphone, Key, MessageSquare, Phone } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const UserProfile = () => {
   const { toast } = useToast();
+  const [firstName, setFirstName] = useState('John');
+  const [lastName, setLastName] = useState('Doe');
+  const [phone, setPhone] = useState('+1-555-0123');
+  const [whatsapp, setWhatsapp] = useState('');
+  const [telegram, setTelegram] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -46,6 +50,22 @@ const UserProfile = () => {
     { value: 'ko', label: '한국어' },
     { value: 'ar', label: 'العربية' },
   ];
+
+  const handlePersonalInfoUpdate = () => {
+    if (!firstName || !lastName) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Profile Updated",
+      description: "Your personal information has been updated successfully",
+    });
+  };
 
   const handlePasswordChange = () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
@@ -121,11 +141,34 @@ const UserProfile = () => {
             <User className="h-5 w-5" />
             Personal Information
           </CardTitle>
-          <CardDescription>Manage your personal account details</CardDescription>
+          <CardDescription>Manage your personal details and contact information</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="firstName">First Name *</Label>
+              <Input
+                id="firstName"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                placeholder="Enter your first name"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="lastName">Last Name *</Label>
+              <Input
+                id="lastName"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                placeholder="Enter your last name"
+                required
+              />
+            </div>
+          </div>
+          
           <div className="space-y-2">
-            <Label htmlFor="email">Email Address</Label>
+            <Label htmlFor="email">Email Address *</Label>
             <div className="flex gap-2">
               <Input
                 id="email"
@@ -133,8 +176,9 @@ const UserProfile = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
+                required
               />
-              <Button onClick={handleEmailUpdate} variant="outline">
+              <Button onClick={handleEmailUpdate} variant="outline" size="sm">
                 Update
               </Button>
             </div>
@@ -142,6 +186,60 @@ const UserProfile = () => {
               This email will be used for login and account notifications
             </p>
           </div>
+
+          <Button onClick={handlePersonalInfoUpdate} className="w-full md:w-auto">
+            Save Personal Information
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Contact Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Phone className="h-5 w-5" />
+            Contact Information
+          </CardTitle>
+          <CardDescription>Update your contact details and messaging preferences</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone Number</Label>
+              <Input
+                id="phone"
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+1-555-0123"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="whatsapp">WhatsApp Number</Label>
+              <Input
+                id="whatsapp"
+                type="tel"
+                value={whatsapp}
+                onChange={(e) => setWhatsapp(e.target.value)}
+                placeholder="+1-555-0123"
+              />
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="telegram">Telegram Username</Label>
+            <Input
+              id="telegram"
+              value={telegram}
+              onChange={(e) => setTelegram(e.target.value)}
+              placeholder="@username"
+            />
+          </div>
+
+          <Button className="w-full md:w-auto">
+            <MessageSquare className="h-4 w-4 mr-2" />
+            Save Contact Information
+          </Button>
         </CardContent>
       </Card>
 
