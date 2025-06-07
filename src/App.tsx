@@ -1,4 +1,5 @@
 
+import React from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,36 +14,46 @@ import VerifyOTP from "./pages/VerifyOTP";
 import Logout from "./pages/Logout";
 import ForgotPassword from "./pages/ForgotPassword";
 
-const queryClient = new QueryClient();
+// Create QueryClient instance outside component to prevent recreation
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            {/* Authentication Routes */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/2fa" element={<TwoFactorAuth />} />
-            <Route path="/verify-otp" element={<VerifyOTP />} />
-            <Route path="/logout" element={<Logout />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            
-            {/* App Routes */}
-            <Route path="/" element={<Index />} />
-            
-            {/* Redirect to login */}
-            <Route path="/analytics" element={<Navigate to="/" replace />} />
-            
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              {/* Authentication Routes */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/2fa" element={<TwoFactorAuth />} />
+              <Route path="/verify-otp" element={<VerifyOTP />} />
+              <Route path="/logout" element={<Logout />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              
+              {/* App Routes */}
+              <Route path="/" element={<Index />} />
+              
+              {/* Redirect to login */}
+              <Route path="/analytics" element={<Navigate to="/" replace />} />
+              
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
