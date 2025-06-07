@@ -95,6 +95,10 @@ const CustomerManagement = () => {
     }
   };
 
+  const handleBulkAction = (action: string, selectedIds: string[]) => {
+    console.log('Bulk action:', action, 'on customers:', selectedIds);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -241,7 +245,8 @@ const CustomerManagement = () => {
       {/* Customer Table */}
       <CustomerTable 
         customers={customers}
-        onViewCustomer={handleViewCustomer}
+        onViewDetails={handleViewCustomer}
+        onBulkAction={handleBulkAction}
         searchTerm={searchTerm}
         statusFilter={selectedStatus}
       />
@@ -259,9 +264,8 @@ const CustomerManagement = () => {
       />
       
       <CustomerFilters 
-        isOpen={isFiltersOpen}
-        onClose={() => setIsFiltersOpen(false)}
-        onApplyFilters={(filters) => console.log('Applied filters:', filters)}
+        onFiltersChange={(filters) => console.log('Applied filters:', filters)}
+        activeFilters={{}}
       />
     </div>
   );

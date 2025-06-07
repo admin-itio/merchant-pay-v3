@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -49,11 +48,27 @@ interface CustomerTableProps {
   customers: Customer[];
   onViewDetails: (customer: Customer) => void;
   onBulkAction: (action: string, selectedIds: string[]) => void;
+  searchTerm?: string;
+  statusFilter?: string;
 }
 
-const CustomerTable = ({ customers, onViewDetails, onBulkAction }: CustomerTableProps) => {
+const CustomerTable = ({ customers, onViewDetails, onBulkAction, searchTerm = '', statusFilter = 'all' }: CustomerTableProps) => {
   const [selectedCustomers, setSelectedCustomers] = useState<string[]>([]);
   const [selectAll, setSelectAll] = useState(false);
+
+  // Filter customers based on search term and status
+  const filteredCustomers = useMemo(() => {
+    return customers.filter(customer => {
+      const matchesSearch = searchTerm === '' || 
+        customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        customer.id.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesStatus = statusFilter === 'all' || customer.status === statusFilter;
+      
+      return matchesSearch && matchesStatus;
+    });
+  }, [customers, searchTerm, statusFilter]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -88,7 +103,7 @@ const CustomerTable = ({ customers, onViewDetails, onBulkAction }: CustomerTable
   const handleSelectAll = (checked: boolean) => {
     setSelectAll(checked);
     if (checked) {
-      setSelectedCustomers(customers.map(c => c.id));
+      setSelectedCustomers(filteredCustomers.map(c => c.id));
     } else {
       setSelectedCustomers([]);
     }
@@ -120,7 +135,7 @@ const CustomerTable = ({ customers, onViewDetails, onBulkAction }: CustomerTable
     <Card>
       <CardHeader>
         <div className="flex justify-between items-center">
-          <CardTitle>Customer Database</CardTitle>
+          <CardTitle>Customer Database ({filteredCustomers.length} customers)</CardTitle>
           <div className="flex gap-2">
             {selectedCustomers.length > 0 && (
               <DropdownMenu>
@@ -174,7 +189,7 @@ const CustomerTable = ({ customers, onViewDetails, onBulkAction }: CustomerTable
             </TableRow>
           </TableHeader>
           <TableBody>
-            {customers.map((customer) => (
+            {filteredCustomers.map((customer) => (
               <TableRow 
                 key={customer.id}
                 className="cursor-pointer hover:bg-gray-50"
