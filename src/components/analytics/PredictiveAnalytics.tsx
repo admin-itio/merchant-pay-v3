@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,9 +16,15 @@ import {
   Shield
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar } from 'recharts';
+import ReviewPricingStrategy from '../ai-insights/ReviewPricingStrategy';
+import ReviewFlaggedTransactions from '../ai-insights/ReviewFlaggedTransactions';
+import EngageRetentionCampaign from '../ai-insights/EngageRetentionCampaign';
+import ExploreMarketExpansion from '../ai-insights/ExploreMarketExpansion';
+import RunNewAnalysis from '../ai-insights/RunNewAnalysis';
 
 const PredictiveAnalytics = () => {
   const [selectedModel, setSelectedModel] = useState('revenue');
+  const [currentView, setCurrentView] = useState<string>('main');
 
   // Predictive data models
   const revenueForcast = [
@@ -79,6 +84,7 @@ const PredictiveAnalytics = () => {
       impact: 'High',
       description: 'Implementing dynamic pricing could increase revenue by 12-18%',
       action: 'Review pricing strategy',
+      actionKey: 'pricing-strategy',
       icon: TrendingUp,
       color: 'text-green-600'
     },
@@ -87,6 +93,7 @@ const PredictiveAnalytics = () => {
       impact: 'Critical',
       description: 'AI model detected 15 potential fraud patterns requiring immediate attention',
       action: 'Review flagged transactions',
+      actionKey: 'flagged-transactions',
       icon: Shield,
       color: 'text-red-600'
     },
@@ -95,6 +102,7 @@ const PredictiveAnalytics = () => {
       impact: 'Medium',
       description: '23% of high-value customers show early churn indicators',
       action: 'Engage retention campaigns',
+      actionKey: 'retention-campaign',
       icon: Target,
       color: 'text-orange-600'
     },
@@ -103,10 +111,44 @@ const PredictiveAnalytics = () => {
       impact: 'High',
       description: 'Southeast Asian markets show 45% growth potential',
       action: 'Explore market expansion',
+      actionKey: 'market-expansion',
       icon: Eye,
       color: 'text-blue-600'
     },
   ];
+
+  const handleInsightAction = (actionKey: string) => {
+    setCurrentView(actionKey);
+  };
+
+  const handleRunNewAnalysis = () => {
+    setCurrentView('run-analysis');
+  };
+
+  const handleBackToMain = () => {
+    setCurrentView('main');
+  };
+
+  // Render different views based on currentView
+  if (currentView === 'pricing-strategy') {
+    return <ReviewPricingStrategy onBack={handleBackToMain} />;
+  }
+  
+  if (currentView === 'flagged-transactions') {
+    return <ReviewFlaggedTransactions onBack={handleBackToMain} />;
+  }
+  
+  if (currentView === 'retention-campaign') {
+    return <EngageRetentionCampaign onBack={handleBackToMain} />;
+  }
+  
+  if (currentView === 'market-expansion') {
+    return <ExploreMarketExpansion onBack={handleBackToMain} />;
+  }
+  
+  if (currentView === 'run-analysis') {
+    return <RunNewAnalysis onBack={handleBackToMain} />;
+  }
 
   return (
     <div className="space-y-6">
@@ -119,7 +161,7 @@ const PredictiveAnalytics = () => {
           <p className="text-gray-600 dark:text-gray-400">Machine learning insights and predictions</p>
         </div>
         
-        <Button className="flex items-center gap-2">
+        <Button className="flex items-center gap-2" onClick={handleRunNewAnalysis}>
           <Zap className="h-4 w-4" />
           Run New Analysis
         </Button>
@@ -140,7 +182,12 @@ const PredictiveAnalytics = () => {
                 </div>
                 <h3 className="font-semibold text-sm mb-2">{insight.title}</h3>
                 <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">{insight.description}</p>
-                <Button size="sm" variant="outline" className="w-full text-xs">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="w-full text-xs"
+                  onClick={() => handleInsightAction(insight.actionKey)}
+                >
                   {insight.action}
                 </Button>
               </CardContent>
