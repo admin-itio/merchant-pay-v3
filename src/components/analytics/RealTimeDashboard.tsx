@@ -1,335 +1,307 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { 
   Activity, 
   Zap, 
-  Users, 
-  DollarSign, 
   TrendingUp, 
+  DollarSign,
+  Users,
+  CreditCard,
   AlertTriangle,
   CheckCircle,
   Clock,
   Wifi,
   WifiOff,
+  BarChart3,
   Info
 } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { useToast } from '@/hooks/use-toast';
 
 const RealTimeDashboard = () => {
   const [isConnected, setIsConnected] = useState(true);
-  const [lastUpdate, setLastUpdate] = useState(new Date());
-  const [liveData, setLiveData] = useState({
-    tps: 245, // transactions per second
-    activeUsers: 12847,
-    revenue: 1234567,
+  const [liveData, setLiveData] = useState([]);
+  const [metrics, setMetrics] = useState({
+    transactionsPerMinute: 24,
     successRate: 96.8,
-    activeConnections: 3456,
-    serverLoad: 67
+    totalVolume: 245789,
+    activeUsers: 1247
   });
+  const { toast } = useToast();
 
-  // Simulate real-time data updates
+  // Simulate live data updates
   useEffect(() => {
+    if (!isConnected) return;
+
     const interval = setInterval(() => {
-      setLiveData(prev => ({
-        tps: prev.tps + (Math.random() - 0.5) * 20,
-        activeUsers: prev.activeUsers + Math.floor((Math.random() - 0.5) * 100),
-        revenue: prev.revenue + Math.floor(Math.random() * 10000),
-        successRate: Math.max(90, Math.min(99.9, prev.successRate + (Math.random() - 0.5) * 2)),
-        activeConnections: prev.activeConnections + Math.floor((Math.random() - 0.5) * 50),
-        serverLoad: Math.max(0, Math.min(100, prev.serverLoad + (Math.random() - 0.5) * 10))
+      const now = new Date();
+      const newDataPoint = {
+        time: now.toLocaleTimeString(),
+        transactions: Math.floor(Math.random() * 50) + 10,
+        volume: Math.floor(Math.random() * 10000) + 1000,
+        timestamp: now.getTime()
+      };
+
+      setLiveData(prev => {
+        const updated = [...prev, newDataPoint];
+        return updated.slice(-20); // Keep last 20 points
+      });
+
+      // Update metrics randomly
+      setMetrics(prev => ({
+        transactionsPerMinute: Math.floor(Math.random() * 10) + 20,
+        successRate: 95 + Math.random() * 4,
+        totalVolume: prev.totalVolume + Math.floor(Math.random() * 1000),
+        activeUsers: prev.activeUsers + Math.floor(Math.random() * 20) - 10
       }));
-      setLastUpdate(new Date());
     }, 2000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [isConnected]);
 
-  const realtimeMetrics = [
-    {
-      title: 'Transactions/Second',
-      value: Math.round(liveData.tps),
-      icon: Zap,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-100',
-      trend: '+2.3%'
-    },
-    {
-      title: 'Active Users',
-      value: liveData.activeUsers.toLocaleString(),
-      icon: Users,
-      color: 'text-green-600',
-      bgColor: 'bg-green-100',
-      trend: '+5.7%'
-    },
-    {
-      title: 'Revenue (Live)',
-      value: `$${(liveData.revenue / 1000000).toFixed(2)}M`,
-      icon: DollarSign,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-100',
-      trend: '+12.4%'
-    },
-    {
-      title: 'Success Rate',
-      value: `${liveData.successRate.toFixed(1)}%`,
-      icon: CheckCircle,
-      color: 'text-emerald-600',
-      bgColor: 'bg-emerald-100',
-      trend: '+0.3%'
-    }
-  ];
-
-  const systemHealth = [
-    {
-      name: 'API Gateway',
-      status: 'healthy',
-      responseTime: '45ms',
-      uptime: '99.99%'
-    },
-    {
-      name: 'Payment Processor',
-      status: 'healthy',
-      responseTime: '120ms',
-      uptime: '99.95%'
-    },
-    {
-      name: 'Database Cluster',
-      status: 'warning',
-      responseTime: '230ms',
-      uptime: '99.87%'
-    },
-    {
-      name: 'Fraud Detection',
-      status: 'healthy',
-      responseTime: '67ms',
-      uptime: '100%'
-    }
-  ];
+  const handleToggleConnection = () => {
+    setIsConnected(!isConnected);
+    toast({
+      title: isConnected ? "Disconnected" : "Connected",
+      description: isConnected 
+        ? "Real-time data stream has been stopped" 
+        : "Real-time data stream is now active",
+      variant: isConnected ? "destructive" : "default"
+    });
+  };
 
   const recentTransactions = [
-    { id: 'TXN-001', amount: 1250, status: 'success', country: 'US', time: '2s ago' },
-    { id: 'TXN-002', amount: 890, status: 'success', country: 'UK', time: '4s ago' },
-    { id: 'TXN-003', amount: 2100, status: 'pending', country: 'IN', time: '6s ago' },
-    { id: 'TXN-004', amount: 567, status: 'failed', country: 'DE', time: '8s ago' },
-    { id: 'TXN-005', amount: 3400, status: 'success', country: 'SG', time: '12s ago' }
+    { id: 'TXN001', amount: 1234.56, status: 'completed', time: '2 sec ago' },
+    { id: 'TXN002', amount: 89.99, status: 'completed', time: '5 sec ago' },
+    { id: 'TXN003', amount: 2456.78, status: 'pending', time: '8 sec ago' },
+    { id: 'TXN004', amount: 156.34, status: 'failed', time: '12 sec ago' },
+    { id: 'TXN005', amount: 789.45, status: 'completed', time: '15 sec ago' }
   ];
-
-  const generateRealtimeChart = () => {
-    const now = new Date();
-    return Array.from({ length: 20 }, (_, i) => ({
-      time: new Date(now.getTime() - (19 - i) * 5000).toLocaleTimeString('en-US', { 
-        hour12: false, 
-        minute: '2-digit', 
-        second: '2-digit' 
-      }),
-      value: Math.floor(Math.random() * 100 + 150)
-    }));
-  };
 
   return (
     <div className="space-y-6">
-      {/* Connection Status */}
-      <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-        <div className="flex items-center gap-3">
-          {isConnected ? (
-            <Wifi className="h-5 w-5 text-green-600" />
-          ) : (
-            <WifiOff className="h-5 w-5 text-red-600" />
-          )}
-          <div>
-            <p className="font-medium">
-              {isConnected ? 'Connected to Real-time Feed' : 'Connection Lost'}
-            </p>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Last updated: {lastUpdate.toLocaleTimeString()}
-            </p>
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+            <Activity className="h-6 w-6" />
+            Real-Time Transaction Dashboard
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400">Monitor live transaction activity and system performance</p>
+          
+          {/* Live Data Info */}
+          <div className="flex items-center gap-2 mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+            <Info className="h-4 w-4 text-blue-600" />
+            <span className="text-sm text-blue-700 dark:text-blue-300">
+              Live data updates every 2 seconds. Transactions are processed per minute and displayed in real-time.
+            </span>
           </div>
         </div>
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={() => setIsConnected(!isConnected)}
-        >
-          {isConnected ? 'Disconnect' : 'Reconnect'}
-        </Button>
+        
+        <div className="flex items-center gap-4">
+          <div className="flex items-center space-x-2">
+            <Label htmlFor="live-mode" className="text-sm font-medium">
+              Live Mode
+            </Label>
+            <Switch
+              id="live-mode"
+              checked={isConnected}
+              onCheckedChange={handleToggleConnection}
+            />
+          </div>
+          <Badge 
+            variant={isConnected ? "default" : "destructive"}
+            className="flex items-center gap-1"
+          >
+            {isConnected ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
+            {isConnected ? "Connected" : "Disconnected"}
+          </Badge>
+        </div>
       </div>
-
-      {/* Live Transaction Flow Clarification */}
-      <Alert>
-        <Info className="h-4 w-4" />
-        <AlertDescription>
-          This real-time dashboard displays live transaction data with 2-second updates. Transaction flow shows processed payments per second, while the chart visualizes transaction volume over the last 2 minutes. All data is simulated for demonstration purposes.
-        </AlertDescription>
-      </Alert>
 
       {/* Real-time Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {realtimeMetrics.map((metric, index) => {
-          const Icon = metric.icon;
-          return (
-            <Card key={index} className="relative overflow-hidden">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div className={`p-2 rounded-lg ${metric.bgColor}`}>
-                    <Icon className={`h-5 w-5 ${metric.color}`} />
-                  </div>
-                  <Badge variant="outline" className="text-xs">
-                    {metric.trend}
-                  </Badge>
-                </div>
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                    {metric.value}
-                  </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{metric.title}</p>
-                </div>
-                {/* Animated pulse effect */}
-                <div className="absolute top-0 right-0 w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-              </CardContent>
-            </Card>
-          );
-        })}
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Transactions/Min</p>
+                <p className="text-2xl font-bold text-gray-900">{metrics.transactionsPerMinute}</p>
+              </div>
+              <div className="h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center">
+                <Zap className="h-4 w-4 text-blue-600" />
+              </div>
+            </div>
+            <div className="flex items-center mt-2">
+              <TrendingUp className="h-3 w-3 text-green-600 mr-1" />
+              <span className="text-xs text-green-600">Live updates</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Success Rate</p>
+                <p className="text-2xl font-bold text-gray-900">{metrics.successRate.toFixed(1)}%</p>
+              </div>
+              <div className="h-8 w-8 bg-green-100 rounded-full flex items-center justify-center">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+              </div>
+            </div>
+            <div className="flex items-center mt-2">
+              <Activity className="h-3 w-3 text-blue-600 mr-1" />
+              <span className="text-xs text-blue-600">Real-time</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Live Volume</p>
+                <p className="text-2xl font-bold text-gray-900">${metrics.totalVolume.toLocaleString()}</p>
+              </div>
+              <div className="h-8 w-8 bg-purple-100 rounded-full flex items-center justify-center">
+                <DollarSign className="h-4 w-4 text-purple-600" />
+              </div>
+            </div>
+            <div className="flex items-center mt-2">
+              <BarChart3 className="h-3 w-3 text-purple-600 mr-1" />
+              <span className="text-xs text-purple-600">Updating</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Active Users</p>
+                <p className="text-2xl font-bold text-gray-900">{metrics.activeUsers}</p>
+              </div>
+              <div className="h-8 w-8 bg-orange-100 rounded-full flex items-center justify-center">
+                <Users className="h-4 w-4 text-orange-600" />
+              </div>
+            </div>
+            <div className="flex items-center mt-2">
+              <Users className="h-3 w-3 text-orange-600 mr-1" />
+              <span className="text-xs text-orange-600">Online now</span>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Real-time Chart */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Activity className="h-5 w-5" />
-              Live Transaction Flow (TPS)
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="mb-4 text-sm text-gray-600 dark:text-gray-400">
-              Real-time transactions per second over the last 2 minutes
-            </div>
-            <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={generateRealtimeChart()}>
-                <XAxis dataKey="time" hide />
-                <YAxis hide />
-                <Tooltip 
-                  labelFormatter={(label) => `Time: ${label}`}
-                  formatter={(value) => [`${value} TPS`, 'Transaction Rate']}
+      {/* Live Transaction Flow Chart */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Activity className="h-5 w-5" />
+            Live Transaction Flow
+            <Badge variant="outline" className="ml-2">
+              {isConnected ? "Live" : "Paused"}
+            </Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={liveData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="time" />
+                <YAxis />
+                <Tooltip />
+                <Line 
+                  type="monotone" 
+                  dataKey="transactions" 
+                  stroke="#2563eb" 
+                  strokeWidth={2}
+                  dot={false}
+                  name="Transactions"
                 />
                 <Line 
                   type="monotone" 
-                  dataKey="value" 
-                  stroke="#3B82F6" 
+                  dataKey="volume" 
+                  stroke="#dc2626" 
                   strokeWidth={2}
                   dot={false}
-                  strokeDasharray="0"
+                  name="Volume ($)"
                 />
               </LineChart>
             </ResponsiveContainer>
-          </CardContent>
-        </Card>
+          </div>
+          <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              <strong>Chart Information:</strong> Blue line shows transaction count per minute, Red line shows transaction volume in dollars. 
+              Data updates every 2 seconds when connected. Click "Disconnect" to pause real-time updates.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
 
-        {/* System Health */}
-        <Card>
-          <CardHeader>
-            <CardTitle>System Health Monitor</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {systemHealth.map((system, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-3 h-3 rounded-full ${
-                      system.status === 'healthy' ? 'bg-green-500' :
-                      system.status === 'warning' ? 'bg-yellow-500' : 'bg-red-500'
-                    }`} />
-                    <div>
-                      <p className="font-medium text-sm">{system.name}</p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
-                        {system.responseTime} • {system.uptime} uptime
-                      </p>
-                    </div>
-                  </div>
-                  <Badge variant={system.status === 'healthy' ? 'default' : 'secondary'}>
-                    {system.status}
-                  </Badge>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
+      {/* Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Server Load */}
         <Card>
           <CardHeader>
-            <CardTitle>Server Performance</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <div className="flex justify-between text-sm mb-2">
-                <span>CPU Usage</span>
-                <span>{Math.round(liveData.serverLoad)}%</span>
-              </div>
-              <Progress value={liveData.serverLoad} className="h-2" />
-            </div>
-            <div>
-              <div className="flex justify-between text-sm mb-2">
-                <span>Memory Usage</span>
-                <span>67%</span>
-              </div>
-              <Progress value={67} className="h-2" />
-            </div>
-            <div>
-              <div className="flex justify-between text-sm mb-2">
-                <span>Network I/O</span>
-                <span>23%</span>
-              </div>
-              <Progress value={23} className="h-2" />
-            </div>
-            <div>
-              <div className="flex justify-between text-sm mb-2">
-                <span>Active Connections</span>
-                <span>{Math.round(liveData.activeConnections)}</span>
-              </div>
-              <Progress value={(liveData.activeConnections / 5000) * 100} className="h-2" />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Recent Transactions */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Live Transaction Feed</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Clock className="h-5 w-5" />
+              Recent Transactions
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {recentTransactions.map((txn, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                  <div className="flex items-center gap-3">
+              {recentTransactions.map((transaction) => (
+                <div key={transaction.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <div className="flex items-center space-x-3">
                     <div className={`w-2 h-2 rounded-full ${
-                      txn.status === 'success' ? 'bg-green-500' :
-                      txn.status === 'pending' ? 'bg-yellow-500' : 'bg-red-500'
+                      transaction.status === 'completed' ? 'bg-green-500' :
+                      transaction.status === 'pending' ? 'bg-yellow-500' :
+                      'bg-red-500'
                     }`} />
                     <div>
-                      <p className="font-medium text-sm">{txn.id}</p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
-                        {txn.country} • {txn.time}
-                      </p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">{transaction.id}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">${transaction.amount}</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold">${txn.amount}</p>
-                    <Badge variant={
-                      txn.status === 'success' ? 'default' :
-                      txn.status === 'pending' ? 'secondary' : 'destructive'
-                    } className="text-xs">
-                      {txn.status}
-                    </Badge>
+                    <Badge variant="outline">{transaction.status}</Badge>
+                    <p className="text-xs text-gray-500 mt-1">{transaction.time}</p>
                   </div>
                 </div>
               ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5" />
+              System Alerts
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="flex items-center space-x-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                <CheckCircle className="h-5 w-5 text-green-600" />
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">All Systems Operational</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">No issues detected</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <Activity className="h-5 w-5 text-blue-600" />
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">High Transaction Volume</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Processing 24 transactions/min</p>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>

@@ -3,211 +3,193 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, MessageCircle, Phone, Mail, FileText, Clock, CheckCircle, AlertCircle, Plus } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { 
+  Search, 
+  MessageSquare, 
+  Phone, 
+  Mail, 
+  BookOpen,
+  Plus,
+  Clock,
+  CheckCircle,
+  AlertCircle,
+  FileText,
+  Video,
+  Users,
+  Zap,
+  HelpCircle
+} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const SupportCenter = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [isCreateTicketOpen, setIsCreateTicketOpen] = useState(false);
+  const [isChatOnline, setIsChatOnline] = useState(true);
+  const [ticketSubject, setTicketSubject] = useState('');
+  const [ticketDescription, setTicketDescription] = useState('');
   const { toast } = useToast();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [newTicket, setNewTicket] = useState({
-    subject: '',
-    category: '',
-    priority: '',
-    description: ''
-  });
 
-  const tickets = [
+  const supportTickets = [
     {
-      id: 'TICK-001',
-      subject: 'Payment processing issue',
-      category: 'Technical',
-      priority: 'High',
-      status: 'Open',
-      created: '2024-01-15',
-      lastUpdate: '2024-01-15',
-      assignee: 'Support Team A'
+      id: 'SUP-001',
+      subject: 'Payment Gateway Integration Issue',
+      status: 'open',
+      priority: 'high',
+      category: 'technical',
+      createdAt: '2024-01-15',
+      lastUpdate: '2 hours ago'
     },
     {
-      id: 'TICK-002',
-      subject: 'API integration question',
-      category: 'Development',
-      priority: 'Medium',
-      status: 'In Progress',
-      created: '2024-01-14',
-      lastUpdate: '2024-01-14',
-      assignee: 'Tech Support'
+      id: 'SUP-002', 
+      subject: 'Transaction Declined - Need Help',
+      status: 'in-progress',
+      priority: 'medium',
+      category: 'billing',
+      createdAt: '2024-01-14',
+      lastUpdate: '1 day ago'
     },
     {
-      id: 'TICK-003',
-      subject: 'Account billing inquiry',
+      id: 'SUP-003',
+      subject: 'API Documentation Clarification',
+      status: 'resolved',
+      priority: 'low',
+      category: 'general',
+      createdAt: '2024-01-13',
+      lastUpdate: '3 days ago'
+    }
+  ];
+
+  const knowledgeBase = [
+    {
+      title: 'How to integrate payment gateway',
+      category: 'Integration',
+      views: 1234,
+      helpful: 89
+    },
+    {
+      title: 'Understanding transaction fees',
       category: 'Billing',
-      priority: 'Low',
-      status: 'Resolved',
-      created: '2024-01-13',
-      lastUpdate: '2024-01-13',
-      assignee: 'Billing Team'
-    }
-  ];
-
-  const faqItems = [
-    {
-      question: 'How do I integrate the payment API?',
-      answer: 'You can integrate our payment API by following our comprehensive documentation. Start by obtaining your API keys from the dashboard, then use our SDKs or make direct HTTP requests to our endpoints.',
-      category: 'Integration'
+      views: 987,
+      helpful: 76
     },
     {
-      question: 'What are the transaction fees?',
-      answer: 'Our transaction fees vary by payment method and volume. Standard credit card processing is 2.9% + $0.30 per transaction. Volume discounts are available for high-volume merchants.',
-      category: 'Pricing'
+      title: 'Setting up webhooks',
+      category: 'Technical',
+      views: 654,
+      helpful: 92
     },
     {
-      question: 'How long do settlements take?',
-      answer: 'Standard settlements are processed daily and typically arrive in your bank account within 1-2 business days. Express settlements are available for an additional fee.',
-      category: 'Settlements'
-    },
-    {
-      question: 'Is my data secure?',
-      answer: 'Yes, we use industry-standard encryption and are PCI DSS Level 1 compliant. All sensitive data is encrypted at rest and in transit using AES-256 encryption.',
-      category: 'Security'
-    }
-  ];
-
-  const knowledgeBaseArticles = [
-    {
-      title: 'Getting Started with Payment Processing',
-      category: 'Getting Started',
-      readTime: '5 min',
-      description: 'Learn the basics of setting up payment processing for your business.'
-    },
-    {
-      title: 'API Authentication Guide',
-      category: 'Development',
-      readTime: '8 min',
-      description: 'Complete guide to authenticating with our API using API keys and tokens.'
-    },
-    {
-      title: 'Handling Failed Payments',
+      title: 'Handling failed transactions',
       category: 'Troubleshooting',
-      readTime: '6 min',
-      description: 'Best practices for handling and retrying failed payment attempts.'
-    },
-    {
-      title: 'Setting up Webhooks',
-      category: 'Development',
-      readTime: '10 min',
-      description: 'Configure webhooks to receive real-time payment notifications.'
+      views: 543,
+      helpful: 85
     }
   ];
 
-  const handleSubmitTicket = () => {
-    if (!newTicket.subject || !newTicket.category || !newTicket.priority || !newTicket.description) {
+  const handleSearch = (value: string) => {
+    setSearchTerm(value);
+    if (value.length > 2) {
+      // Simulate knowledge base search
+      console.log('Searching knowledge base and tickets for:', value);
+    }
+  };
+
+  const handleCreateTicket = () => {
+    if (!ticketSubject || !ticketDescription || !selectedCategory) {
       toast({
-        title: "Validation Error",
+        title: "Missing Information",
         description: "Please fill in all required fields.",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
 
     toast({
-      title: "Ticket Submitted",
-      description: "Your support ticket has been created successfully. We'll get back to you soon.",
+      title: "Ticket Created Successfully",
+      description: `Your support ticket has been created with ID SUP-${Math.floor(Math.random() * 1000)}.`,
     });
-
-    setNewTicket({
-      subject: '',
-      category: '',
-      priority: '',
-      description: ''
-    });
+    
+    setIsCreateTicketOpen(false);
+    setTicketSubject('');
+    setTicketDescription('');
+    setSelectedCategory('');
   };
 
-  const getStatusIcon = (status: string) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Open':
-        return <AlertCircle className="h-4 w-4 text-orange-500" />;
-      case 'In Progress':
-        return <Clock className="h-4 w-4 text-blue-500" />;
-      case 'Resolved':
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
-      default:
-        return <AlertCircle className="h-4 w-4 text-gray-500" />;
+      case 'open': return 'bg-red-100 text-red-800';
+      case 'in-progress': return 'bg-yellow-100 text-yellow-800';
+      case 'resolved': return 'bg-green-100 text-green-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'High':
-        return 'bg-red-100 text-red-800';
-      case 'Medium':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'Low':
-        return 'bg-green-100 text-green-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
+      case 'high': return 'text-red-600';
+      case 'medium': return 'text-yellow-600';
+      case 'low': return 'text-green-600';
+      default: return 'text-gray-600';
     }
   };
 
-  const filteredFAQ = faqItems.filter(item =>
-    item.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.answer.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   return (
-    <div className="space-y-6 p-4 lg:p-0">
-      <div className="flex flex-col gap-4 lg:flex-row lg:justify-between lg:items-center">
+    <div className="space-y-6">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Support Center</h2>
-          <p className="text-gray-600 mt-1">Get help with your account and payment processing</p>
+          <h1 className="text-3xl font-bold text-gray-900">Support Center</h1>
+          <p className="text-gray-600 mt-2">Get help, find answers, and contact our support team</p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" className="flex items-center gap-2">
-            <Phone className="h-4 w-4" />
-            Call Support
+        
+        <div className="flex gap-3">
+          <Button 
+            variant="outline" 
+            className="flex items-center gap-2"
+          >
+            <div className={`w-2 h-2 rounded-full ${isChatOnline ? 'bg-green-500' : 'bg-red-500'}`} />
+            Live Chat ({isChatOnline ? 'Online' : 'Offline'})
           </Button>
-          <Button variant="outline" className="flex items-center gap-2">
-            <MessageCircle className="h-4 w-4" />
-            Live Chat
+          <Button onClick={() => setIsCreateTicketOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Create Ticket
           </Button>
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="cursor-pointer hover:shadow-md transition-shadow">
-          <CardContent className="p-6 text-center">
-            <MessageCircle className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-            <h3 className="font-semibold mb-1">Create Ticket</h3>
-            <p className="text-sm text-gray-600">Get personalized support</p>
-          </CardContent>
-        </Card>
-        <Card className="cursor-pointer hover:shadow-md transition-shadow">
-          <CardContent className="p-6 text-center">
-            <FileText className="h-8 w-8 text-green-600 mx-auto mb-2" />
-            <h3 className="font-semibold mb-1">Knowledge Base</h3>
-            <p className="text-sm text-gray-600">Find answers quickly</p>
-          </CardContent>
-        </Card>
-        <Card className="cursor-pointer hover:shadow-md transition-shadow">
-          <CardContent className="p-6 text-center">
-            <Mail className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-            <h3 className="font-semibold mb-1">Email Support</h3>
-            <p className="text-sm text-gray-600">support@company.com</p>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Search Bar */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+            <Input
+              placeholder="Search support tickets, knowledge base articles, or ask a question..."
+              value={searchTerm}
+              onChange={(e) => handleSearch(e.target.value)}
+              className="pl-12 h-12 text-lg"
+            />
+          </div>
+          {searchTerm && (
+            <div className="mt-3 p-3 bg-blue-50 rounded-lg">
+              <p className="text-sm text-blue-700">
+                Searching knowledge base and existing tickets for "{searchTerm}"...
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
-      <Tabs defaultValue="tickets" className="space-y-6">
+      <Tabs defaultValue="tickets" className="w-full">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="tickets">My Tickets</TabsTrigger>
-          <TabsTrigger value="create">Create Ticket</TabsTrigger>
-          <TabsTrigger value="faq">FAQ</TabsTrigger>
           <TabsTrigger value="knowledge">Knowledge Base</TabsTrigger>
+          <TabsTrigger value="contact">Contact Support</TabsTrigger>
+          <TabsTrigger value="resources">Resources</TabsTrigger>
         </TabsList>
 
         <TabsContent value="tickets" className="space-y-4">
@@ -217,129 +199,25 @@ const SupportCenter = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {tickets.map((ticket) => (
-                  <div key={ticket.id} className="p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                {supportTickets.map((ticket) => (
+                  <div key={ticket.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
                     <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        {getStatusIcon(ticket.status)}
-                        <span className="font-mono text-sm text-blue-600">{ticket.id}</span>
-                        <Badge variant="outline">{ticket.status}</Badge>
+                      <div className="flex items-center gap-3">
+                        <span className="font-medium text-gray-900">{ticket.id}</span>
+                        <Badge className={getStatusColor(ticket.status)}>
+                          {ticket.status}
+                        </Badge>
+                        <span className={`text-sm font-medium ${getPriorityColor(ticket.priority)}`}>
+                          {ticket.priority} priority
+                        </span>
                       </div>
-                      <Badge className={getPriorityColor(ticket.priority)}>
-                        {ticket.priority}
-                      </Badge>
+                      <span className="text-sm text-gray-500">{ticket.lastUpdate}</span>
                     </div>
-                    <h4 className="font-medium mb-1">{ticket.subject}</h4>
-                    <div className="flex items-center gap-4 text-sm text-gray-600">
+                    <h4 className="font-medium text-gray-900 mb-1">{ticket.subject}</h4>
+                    <div className="flex items-center justify-between text-sm text-gray-600">
                       <span>Category: {ticket.category}</span>
-                      <span>Created: {ticket.created}</span>
-                      <span>Assignee: {ticket.assignee}</span>
+                      <span>Created: {ticket.createdAt}</span>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="create" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Plus className="h-5 w-5" />
-                Create Support Ticket
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="subject">Subject *</Label>
-                  <Input
-                    id="subject"
-                    value={newTicket.subject}
-                    onChange={(e) => setNewTicket(prev => ({ ...prev, subject: e.target.value }))}
-                    placeholder="Brief description of your issue"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="category">Category *</Label>
-                  <Select
-                    value={newTicket.category}
-                    onValueChange={(value) => setNewTicket(prev => ({ ...prev, category: value }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="technical">Technical Issue</SelectItem>
-                      <SelectItem value="billing">Billing</SelectItem>
-                      <SelectItem value="development">Development</SelectItem>
-                      <SelectItem value="account">Account Management</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="priority">Priority *</Label>
-                <Select
-                  value={newTicket.priority}
-                  onValueChange={(value) => setNewTicket(prev => ({ ...prev, priority: value }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select priority" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="low">Low</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
-                    <SelectItem value="urgent">Urgent</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="description">Description *</Label>
-                <Textarea
-                  id="description"
-                  value={newTicket.description}
-                  onChange={(e) => setNewTicket(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Please provide detailed information about your issue..."
-                  rows={5}
-                />
-              </div>
-
-              <Button onClick={handleSubmitTicket} className="w-full">
-                Submit Ticket
-              </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="faq" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Frequently Asked Questions</CardTitle>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  placeholder="Search FAQ..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {filteredFAQ.map((item, index) => (
-                  <div key={index} className="p-4 border rounded-lg">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h4 className="font-medium">{item.question}</h4>
-                      <Badge variant="secondary" className="text-xs">{item.category}</Badge>
-                    </div>
-                    <p className="text-gray-600 text-sm">{item.answer}</p>
                   </div>
                 ))}
               </div>
@@ -350,25 +228,170 @@ const SupportCenter = () => {
         <TabsContent value="knowledge" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Knowledge Base</CardTitle>
+              <CardTitle>Knowledge Base Articles</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {knowledgeBaseArticles.map((article, index) => (
-                  <div key={index} className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Badge variant="outline">{article.category}</Badge>
-                      <span className="text-xs text-gray-500">{article.readTime} read</span>
+                {knowledgeBase.map((article, index) => (
+                  <div key={index} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors cursor-pointer">
+                    <div className="flex items-start justify-between mb-2">
+                      <h4 className="font-medium text-gray-900">{article.title}</h4>
+                      <BookOpen className="h-5 w-5 text-gray-400" />
                     </div>
-                    <h4 className="font-medium mb-1">{article.title}</h4>
-                    <p className="text-sm text-gray-600">{article.description}</p>
+                    <Badge variant="outline" className="mb-2">{article.category}</Badge>
+                    <div className="flex items-center justify-between text-sm text-gray-600">
+                      <span>{article.views} views</span>
+                      <span>{article.helpful}% helpful</span>
+                    </div>
                   </div>
                 ))}
               </div>
             </CardContent>
           </Card>
         </TabsContent>
+
+        <TabsContent value="contact" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card>
+              <CardContent className="p-6 text-center">
+                <MessageSquare className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+                <h3 className="font-medium text-gray-900 mb-2">Live Chat</h3>
+                <p className="text-sm text-gray-600 mb-4">Chat with our support team in real-time</p>
+                <div className="flex items-center justify-center gap-2 mb-4">
+                  <div className={`w-2 h-2 rounded-full ${isChatOnline ? 'bg-green-500' : 'bg-red-500'}`} />
+                  <span className="text-sm">{isChatOnline ? 'Online' : 'Offline'}</span>
+                </div>
+                <Button className="w-full" disabled={!isChatOnline}>
+                  Start Chat
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6 text-center">
+                <Mail className="h-12 w-12 text-green-600 mx-auto mb-4" />
+                <h3 className="font-medium text-gray-900 mb-2">Email Support</h3>
+                <p className="text-sm text-gray-600 mb-4">Send us an email and we'll respond within 24 hours</p>
+                <Button variant="outline" className="w-full">
+                  Send Email
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6 text-center">
+                <Phone className="h-12 w-12 text-purple-600 mx-auto mb-4" />
+                <h3 className="font-medium text-gray-900 mb-2">Phone Support</h3>
+                <p className="text-sm text-gray-600 mb-4">Call our support hotline for urgent issues</p>
+                <Button variant="outline" className="w-full">
+                  Call Now
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="resources" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card>
+              <CardContent className="p-6 text-center">
+                <FileText className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+                <h3 className="font-medium text-gray-900 mb-2">API Documentation</h3>
+                <p className="text-sm text-gray-600 mb-4">Complete API reference and guides</p>
+                <Button variant="outline" size="sm">View Docs</Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6 text-center">
+                <Video className="h-12 w-12 text-red-600 mx-auto mb-4" />
+                <h3 className="font-medium text-gray-900 mb-2">Video Tutorials</h3>
+                <p className="text-sm text-gray-600 mb-4">Step-by-step video guides</p>
+                <Button variant="outline" size="sm">Watch Videos</Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6 text-center">
+                <Users className="h-12 w-12 text-green-600 mx-auto mb-4" />
+                <h3 className="font-medium text-gray-900 mb-2">Community Forum</h3>
+                <p className="text-sm text-gray-600 mb-4">Connect with other developers</p>
+                <Button variant="outline" size="sm">Join Forum</Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6 text-center">
+                <Zap className="h-12 w-12 text-yellow-600 mx-auto mb-4" />
+                <h3 className="font-medium text-gray-900 mb-2">Quick Start</h3>
+                <p className="text-sm text-gray-600 mb-4">Get up and running quickly</p>
+                <Button variant="outline" size="sm">Get Started</Button>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
       </Tabs>
+
+      {/* Create Ticket Modal */}
+      {isCreateTicketOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <Card className="w-full max-w-2xl">
+            <CardHeader>
+              <CardTitle>Create Support Ticket</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label>Category *</Label>
+                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="technical">Technical Issue</SelectItem>
+                    <SelectItem value="billing">Billing Question</SelectItem>
+                    <SelectItem value="general">General Inquiry</SelectItem>
+                    <SelectItem value="integration">Integration Help</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+                {selectedCategory === 'other' && (
+                  <div className="mt-2">
+                    <Input placeholder="Please specify your category" />
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <Label>Subject *</Label>
+                <Input
+                  value={ticketSubject}
+                  onChange={(e) => setTicketSubject(e.target.value)}
+                  placeholder="Brief description of your issue"
+                />
+              </div>
+
+              <div>
+                <Label>Description *</Label>
+                <Textarea
+                  value={ticketDescription}
+                  onChange={(e) => setTicketDescription(e.target.value)}
+                  placeholder="Detailed description of your issue..."
+                  rows={5}
+                />
+              </div>
+
+              <div className="flex gap-3 justify-end">
+                <Button variant="outline" onClick={() => setIsCreateTicketOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleCreateTicket}>
+                  Create Ticket
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };
