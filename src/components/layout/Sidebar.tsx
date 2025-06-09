@@ -11,7 +11,8 @@ import {
   Gift,
   Key,
   Megaphone,
-  ArrowUpRight
+  ArrowUpRight,
+  HelpCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -26,6 +27,8 @@ interface SidebarProps {
 const Sidebar = ({ activeTab, setActiveTab, isOpen, setIsOpen }: SidebarProps) => {
   // Mock announcement count - in real app this would come from API
   const unreadAnnouncementsCount = 3;
+  // Mock environment - in real app this would come from context/store
+  const currentEnvironment = 'sandbox'; // or 'production'
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: Home },
@@ -42,6 +45,13 @@ const Sidebar = ({ activeTab, setActiveTab, isOpen, setIsOpen }: SidebarProps) =
       badge: unreadAnnouncementsCount > 0 ? unreadAnnouncementsCount : null
     },
     { id: 'referrals', label: 'Referrals', icon: Gift },
+    // Support Tickets - only show in sandbox mode
+    ...(currentEnvironment === 'sandbox' ? [{ 
+      id: 'support-tickets', 
+      label: 'Support Tickets', 
+      icon: HelpCircle,
+      badge: null 
+    }] : []),
   ];
 
   return (
@@ -106,6 +116,15 @@ const Sidebar = ({ activeTab, setActiveTab, isOpen, setIsOpen }: SidebarProps) =
             );
           })}
         </nav>
+
+        {/* Environment indicator */}
+        {currentEnvironment === 'sandbox' && (
+          <div className="absolute bottom-4 left-4 right-4">
+            <div className="bg-amber-100 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300 px-2 py-1 rounded text-xs text-center">
+              Sandbox Mode
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

@@ -16,6 +16,7 @@ import TerNoManagement from "@/components/terno/TerNoManagement";
 import AnnouncementCenter from "@/components/announcements/AnnouncementCenter";
 import ReferralManagement from "@/components/referrals/ReferralManagement";
 import SupportCenter from "@/components/support/SupportCenter";
+import SupportTickets from "@/components/support/SupportTickets";
 import AccountSettings from "@/components/profile/AccountSettings";
 import Feedback from "@/components/profile/Feedback";
 
@@ -49,6 +50,8 @@ const Index = () => {
         return <ReferralManagement />;
       case 'support':
         return <SupportCenter />;
+      case 'support-tickets':
+        return <SupportTickets />;
       case 'account-settings':
         return <AccountSettings />;
       case 'feedback':

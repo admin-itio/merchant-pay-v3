@@ -20,40 +20,97 @@ interface BasicInformationProps {
 }
 
 const BasicInformation = ({ data, onChange, isEditing }: BasicInformationProps) => {
-  const countries = [
-    { code: 'MY', name: 'Malaysia', currency: 'MYR' },
-    { code: 'SG', name: 'Singapore', currency: 'SGD' },
-    { code: 'TH', name: 'Thailand', currency: 'THB' },
-    { code: 'ID', name: 'Indonesia', currency: 'IDR' },
-    { code: 'PH', name: 'Philippines', currency: 'PHP' },
-    { code: 'VN', name: 'Vietnam', currency: 'VND' },
-  ];
-
-  const businessTypes = [
-    'E-commerce',
-    'Retail',
-    'Restaurant',
-    'Hotel',
-    'Healthcare',
-    'Education',
+  const businessClassifications = [
+    'Accounting & Bookkeeping Services',
+    'Advertising & Marketing',
+    'Agriculture & Farming',
+    'Airlines & Aviation',
+    'Architecture & Engineering',
+    'Arts & Entertainment',
+    'Automotive Sales & Services',
+    'Banking & Financial Services',
+    'Beauty & Personal Care',
+    'Building & Construction',
+    'Business Consulting',
+    'Charitable Organizations',
+    'Chemical Manufacturing',
+    'Childcare & Education Services',
+    'Clothing & Fashion',
+    'Computer Hardware & Software',
+    'Consulting Services',
+    'Consumer Electronics',
+    'Cosmetics & Beauty Products',
+    'Data Processing & Hosting',
+    'Dental Services',
+    'Digital Marketing',
+    'E-commerce & Online Retail',
+    'Education & Training',
+    'Electronics Manufacturing',
+    'Emergency Services',
+    'Energy & Utilities',
+    'Environmental Services',
+    'Event Planning & Management',
+    'Fashion & Apparel',
+    'Financial Planning & Investment',
+    'Fitness & Health Clubs',
+    'Food & Beverage Manufacturing',
+    'Food & Restaurant Services',
+    'Freight & Logistics',
+    'Furniture & Home Decor',
+    'Gaming & Entertainment',
+    'Government Services',
+    'Grocery & Supermarkets',
+    'Healthcare & Medical Services',
+    'Home Improvement & Repair',
+    'Hospitality & Hotels',
+    'Human Resources',
+    'Insurance Services',
+    'Interior Design',
+    'Internet & Technology',
+    'Investment Services',
+    'IT Services & Consulting',
+    'Jewelry & Luxury Goods',
+    'Legal Services',
+    'Leisure & Recreation',
+    'Logistics & Transportation',
+    'Manufacturing & Industrial',
+    'Marketing & Advertising',
+    'Media & Publishing',
+    'Medical Devices & Equipment',
+    'Mining & Extraction',
+    'Mobile App Development',
+    'Music & Audio Services',
+    'Non-profit Organizations',
+    'Office Supplies & Equipment',
+    'Oil & Gas',
+    'Online Services',
+    'Pharmaceutical',
+    'Photography & Video',
+    'Physical Therapy & Rehabilitation',
     'Professional Services',
-    'Technology',
-    'Gaming',
-    'Travel',
-    'Financial Services',
+    'Real Estate',
+    'Renewable Energy',
+    'Repair & Maintenance',
+    'Research & Development',
+    'Restaurant & Food Service',
+    'Retail & Shopping',
+    'Security Services',
+    'Social Media & Networking',
+    'Software Development',
+    'Sports & Recreation',
+    'Telecommunications',
+    'Textiles & Clothing',
+    'Tourism & Travel',
+    'Transportation & Delivery',
+    'Veterinary Services',
+    'Waste Management',
+    'Web Development & Design',
+    'Wholesale & Distribution',
     'Other'
   ];
 
   const handleInputChange = (field: string, value: string) => {
     onChange({ ...data, [field]: value });
-    
-    // Auto-set currency when country changes
-    if (field === 'country') {
-      const country = countries.find(c => c.code === value);
-      if (country) {
-        onChange({ ...data, [field]: value, currency: country.currency });
-      }
-    }
   };
 
   return (
@@ -110,15 +167,18 @@ const BasicInformation = ({ data, onChange, isEditing }: BasicInformationProps) 
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="businessType">Business Type *</Label>
-                <Select value={data.businessType} onValueChange={(value) => handleInputChange('businessType', value)}>
+                <Label htmlFor="businessClassification">Business Classification *</Label>
+                <Select value={data.businessClassification} onValueChange={(value) => handleInputChange('businessClassification', value)}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select business type" />
+                    <SelectValue placeholder="Select business classification" />
                   </SelectTrigger>
-                  <SelectContent>
-                    {businessTypes.map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {type}
+                  <SelectContent className="max-h-60">
+                    <div className="p-2">
+                      <Input placeholder="Search business classification..." className="mb-2" />
+                    </div>
+                    {businessClassifications.map((classification) => (
+                      <SelectItem key={classification} value={classification}>
+                        {classification}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -132,44 +192,9 @@ const BasicInformation = ({ data, onChange, isEditing }: BasicInformationProps) 
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Regional Settings</CardTitle>
+              <CardTitle>Environment Settings</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="country">Operating Country *</Label>
-                <Select value={data.country} onValueChange={(value) => handleInputChange('country', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select country" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {countries.map((country) => (
-                      <SelectItem key={country.code} value={country.code}>
-                        {country.name} ({country.code})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="currency">Base Currency *</Label>
-                <Select value={data.currency} onValueChange={(value) => handleInputChange('currency', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select currency" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {countries.map((country) => (
-                      <SelectItem key={country.currency} value={country.currency}>
-                        {country.currency} - {country.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Primary currency for transactions processed through this TerNo
-                </p>
-              </div>
-
               <div className="space-y-2">
                 <Label htmlFor="environment">Environment *</Label>
                 <Select value={data.environment} onValueChange={(value) => handleInputChange('environment', value)}>
@@ -201,7 +226,7 @@ const BasicInformation = ({ data, onChange, isEditing }: BasicInformationProps) 
               </h3>
               <ul className="text-sm text-amber-700 dark:text-amber-400 space-y-1">
                 <li>• Fields marked with * are required</li>
-                <li>• Country and currency settings affect available payment methods</li>
+                <li>• Business classification affects available payment methods and features</li>
                 <li>• Environment cannot be changed after TerNo creation</li>
                 <li>• Choose sandbox environment for testing and development</li>
               </ul>

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -8,6 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Globe, Shield, Eye, ExternalLink, Info, CheckCircle, AlertCircle } from 'lucide-react';
+import WebhookTestModal from './components/WebhookTestModal';
 
 interface URLsAndPoliciesProps {
   data: any;
@@ -74,6 +74,7 @@ const URLsAndPolicies = ({ data, onChange }: URLsAndPoliciesProps) => {
               >
                 <ExternalLink className="h-4 w-4" />
               </Button>
+              <WebhookTestModal webhookUrl={data.webhookUrl} />
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Endpoint to receive real-time payment notifications
@@ -388,6 +389,7 @@ const URLsAndPolicies = ({ data, onChange }: URLsAndPoliciesProps) => {
                 <li>• Implement proper webhook signature verification</li>
                 <li>• Test all URLs before deploying to production</li>
                 <li>• Use IP whitelisting for enhanced security</li>
+                <li>• Use the test webhook feature to verify your endpoint</li>
               </ul>
             </div>
           </div>
