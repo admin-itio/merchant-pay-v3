@@ -18,7 +18,7 @@ import {
   Globe,
   Shield,
   Settings,
-  Timeline,
+  Clock,
   Upload
 } from 'lucide-react';
 import TransactionTable from './TransactionTable';
@@ -199,7 +199,7 @@ const TransactionsList = () => {
             size="sm"
             onClick={() => setShowTimelineModal(true)}
           >
-            <Timeline className="h-4 w-4 mr-2" />
+            <Clock className="h-4 w-4 mr-2" />
             Timeline View
           </Button>
           <ExportModal

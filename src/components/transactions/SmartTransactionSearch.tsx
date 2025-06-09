@@ -8,287 +8,346 @@ import {
   Search, 
   Filter, 
   X, 
-  DollarSign, 
   Calendar,
-  Users,
+  DollarSign,
   CreditCard,
+  User,
   MapPin,
-  Hash
+  Shield,
+  Zap
 } from 'lucide-react';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
-interface SearchFilter {
-  type: 'amount' | 'date' | 'customer' | 'payment_method' | 'country' | 'transaction_id';
+interface SmartFilter {
+  id: string;
+  type: 'amount' | 'date' | 'status' | 'customer' | 'country' | 'payment_method' | 'fraud_score';
   label: string;
   value: any;
-  display: string;
+  operator?: 'eq' | 'gt' | 'lt' | 'gte' | 'lte' | 'contains' | 'between';
 }
 
 interface SmartTransactionSearchProps {
-  onSearch: (query: string, filters: SearchFilter[]) => void;
+  onSearch: (query: string, filters: SmartFilter[]) => void;
   placeholder?: string;
 }
 
-const SmartTransactionSearch = ({ onSearch, placeholder }: SmartTransactionSearchProps) => {
+const SmartTransactionSearch = ({ onSearch, placeholder = "Search transactions..." }: SmartTransactionSearchProps) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeFilters, setActiveFilters] = useState<SearchFilter[]>([]);
-  const [showFilters, setShowFilters] = useState(false);
+  const [activeFilters, setActiveFilters] = useState<SmartFilter[]>([]);
+  const [showFilterBuilder, setShowFilterBuilder] = useState(false);
 
-  // Filter configurations
-  const [amountRange, setAmountRange] = useState([0, 10000]);
-  const [selectedPaymentMethods, setSelectedPaymentMethods] = useState<string[]>([]);
-  const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
-  const [customerSegment, setCustomerSegment] = useState('');
-
-  const paymentMethods = [
-    'Credit Card', 'Debit Card', 'PayPal', 'Apple Pay', 'Google Pay', 'Bank Transfer'
+  const filterTypes = [
+    { type: 'amount', label: 'Amount', icon: DollarSign },
+    { type: 'date', label: 'Date Range', icon: Calendar },
+    { type: 'status', label: 'Status', icon: Shield },
+    { type: 'customer', label: 'Customer', icon: User },
+    { type: 'country', label: 'Country', icon: MapPin },
+    { type: 'payment_method', label: 'Payment Method', icon: CreditCard },
+    { type: 'fraud_score', label: 'Fraud Score', icon: Shield }
   ];
 
-  const countries = [
-    'United States', 'United Kingdom', 'Germany', 'France', 'Canada', 
-    'Australia', 'Japan', 'Singapore', 'Netherlands', 'Sweden'
-  ];
+  const statusOptions = ['completed', 'pending', 'failed', 'refunded', 'chargeback'];
+  const paymentMethodOptions = ['Visa', 'Mastercard', 'PayPal', 'Apple Pay', 'Google Pay'];
+  const countryOptions = ['United States', 'United Kingdom', 'Germany', 'France', 'Canada'];
 
-  const customerSegments = [
-    'VIP Customers', 'New Customers', 'Returning Customers', 'High Volume', 'At Risk'
-  ];
-
-  const addFilter = (filter: SearchFilter) => {
-    const exists = activeFilters.find(f => f.type === filter.type && f.value === filter.value);
-    if (!exists) {
-      setActiveFilters(prev => [...prev, filter]);
-    }
-  };
-
-  const removeFilter = (index: number) => {
-    setActiveFilters(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const handleAmountFilter = () => {
-    addFilter({
-      type: 'amount',
-      label: 'Amount Range',
-      value: amountRange,
-      display: `$${amountRange[0]} - $${amountRange[1]}`
-    });
-  };
-
-  const handlePaymentMethodFilter = (method: string) => {
-    const newMethods = selectedPaymentMethods.includes(method)
-      ? selectedPaymentMethods.filter(m => m !== method)
-      : [...selectedPaymentMethods, method];
+  const addFilter = (type: string) => {
+    const newFilter: SmartFilter = {
+      id: Date.now().toString(),
+      type: type as any,
+      label: filterTypes.find(f => f.type === type)?.label || type,
+      value: '',
+      operator: 'eq'
+    };
     
-    setSelectedPaymentMethods(newMethods);
-    
-    if (newMethods.length > 0) {
-      addFilter({
-        type: 'payment_method',
-        label: 'Payment Method',
-        value: newMethods,
-        display: newMethods.join(', ')
-      });
-    } else {
-      setActiveFilters(prev => prev.filter(f => f.type !== 'payment_method'));
-    }
+    setActiveFilters([...activeFilters, newFilter]);
+    setShowFilterBuilder(false);
   };
 
-  const handleCountryFilter = (country: string) => {
-    const newCountries = selectedCountries.includes(country)
-      ? selectedCountries.filter(c => c !== country)
-      : [...selectedCountries, country];
-    
-    setSelectedCountries(newCountries);
-    
-    if (newCountries.length > 0) {
-      addFilter({
-        type: 'country',
-        label: 'Country',
-        value: newCountries,
-        display: newCountries.join(', ')
-      });
-    } else {
-      setActiveFilters(prev => prev.filter(f => f.type !== 'country'));
-    }
+  const updateFilter = (filterId: string, updates: Partial<SmartFilter>) => {
+    setActiveFilters(filters => 
+      filters.map(filter => 
+        filter.id === filterId ? { ...filter, ...updates } : filter
+      )
+    );
   };
 
-  const handleCustomerSegmentFilter = (segment: string) => {
-    setCustomerSegment(segment);
-    addFilter({
-      type: 'customer',
-      label: 'Customer Segment',
-      value: segment,
-      display: segment
-    });
+  const removeFilter = (filterId: string) => {
+    setActiveFilters(filters => filters.filter(f => f.id !== filterId));
   };
 
   const handleSearch = () => {
     onSearch(searchQuery, activeFilters);
   };
 
-  const clearAllFilters = () => {
-    setActiveFilters([]);
-    setAmountRange([0, 10000]);
-    setSelectedPaymentMethods([]);
-    setSelectedCountries([]);
-    setCustomerSegment('');
-  };
+  const renderFilterValue = (filter: SmartFilter) => {
+    switch (filter.type) {
+      case 'amount':
+        return (
+          <div className="flex gap-2 items-center">
+            <Select 
+              value={filter.operator} 
+              onValueChange={(value) => updateFilter(filter.id, { operator: value as any })}
+            >
+              <SelectTrigger className="w-20">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="eq">=</SelectItem>
+                <SelectItem value="gt">&gt;</SelectItem>
+                <SelectItem value="lt">&lt;</SelectItem>
+                <SelectItem value="gte">≥</SelectItem>
+                <SelectItem value="lte">≤</SelectItem>
+              </SelectContent>
+            </Select>
+            <Input
+              type="number"
+              placeholder="Amount"
+              value={filter.value}
+              onChange={(e) => updateFilter(filter.id, { value: e.target.value })}
+              className="w-24"
+            />
+          </div>
+        );
+      
+      case 'status':
+        return (
+          <Select 
+            value={filter.value} 
+            onValueChange={(value) => updateFilter(filter.id, { value })}
+          >
+            <SelectTrigger className="w-32">
+              <SelectValue placeholder="Select status" />
+            </SelectTrigger>
+            <SelectContent>
+              {statusOptions.map(option => (
+                <SelectItem key={option} value={option}>{option}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        );
 
-  const getFilterIcon = (type: string) => {
-    switch (type) {
-      case 'amount': return <DollarSign className="h-3 w-3" />;
-      case 'date': return <Calendar className="h-3 w-3" />;
-      case 'customer': return <Users className="h-3 w-3" />;
-      case 'payment_method': return <CreditCard className="h-3 w-3" />;
-      case 'country': return <MapPin className="h-3 w-3" />;
-      case 'transaction_id': return <Hash className="h-3 w-3" />;
-      default: return <Filter className="h-3 w-3" />;
+      case 'payment_method':
+        return (
+          <Select 
+            value={filter.value} 
+            onValueChange={(value) => updateFilter(filter.id, { value })}
+          >
+            <SelectTrigger className="w-32">
+              <SelectValue placeholder="Select method" />
+            </SelectTrigger>
+            <SelectContent>
+              {paymentMethodOptions.map(option => (
+                <SelectItem key={option} value={option}>{option}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        );
+
+      case 'country':
+        return (
+          <Select 
+            value={filter.value} 
+            onValueChange={(value) => updateFilter(filter.id, { value })}
+          >
+            <SelectTrigger className="w-32">
+              <SelectValue placeholder="Select country" />
+            </SelectTrigger>
+            <SelectContent>
+              {countryOptions.map(option => (
+                <SelectItem key={option} value={option}>{option}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        );
+
+      case 'fraud_score':
+        return (
+          <div className="flex gap-2 items-center">
+            <Select 
+              value={filter.operator} 
+              onValueChange={(value) => updateFilter(filter.id, { operator: value as any })}
+            >
+              <SelectTrigger className="w-20">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="lt">&lt;</SelectItem>
+                <SelectItem value="lte">≤</SelectItem>
+                <SelectItem value="gt">&gt;</SelectItem>
+                <SelectItem value="gte">≥</SelectItem>
+              </SelectContent>
+            </Select>
+            <Input
+              type="number"
+              placeholder="Score"
+              value={filter.value}
+              onChange={(e) => updateFilter(filter.id, { value: e.target.value })}
+              className="w-20"
+              min="0"
+              max="100"
+            />
+          </div>
+        );
+
+      case 'date':
+        return (
+          <div className="flex gap-2">
+            <Input
+              type="date"
+              value={filter.value?.from || ''}
+              onChange={(e) => updateFilter(filter.id, { 
+                value: { ...filter.value, from: e.target.value }
+              })}
+              className="w-32"
+            />
+            <span className="text-gray-500">to</span>
+            <Input
+              type="date"
+              value={filter.value?.to || ''}
+              onChange={(e) => updateFilter(filter.id, { 
+                value: { ...filter.value, to: e.target.value }
+              })}
+              className="w-32"
+            />
+          </div>
+        );
+
+      default:
+        return (
+          <Input
+            placeholder={`Enter ${filter.label.toLowerCase()}`}
+            value={filter.value}
+            onChange={(e) => updateFilter(filter.id, { value: e.target.value })}
+            className="w-32"
+          />
+        );
     }
   };
 
   return (
-    <div className="space-y-4">
-      {/* Search Input */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-        <Input
-          placeholder={placeholder || "Search transactions by ID, email, amount, or any keyword..."}
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10 pr-12"
-          onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-        />
-        <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex gap-1">
-          <Popover open={showFilters} onOpenChange={setShowFilters}>
-            <PopoverTrigger asChild>
-              <Button variant="ghost" size="sm">
-                <Filter className="h-4 w-4" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-80 bg-white" side="bottom" align="end">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-medium">Smart Filters</h4>
-                  <Button variant="ghost" size="sm" onClick={clearAllFilters}>
-                    Clear All
-                  </Button>
-                </div>
-
-                {/* Amount Range Filter */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Amount Range</Label>
-                  <Slider
-                    value={amountRange}
-                    onValueChange={setAmountRange}
-                    max={10000}
-                    step={100}
-                    className="w-full"
-                  />
-                  <div className="flex justify-between text-xs text-gray-500">
-                    <span>${amountRange[0]}</span>
-                    <span>${amountRange[1]}</span>
-                  </div>
-                  <Button size="sm" variant="outline" onClick={handleAmountFilter}>
-                    Apply Amount Filter
-                  </Button>
-                </div>
-
-                {/* Payment Methods */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Payment Methods</Label>
-                  <div className="grid grid-cols-2 gap-1">
-                    {paymentMethods.map((method) => (
-                      <Badge
-                        key={method}
-                        variant={selectedPaymentMethods.includes(method) ? "default" : "outline"}
-                        className="cursor-pointer text-xs"
-                        onClick={() => handlePaymentMethodFilter(method)}
-                      >
-                        {method}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Countries */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Countries</Label>
-                  <div className="max-h-32 overflow-y-auto space-y-1">
-                    {countries.map((country) => (
-                      <Badge
-                        key={country}
-                        variant={selectedCountries.includes(country) ? "default" : "outline"}
-                        className="cursor-pointer text-xs mr-1 mb-1"
-                        onClick={() => handleCountryFilter(country)}
-                      >
-                        {country}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Customer Segments */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Customer Segments</Label>
-                  <div className="space-y-1">
-                    {customerSegments.map((segment) => (
-                      <Badge
-                        key={segment}
-                        variant={customerSegment === segment ? "default" : "outline"}
-                        className="cursor-pointer text-xs mr-1"
-                        onClick={() => handleCustomerSegmentFilter(segment)}
-                      >
-                        {segment}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </PopoverContent>
-          </Popover>
-
-          <Button onClick={handleSearch}>
-            Search
-          </Button>
-        </div>
-      </div>
-
-      {/* Active Filters */}
-      {activeFilters.length > 0 && (
-        <Card>
-          <CardContent className="p-3">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-sm text-gray-600">Active filters:</span>
-              {activeFilters.map((filter, index) => (
-                <Badge key={index} variant="secondary" className="flex items-center gap-1">
-                  {getFilterIcon(filter.type)}
-                  <span className="text-xs">{filter.label}: {filter.display}</span>
-                  <button
-                    onClick={() => removeFilter(index)}
-                    className="ml-1 hover:bg-gray-200 rounded-full p-0.5"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </Badge>
-              ))}
-              <Button variant="ghost" size="sm" onClick={clearAllFilters}>
-                Clear All
-              </Button>
+    <Card>
+      <CardContent className="p-4">
+        <div className="space-y-4">
+          {/* Search Input */}
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                placeholder={placeholder}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+              />
             </div>
-          </CardContent>
-        </Card>
-      )}
+            
+            <Popover open={showFilterBuilder} onOpenChange={setShowFilterBuilder}>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Filter className="h-4 w-4 mr-2" />
+                  Add Filter
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-64" align="end">
+                <div className="space-y-2">
+                  <h4 className="font-medium text-sm">Add Filter</h4>
+                  <div className="grid gap-2">
+                    {filterTypes.map(filterType => {
+                      const Icon = filterType.icon;
+                      return (
+                        <Button
+                          key={filterType.type}
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => addFilter(filterType.type)}
+                          className="justify-start h-8"
+                        >
+                          <Icon className="h-3 w-3 mr-2" />
+                          {filterType.label}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+            
+            <Button onClick={handleSearch} className="px-6">
+              <Search className="h-4 w-4 mr-2" />
+              Search
+            </Button>
+          </div>
 
-      {/* Search Suggestions */}
-      <div className="text-xs text-gray-500">
-        <p>💡 Try searching for: "amount:>1000", "status:failed", "last week", or specific transaction IDs</p>
-      </div>
-    </div>
+          {/* Active Filters */}
+          {activeFilters.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Filter className="h-3 w-3" />
+                Active Filters:
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {activeFilters.map(filter => (
+                  <div key={filter.id} className="flex items-center gap-2 p-2 bg-blue-50 rounded border">
+                    <span className="text-xs font-medium text-blue-700">{filter.label}:</span>
+                    {renderFilterValue(filter)}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeFilter(filter.id)}
+                      className="h-6 w-6 p-0 hover:bg-red-100"
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Quick Filters */}
+          <div className="flex flex-wrap gap-2">
+            <span className="text-sm text-gray-600 flex items-center">
+              <Zap className="h-3 w-3 mr-1" />
+              Quick filters:
+            </span>
+            {[
+              { label: 'High Value (>$1000)', filter: { type: 'amount', operator: 'gt', value: '1000' } },
+              { label: 'Failed Today', filter: { type: 'status', value: 'failed' } },
+              { label: 'High Risk (>70)', filter: { type: 'fraud_score', operator: 'gt', value: '70' } }
+            ].map((quick, index) => (
+              <Badge 
+                key={index}
+                variant="secondary" 
+                className="cursor-pointer hover:bg-blue-100"
+                onClick={() => {
+                  const newFilter: SmartFilter = {
+                    id: Date.now().toString(),
+                    type: quick.filter.type as any,
+                    label: filterTypes.find(f => f.type === quick.filter.type)?.label || quick.filter.type,
+                    value: quick.filter.value,
+                    operator: (quick.filter.operator as any) || 'eq'
+                  };
+                  setActiveFilters([...activeFilters, newFilter]);
+                }}
+              >
+                {quick.label}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
