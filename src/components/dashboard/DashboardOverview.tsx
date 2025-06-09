@@ -1,9 +1,9 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import SupportSection from '@/components/layout/SupportSection';
 import {
   BarChart3,
   TrendingUp,
@@ -63,7 +63,7 @@ const DashboardOverview = () => {
   ];
 
   return (
-    <div className="space-y-4 lg:space-y-6 p-4 lg:p-0">
+    <div className="space-y-4 lg:space-y-6 p-4 lg:p-0 relative">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -344,6 +344,9 @@ const DashboardOverview = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Support Section - Fixed position at bottom left */}
+      <SupportSection />
     </div>
   );
 };

@@ -7,8 +7,6 @@ import {
   Menu, 
   Bell, 
   Search, 
-  Settings, 
-  HelpCircle,
   User,
   LogOut,
   CreditCard,
@@ -17,7 +15,7 @@ import {
   Building,
   Users,
   Mail,
-  LifeBuoy
+  Settings
 } from 'lucide-react';
 import { 
   DropdownMenu,
@@ -38,24 +36,22 @@ interface HeaderProps {
 const Header = ({ onToggleSidebar, activeTab, setActiveTab }: HeaderProps) => {
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 lg:h-16 items-center px-4 lg:px-6">
-        {/* Mobile menu button */}
-        <Button
-          variant="ghost"
-          size="sm"
-          className="md:hidden mr-2 p-2"
-          onClick={onToggleSidebar}
-        >
-          <Menu className="h-5 w-5" />
-        </Button>
-
-        {/* Logo - hidden on mobile when sidebar is open */}
-        <div className="flex items-center space-x-2 lg:space-x-4">
-          <h1 className="text-lg lg:text-xl font-bold hidden sm:block">MerchantPay</h1>
+      <div className="container flex h-14 lg:h-16 items-center px-4 lg:px-6 gap-4">
+        {/* Mobile menu button and Logo */}
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="md:hidden p-2"
+            onClick={onToggleSidebar}
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+          <h1 className="text-lg lg:text-xl font-bold">MerchantPay</h1>
         </div>
 
-        {/* Search - hidden on small screens */}
-        <div className="flex-1 max-w-md mx-4 hidden md:block">
+        {/* Search - now starts from left side */}
+        <div className="flex-1 max-w-md">
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
@@ -66,16 +62,11 @@ const Header = ({ onToggleSidebar, activeTab, setActiveTab }: HeaderProps) => {
         </div>
 
         {/* Right side actions */}
-        <div className="flex items-center space-x-1 lg:space-x-2 ml-auto">
-          {/* Mobile search button */}
-          <Button variant="ghost" size="sm" className="md:hidden p-2">
-            <Search className="h-4 w-4" />
-          </Button>
-
+        <div className="flex items-center space-x-2 ml-auto">
           {/* Theme toggle */}
           <ThemeToggle />
 
-          {/* Announcements/Notifications */}
+          {/* Notifications */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="relative p-2">
@@ -84,11 +75,11 @@ const Header = ({ onToggleSidebar, activeTab, setActiveTab }: HeaderProps) => {
                   variant="destructive" 
                   className="absolute -top-1 -right-1 h-5 w-5 text-xs p-0 flex items-center justify-center"
                 >
-                  5
+                  3
                 </Badge>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-80 bg-white dark:bg-gray-800">
+            <DropdownMenuContent align="end" className="w-80">
               <div className="p-4">
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="font-medium">Notifications</h4>
@@ -122,54 +113,25 @@ const Header = ({ onToggleSidebar, activeTab, setActiveTab }: HeaderProps) => {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Support Center */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="p-2 hidden sm:flex"
-              >
-                <HelpCircle className="h-4 w-4" />
-                <span className="hidden lg:inline ml-2">Support</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 bg-white dark:bg-gray-800">
-              <DropdownMenuItem onClick={() => setActiveTab('support')}>
-                <LifeBuoy className="mr-2 h-4 w-4" />
-                Support Center
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setActiveTab('support')}>
-                <MessageSquare className="mr-2 h-4 w-4" />
-                Live Chat
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setActiveTab('support')}>
-                <HelpCircle className="mr-2 h-4 w-4" />
-                Knowledge Base
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <Mail className="mr-2 h-4 w-4" />
-                Contact Us
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {/* Profile Menu */}
+          {/* User Profile with Photo */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src="/placeholder.svg" alt="Profile" />
-                  <AvatarFallback>JD</AvatarFallback>
+                  <AvatarImage src="/lovable-uploads/7327fb2d-a01f-4beb-919b-4f1fba715343.png" alt="Kaylynn Calzoni" />
+                  <AvatarFallback>KC</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56 bg-white dark:bg-gray-800" align="end">
+            <DropdownMenuContent className="w-56" align="end">
               <div className="flex items-center justify-start gap-2 p-2">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src="/lovable-uploads/7327fb2d-a01f-4beb-919b-4f1fba715343.png" alt="Kaylynn Calzoni" />
+                  <AvatarFallback>KC</AvatarFallback>
+                </Avatar>
                 <div className="flex flex-col space-y-1 leading-none">
-                  <p className="font-medium">John Doe</p>
-                  <p className="text-xs text-muted-foreground">john@example.com</p>
+                  <p className="font-medium">Kaylynn Calzoni</p>
+                  <p className="text-xs text-muted-foreground">Gold User</p>
                 </div>
               </div>
               <DropdownMenuSeparator />
@@ -197,7 +159,7 @@ const Header = ({ onToggleSidebar, activeTab, setActiveTab }: HeaderProps) => {
                 <CreditCard className="mr-2 h-4 w-4" />
                 Billing & Plans
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setActiveTab('profile')}>
+              <DropdownMenuItem onClick={() => setActiveTab('account-settings')}>
                 <Settings className="mr-2 h-4 w-4" />
                 Account Settings
               </DropdownMenuItem>
