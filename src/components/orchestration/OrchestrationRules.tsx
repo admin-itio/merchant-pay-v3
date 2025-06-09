@@ -150,6 +150,17 @@ const OrchestrationRules = () => {
                       <p className="text-gray-900">{rule.actions}</p>
                     </div>
                   </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-3">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600 mb-1">Rule ID</p>
+                      <p className="text-gray-900 font-mono text-sm">{rule.id}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-600 mb-1">Last Modified</p>
+                      <p className="text-gray-900">{rule.lastModified}</p>
+                    </div>
+                  </div>
                   
                   <p className="text-sm text-gray-600">{rule.description}</p>
                 </div>

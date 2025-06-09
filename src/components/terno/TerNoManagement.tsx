@@ -24,14 +24,20 @@ import {
   CreditCard,
   AlertCircle
 } from 'lucide-react';
+import TerNoForm from './TerNoForm';
+import { useToast } from '@/hooks/use-toast';
 
 const TerNoManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('list');
   const [selectedTerNo, setSelectedTerNo] = useState(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingTerNo, setEditingTerNo] = useState(null);
   const [customBusinessType, setCustomBusinessType] = useState('');
   const [showCustomBusinessType, setShowCustomBusinessType] = useState(false);
+
+  const { toast } = useToast();
 
   // Business classifications with search capability
   const businessClassifications = [
@@ -78,21 +84,27 @@ const TerNoManagement = () => {
     for (let i = 1; i <= 15; i++) {
       ternos.push({
         id: `TER${String(i).padStart(3, '0')}`,
+        ternoNumber: `TER${String(i).padStart(3, '0')}`,
         name: `Terminal ${i}`,
         description: `Payment terminal for business unit ${i}`,
         businessClassification: businessClassifications[Math.floor(Math.random() * businessClassifications.length)],
         mccCode: mccCodes[Math.floor(Math.random() * mccCodes.length)],
         primaryUrl: `https://business${i}.example.com`,
         status: ['active', 'inactive', 'pending'][Math.floor(Math.random() * 3)],
+        environment: 'sandbox',
+        businessType: businessClassifications[Math.floor(Math.random() * businessClassifications.length)],
+        country: 'US',
+        currency: 'USD',
         createdAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         transactionCount: Math.floor(Math.random() * 1000) + 100,
-        monthlyVolume: Math.floor(Math.random() * 100000) + 10000
+        monthlyVolume: Math.floor(Math.random() * 100000) + 10000,
+        apiKey: `ak_${Math.random().toString(36).substr(2, 20)}`
       });
     }
     return ternos;
   };
 
-  const ternos = generateDummyTerNos();
+  const [ternos, setTernos] = useState(generateDummyTerNos());
 
   const filteredTerNos = ternos.filter(terno => 
     terno.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -122,6 +134,32 @@ const TerNoManagement = () => {
     setActiveTab('details');
   };
 
+  const handleEditTerNo = (terno: any) => {
+    setEditingTerNo(terno);
+    setIsEditModalOpen(true);
+  };
+
+  const handleCreateTerNo = () => {
+    setEditingTerNo(null);
+    setIsCreateModalOpen(true);
+  };
+
+  const handleSaveTerNo = () => {
+    toast({
+      title: editingTerNo ? "TerNo Updated" : "TerNo Created",
+      description: editingTerNo ? "TerNo has been updated successfully." : "New TerNo has been created successfully.",
+    });
+    setIsCreateModalOpen(false);
+    setIsEditModalOpen(false);
+    setEditingTerNo(null);
+  };
+
+  const handleCancelTerNoForm = () => {
+    setIsCreateModalOpen(false);
+    setIsEditModalOpen(false);
+    setEditingTerNo(null);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -129,7 +167,7 @@ const TerNoManagement = () => {
           <h1 className="text-2xl font-bold text-gray-900">TerNo Management</h1>
           <p className="text-gray-600">Manage your payment terminals and configurations</p>
         </div>
-        <Button onClick={() => setIsCreateModalOpen(true)}>
+        <Button onClick={handleCreateTerNo}>
           <Plus className="h-4 w-4 mr-2" />
           Create TerNo
         </Button>
@@ -196,7 +234,11 @@ const TerNoManagement = () => {
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleEditTerNo(terno)}
+                        >
                           <Edit className="h-4 w-4" />
                         </Button>
                         <Button variant="outline" size="sm">
@@ -287,7 +329,7 @@ const TerNoManagement = () => {
 
               <div className="flex justify-end gap-2">
                 <Button variant="outline">Cancel</Button>
-                <Button>Create TerNo</Button>
+                <Button onClick={handleSaveTerNo}>Create TerNo</Button>
               </div>
             </CardContent>
           </Card>
@@ -362,6 +404,34 @@ const TerNoManagement = () => {
           )}
         </TabsContent>
       </Tabs>
+
+      {/* Create TerNo Modal */}
+      <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Create New TerNo</DialogTitle>
+          </DialogHeader>
+          <TerNoForm 
+            terno={null}
+            onSave={handleSaveTerNo}
+            onCancel={handleCancelTerNoForm}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit TerNo Modal */}
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit TerNo</DialogTitle>
+          </DialogHeader>
+          <TerNoForm 
+            terno={editingTerNo}
+            onSave={handleSaveTerNo}
+            onCancel={handleCancelTerNoForm}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
