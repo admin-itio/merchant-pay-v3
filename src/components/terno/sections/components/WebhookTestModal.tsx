@@ -58,6 +58,10 @@ const WebhookTestModal = ({ webhookUrl }: WebhookTestModalProps) => {
   };
 
   const handleSendWebhook = async () => {
+    console.log("handleSendWebhook called");
+    console.log("webhookUrl:", webhookUrl);
+    console.log("testData:", testData);
+
     if (!webhookUrl) {
       toast({
         title: "Error",
@@ -93,22 +97,31 @@ const WebhookTestModal = ({ webhookUrl }: WebhookTestModalProps) => {
     console.log("Webhook payload:", parsedData);
 
     try {
-      // For testing purposes, we'll simulate the webhook request
-      // In a real environment, this would go through your backend
-      const response = await fetch(webhookUrl, {
+      // Simulate webhook sending (in real app this would go through backend)
+      const response = await fetch('/api/webhook-test', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Webhook-Source': 'MerchantPay-Test',
-          'X-Webhook-Signature': 'sha256=test_signature_hash',
-          'User-Agent': 'MerchantPay-Webhook/1.0',
         },
-        mode: 'no-cors', // Add this to handle CORS issues
-        body: testData,
+        body: JSON.stringify({
+          url: webhookUrl,
+          data: parsedData
+        })
+      }).catch(() => {
+        // If backend endpoint doesn't exist, simulate the webhook call
+        console.log("Simulating webhook call to:", webhookUrl);
+        return fetch(webhookUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Webhook-Source': 'MerchantPay-Test',
+            'X-Webhook-Signature': 'sha256=test_signature_hash',
+            'User-Agent': 'MerchantPay-Webhook/1.0',
+          },
+          body: JSON.stringify(parsedData),
+        });
       });
 
-      // Since we're using no-cors, we can't read the response
-      // But the request will be sent
       setLastResponse({
         status: 'sent',
         timestamp: new Date().toISOString(),
@@ -143,14 +156,21 @@ const WebhookTestModal = ({ webhookUrl }: WebhookTestModalProps) => {
     }
   };
 
+  const isWebhookUrlValid = webhookUrl && (webhookUrl.startsWith('http://') || webhookUrl.startsWith('https://'));
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button 
           variant="outline" 
           size="sm"
-          disabled={!webhookUrl}
+          disabled={!isWebhookUrlValid}
           className="gap-2"
+          onClick={() => {
+            console.log("Test Webhook button clicked");
+            console.log("Webhook URL:", webhookUrl);
+            console.log("Is valid:", isWebhookUrlValid);
+          }}
         >
           <TestTube className="h-4 w-4" />
           Test Webhook
@@ -276,7 +296,7 @@ const WebhookTestModal = ({ webhookUrl }: WebhookTestModalProps) => {
             </Button>
             <Button 
               onClick={handleSendWebhook}
-              disabled={isSending || !testData.trim() || !webhookUrl}
+              disabled={isSending || !testData.trim() || !isWebhookUrlValid}
               className="gap-2"
             >
               {isSending ? (
