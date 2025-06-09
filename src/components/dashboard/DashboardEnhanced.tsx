@@ -1,19 +1,83 @@
 
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BarChart3, Activity, Globe, Brain, Zap, Users } from 'lucide-react';
+import { BarChart3, Activity, Globe, Brain, Zap, Users, Settings } from 'lucide-react';
 import DashboardOverview from './DashboardOverview';
 import DashboardAnalytics from './DashboardAnalytics';
 import WorldMapAnalytics from '../analytics/WorldMapAnalytics';
 import PredictiveAnalytics from '../analytics/PredictiveAnalytics';
 import RealTimeDashboard from '../analytics/RealTimeDashboard';
 import CustomerInsights from '../analytics/CustomerInsights';
+import DashboardCustomizer from './DashboardCustomizer';
 
 const DashboardEnhanced = () => {
   const [activeTab, setActiveTab] = useState('overview');
+  
+  // Default dashboard widgets configuration
+  const [dashboardWidgets, setDashboardWidgets] = useState([
+    { 
+      id: 'revenue', 
+      title: 'Revenue Overview', 
+      type: 'chart', 
+      visible: true, 
+      size: 'large' as const,
+      icon: BarChart3,
+      component: DashboardOverview
+    },
+    { 
+      id: 'analytics', 
+      title: 'Analytics Summary', 
+      type: 'metrics', 
+      visible: true, 
+      size: 'medium' as const,
+      icon: Activity,
+      component: DashboardAnalytics
+    },
+    { 
+      id: 'world-map', 
+      title: 'Global Transactions', 
+      type: 'map', 
+      visible: true, 
+      size: 'large' as const,
+      icon: Globe,
+      component: WorldMapAnalytics
+    },
+    { 
+      id: 'real-time', 
+      title: 'Real-time Activity', 
+      type: 'live', 
+      visible: true, 
+      size: 'medium' as const,
+      icon: Zap,
+      component: RealTimeDashboard
+    },
+    { 
+      id: 'customers', 
+      title: 'Customer Insights', 
+      type: 'insights', 
+      visible: false, 
+      size: 'medium' as const,
+      icon: Users,
+      component: CustomerInsights
+    },
+    { 
+      id: 'predictive', 
+      title: 'AI Predictions', 
+      type: 'ai', 
+      visible: false, 
+      size: 'large' as const,
+      icon: Brain,
+      component: PredictiveAnalytics
+    }
+  ]);
 
   const tabs = [
-    { id: 'overview', label: 'Overview', icon: BarChart3, component: DashboardOverview },
+    { id: 'overview', label: 'Overview', icon: BarChart3, component: () => (
+      <DashboardCustomizer 
+        widgets={dashboardWidgets}
+        onWidgetsChange={setDashboardWidgets}
+      />
+    )},
     { id: 'analytics', label: 'Analytics', icon: Activity, component: DashboardAnalytics },
     { id: 'world-map', label: 'Global View', icon: Globe, component: WorldMapAnalytics },
     { id: 'predictive', label: 'AI Insights', icon: Brain, component: PredictiveAnalytics },

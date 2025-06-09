@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,7 +17,9 @@ import {
   CreditCard,
   Globe,
   Shield,
-  Settings
+  Settings,
+  Timeline,
+  Upload
 } from 'lucide-react';
 import TransactionTable from './TransactionTable';
 import TransactionDetailsModal from './TransactionDetailsModal';
@@ -27,13 +28,19 @@ import TransactionSettings from './TransactionSettings';
 import TransactionPagination from './TransactionPagination';
 import ExportModal from '@/components/common/ExportModal';
 import DateRangeFilter from '@/components/common/DateRangeFilter';
+import SavedFilters from '@/components/common/SavedFilters';
+import BulkTransactionOperations from './BulkTransactionOperations';
+import TransactionTimeline from './TransactionTimeline';
+import SmartTransactionSearch from './SmartTransactionSearch';
 
 const TransactionsList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [selectedTab, setSelectedTab] = useState('all');
   const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [selectedTransactionIds, setSelectedTransactionIds] = useState<string[]>([]);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [showTimelineModal, setShowTimelineModal] = useState(false);
   const [activeFilters, setActiveFilters] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
@@ -113,11 +120,19 @@ const TransactionsList = () => {
     setIsDetailsModalOpen(true);
   };
 
+  const handleViewTimeline = (transaction: any) => {
+    setSelectedTransaction(transaction);
+    setShowTimelineModal(true);
+  };
+
   const handleBulkAction = (action: string, selectedIds: string[]) => {
-    if (action === 'export') {
-      console.log(`Exporting transactions:`, selectedIds);
-      // Handle export functionality
-    }
+    console.log(`Bulk action ${action} on transactions:`, selectedIds);
+    setSelectedTransactionIds(selectedIds);
+  };
+
+  const handleSmartSearch = (query: string, filters: any[]) => {
+    console.log('Smart search:', { query, filters });
+    // Implementation for smart search
   };
 
   const handleFiltersChange = (filters: any) => {
@@ -179,6 +194,14 @@ const TransactionsList = () => {
           <p className="text-sm lg:text-base text-gray-600">Monitor, analyze, and manage all your transactions</p>
         </div>
         <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowTimelineModal(true)}
+          >
+            <Timeline className="h-4 w-4 mr-2" />
+            Timeline View
+          </Button>
           <ExportModal
             title="Export Transaction Data"
             description="Export your transaction data with custom date ranges and formats for analysis or reporting."
@@ -247,6 +270,24 @@ const TransactionsList = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Smart Search */}
+      <SmartTransactionSearch 
+        onSearch={handleSmartSearch}
+        placeholder="Search transactions with smart filters..."
+      />
+
+      {/* Saved Filters */}
+      <SavedFilters 
+        currentFilters={activeFilters}
+        onFilterApply={setActiveFilters}
+      />
+
+      {/* Bulk Operations */}
+      <BulkTransactionOperations 
+        selectedTransactions={selectedTransactionIds}
+        onBulkAction={handleBulkAction}
+      />
 
       {/* Filters and Search */}
       <Card>
@@ -324,6 +365,29 @@ const TransactionsList = () => {
         isOpen={isDetailsModalOpen}
         onClose={() => setIsDetailsModalOpen(false)}
       />
+
+      {/* Transaction Timeline Modal */}
+      {showTimelineModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-4 border-b flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Transaction Timeline</h2>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setShowTimelineModal(false)}
+              >
+                ×
+              </Button>
+            </div>
+            <div className="p-4">
+              <TransactionTimeline 
+                transactionId={selectedTransaction?.id || 'TXN001'}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
