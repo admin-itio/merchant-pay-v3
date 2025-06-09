@@ -8,16 +8,13 @@ import {
   Bell, 
   Search, 
   Settings, 
-  HelpCircle,
   User,
   LogOut,
   CreditCard,
   Shield,
-  MessageSquare,
   Building,
   Users,
-  Mail,
-  LifeBuoy
+  Mail
 } from 'lucide-react';
 import { 
   DropdownMenu,
@@ -119,39 +116,6 @@ const Header = ({ onToggleSidebar, activeTab, setActiveTab }: HeaderProps) => {
                   </div>
                 </div>
               </div>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {/* Support Center */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="p-2 hidden sm:flex"
-              >
-                <HelpCircle className="h-4 w-4" />
-                <span className="hidden lg:inline ml-2">Support</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 bg-white dark:bg-gray-800">
-              <DropdownMenuItem onClick={() => setActiveTab('support')}>
-                <LifeBuoy className="mr-2 h-4 w-4" />
-                Support Center
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setActiveTab('support')}>
-                <MessageSquare className="mr-2 h-4 w-4" />
-                Live Chat
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setActiveTab('support')}>
-                <HelpCircle className="mr-2 h-4 w-4" />
-                Knowledge Base
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <Mail className="mr-2 h-4 w-4" />
-                Contact Us
-              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 

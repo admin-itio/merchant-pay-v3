@@ -31,17 +31,20 @@ const TwoFactorAuth = () => {
     
     setIsLoading(true);
     try {
-      // Simulate 2FA verification
       console.log('2FA code:', value);
       
-      // Mock successful verification
-      toast.success("Two-factor authentication successful");
-      setTimeout(() => {
-        navigate('/');
-      }, 1000);
+      // Check if the code is 123456
+      if (value === '123456') {
+        toast.success("Two-factor authentication successful");
+        setTimeout(() => {
+          navigate('/');
+        }, 1000);
+      } else {
+        toast.error("Invalid verification code. Please use 123456 for testing.");
+        setIsLoading(false);
+      }
     } catch (error) {
       toast.error("Invalid verification code. Please try again.");
-    } finally {
       setIsLoading(false);
     }
   };
@@ -49,7 +52,6 @@ const TwoFactorAuth = () => {
   const handleRecovery = () => {
     toast.info("Recovery instructions have been sent to your email");
     setShowRecoveryDialog(false);
-    // In a real application, you would send recovery instructions to the user's email
   };
 
   return (
@@ -63,7 +65,7 @@ const TwoFactorAuth = () => {
           </div>
           <CardTitle className="text-2xl">Two-Factor Authentication</CardTitle>
           <CardDescription>
-            Enter the 6-digit code from your authentication app
+            Enter the 6-digit code from your authentication app (use 123456 for testing)
           </CardDescription>
         </CardHeader>
         <CardContent className="mt-4">
