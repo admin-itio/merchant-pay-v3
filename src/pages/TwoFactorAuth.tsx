@@ -28,13 +28,20 @@ const TwoFactorAuth = () => {
       toast.error("Please enter a valid 6-digit code");
       return;
     }
+
+    // Accept 123456 as valid code
+    if (value !== '123456') {
+      toast.error("Invalid verification code. Please try again.");
+      return;
+    }
     
     setIsLoading(true);
     try {
-      // Simulate 2FA verification
       console.log('2FA code:', value);
       
-      // Mock successful verification
+      // Set last login timestamp
+      localStorage.setItem('lastLoginTime', new Date().toISOString());
+      
       toast.success("Two-factor authentication successful");
       setTimeout(() => {
         navigate('/');
@@ -49,7 +56,6 @@ const TwoFactorAuth = () => {
   const handleRecovery = () => {
     toast.info("Recovery instructions have been sent to your email");
     setShowRecoveryDialog(false);
-    // In a real application, you would send recovery instructions to the user's email
   };
 
   return (
@@ -63,13 +69,13 @@ const TwoFactorAuth = () => {
           </div>
           <CardTitle className="text-2xl">Two-Factor Authentication</CardTitle>
           <CardDescription>
-            Enter the 6-digit code from your authentication app
+            Enter the 6-digit code (use 123456 for demo)
           </CardDescription>
         </CardHeader>
         <CardContent className="mt-4">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="flex justify-center">
-              <InputOTP maxLength={6} value={value} onChange={setValue} pattern="[0-9]">
+              <InputOTP maxLength={6} value={value} onChange={setValue}>
                 <InputOTPGroup>
                   <InputOTPSlot index={0} />
                   <InputOTPSlot index={1} />
@@ -104,7 +110,6 @@ const TwoFactorAuth = () => {
         </CardFooter>
       </Card>
 
-      {/* Recovery Dialog */}
       <Dialog open={showRecoveryDialog} onOpenChange={setShowRecoveryDialog}>
         <DialogContent>
           <DialogHeader>

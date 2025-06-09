@@ -9,6 +9,10 @@ import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import VerifySignupOTP from "./pages/VerifySignupOTP";
+import SetupPassword from "./pages/SetupPassword";
+import Onboarding from "./pages/Onboarding";
 import TwoFactorAuth from "./pages/TwoFactorAuth";
 import VerifyOTP from "./pages/VerifyOTP";
 import Logout from "./pages/Logout";
@@ -35,6 +39,10 @@ const App = () => {
             <Routes>
               {/* Authentication Routes */}
               <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/verify-signup-otp" element={<VerifySignupOTP />} />
+              <Route path="/setup-password" element={<SetupPassword />} />
+              <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/2fa" element={<TwoFactorAuth />} />
               <Route path="/verify-otp" element={<VerifyOTP />} />
               <Route path="/logout" element={<Logout />} />
