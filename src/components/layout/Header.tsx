@@ -26,6 +26,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
+import DisplaySettings from '@/components/layout/DisplaySettings';
 
 interface HeaderProps {
   onToggleSidebar: () => void;
@@ -65,6 +66,9 @@ const Header = ({ onToggleSidebar, activeTab, setActiveTab }: HeaderProps) => {
         <div className="flex items-center space-x-2 ml-auto">
           {/* Theme toggle */}
           <ThemeToggle />
+
+          {/* Language/Display Settings */}
+          <DisplaySettings />
 
           {/* Notifications */}
           <DropdownMenu>
@@ -159,7 +163,7 @@ const Header = ({ onToggleSidebar, activeTab, setActiveTab }: HeaderProps) => {
                 <CreditCard className="mr-2 h-4 w-4" />
                 Billing & Plans
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setActiveTab('account-settings')}>
+              <DropdownMenuItem onClick={() => setActiveTab('profile')}>
                 <Settings className="mr-2 h-4 w-4" />
                 Account Settings
               </DropdownMenuItem>

@@ -17,7 +17,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { LockKeyhole, Mail } from 'lucide-react';
+import { LockKeyhole, Mail, Eye, EyeOff } from 'lucide-react';
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -31,6 +31,7 @@ const otpSchema = z.object({
 const Login = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   
   const loginForm = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -137,7 +138,27 @@ const Login = () => {
                           </a>
                         </div>
                         <FormControl>
-                          <Input type="password" placeholder="••••••••" {...field} />
+                          <div className="relative">
+                            <Input 
+                              type={showPassword ? "text" : "password"} 
+                              placeholder="••••••••" 
+                              className="pr-10"
+                              {...field} 
+                            />
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                              onClick={() => setShowPassword(!showPassword)}
+                            >
+                              {showPassword ? (
+                                <EyeOff className="h-4 w-4 text-gray-400" />
+                              ) : (
+                                <Eye className="h-4 w-4 text-gray-400" />
+                              )}
+                            </Button>
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -198,8 +219,8 @@ const Login = () => {
         <CardFooter className="flex flex-col space-y-4">
           <div className="text-sm text-center text-gray-500 dark:text-gray-400">
             Don't have an account?{" "}
-            <a href="/register" className="text-blue-600 hover:text-blue-800 dark:text-blue-400">
-              Contact sales
+            <a href="/signup" className="text-blue-600 hover:text-blue-800 dark:text-blue-400">
+              Sign up here
             </a>
           </div>
         </CardFooter>

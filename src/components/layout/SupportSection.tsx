@@ -16,7 +16,7 @@ const SupportSection = () => {
   };
 
   return (
-    <Card className="fixed bottom-4 left-4 w-64 bg-background border shadow-lg z-10">
+    <Card className="fixed bottom-4 left-4 w-64 bg-background border shadow-lg z-10 hidden lg:block">
       <CardContent className="p-4">
         <div className="flex items-start space-x-3">
           <div className="rounded-full bg-primary/10 p-2 flex-shrink-0">

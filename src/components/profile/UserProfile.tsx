@@ -7,7 +7,8 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { User, Mail, Lock, Shield, Globe, Clock, Smartphone, Key, MessageSquare, Phone } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { User, Mail, Lock, Shield, Globe, Clock, Smartphone, Key, MessageSquare, Phone, Upload, Camera } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const UserProfile = () => {
@@ -17,6 +18,7 @@ const UserProfile = () => {
   const [phone, setPhone] = useState('+1-555-0123');
   const [whatsapp, setWhatsapp] = useState('');
   const [telegram, setTelegram] = useState('');
+  const [profileImage, setProfileImage] = useState('/lovable-uploads/7327fb2d-a01f-4beb-919b-4f1fba715343.png');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -50,6 +52,19 @@ const UserProfile = () => {
     { value: 'ko', label: '한국어' },
     { value: 'ar', label: 'العربية' },
   ];
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // In a real app, you would upload to a server
+      const imageUrl = URL.createObjectURL(file);
+      setProfileImage(imageUrl);
+      toast({
+        title: "Profile Image Updated",
+        description: "Your profile picture has been updated successfully",
+      });
+    }
+  };
 
   const handlePersonalInfoUpdate = () => {
     if (!firstName || !lastName) {
@@ -134,6 +149,38 @@ const UserProfile = () => {
 
   return (
     <div className="space-y-6">
+      {/* Profile Image Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Camera className="h-5 w-5" />
+            Profile Picture
+          </CardTitle>
+          <CardDescription>Upload and manage your profile picture</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center gap-6">
+            <Avatar className="h-24 w-24">
+              <AvatarImage src={profileImage} alt="Profile" />
+              <AvatarFallback className="text-2xl">{firstName.charAt(0)}{lastName.charAt(0)}</AvatarFallback>
+            </Avatar>
+            <div className="space-y-2">
+              <Label htmlFor="profileImage">Upload New Picture</Label>
+              <Input
+                id="profileImage"
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="cursor-pointer"
+              />
+              <p className="text-sm text-gray-500">
+                Recommended: Square image, at least 400x400px
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Personal Information */}
       <Card>
         <CardHeader>
