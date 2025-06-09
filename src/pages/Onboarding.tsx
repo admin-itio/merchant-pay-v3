@@ -102,18 +102,21 @@ const Onboarding = () => {
 
   const handleDocumentUpload = (docType: string, customName?: string) => {
     const docName = docType === 'Other' ? customName || 'Custom Document' : docType;
+    
+    // Fix the status assignment to ensure proper TypeScript typing
+    const randomValue = Math.random();
+    const status: 'pending' | 'approved' | 'rejected' = 
+      randomValue > 0.7 ? 'approved' : 
+      randomValue > 0.5 ? 'pending' : 'rejected';
+    
     const newDoc = {
       id: Date.now().toString(),
       name: docName,
       type: docType,
-      status: Math.random() > 0.7 ? 'approved' : Math.random() > 0.5 ? 'pending' : 'rejected' as const,
-      rejectionReason: Math.random() > 0.5 ? undefined : 'Document quality is poor. Please upload a clearer image.',
+      status,
+      rejectionReason: status === 'rejected' ? 'Document quality is poor. Please upload a clearer image.' : undefined,
       uploadedAt: new Date(),
     };
-    
-    if (newDoc.status === 'rejected') {
-      newDoc.rejectionReason = 'Document quality is poor. Please upload a clearer image.';
-    }
     
     setDocuments(prev => [...prev, newDoc]);
     toast.success(`${docName} uploaded successfully`);
