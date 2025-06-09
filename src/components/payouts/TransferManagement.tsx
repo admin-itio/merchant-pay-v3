@@ -1,7 +1,9 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { 
   Plus, 
   Upload, 
@@ -9,7 +11,11 @@ import {
   Filter,
   Calendar,
   DollarSign,
-  AlertCircle
+  AlertCircle,
+  Search,
+  Settings,
+  Eye,
+  RefreshCw
 } from 'lucide-react';
 import {
   Table,
@@ -19,10 +25,27 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { 
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+import TransferTransactionModal from './TransferTransactionModal';
 
 interface Transfer {
   id: string;
   beneficiaryName: string;
+  beneficiaryId: string;
   amount: number;
   currency: string;
   type: 'PAYIN' | 'PAYOUT' | 'Invoice';
@@ -31,66 +54,118 @@ interface Transfer {
   fee: number;
   createdAt: string;
   completedAt?: string;
+  description?: string;
+  reference?: string;
+  processingTime?: string;
+  accountDetails?: {
+    accountNumber: string;
+    bankName?: string;
+    country: string;
+  };
 }
 
 const TransferManagement = () => {
-  const [transfers] = useState<Transfer[]>([
-    {
-      id: 'TXN001',
-      beneficiaryName: 'ABC Corp Ltd',
-      amount: 15000,
-      currency: 'USD',
-      type: 'PAYOUT',
-      status: 'completed',
-      method: 'Web',
-      fee: 25,
-      createdAt: '2025-06-07T10:30:00Z',
-      completedAt: '2025-06-07T10:35:00Z'
-    },
-    {
-      id: 'TXN002',
-      beneficiaryName: 'Crypto Payments',
-      amount: 5000,
-      currency: 'USDT',
-      type: 'PAYOUT',
-      status: 'processing',
-      method: 'API',
-      fee: 15,
-      createdAt: '2025-06-07T09:15:00Z'
-    },
-    {
-      id: 'TXN003',
-      beneficiaryName: 'Supplier XYZ',
-      amount: 8500,
-      currency: 'EUR',
-      type: 'Invoice',
-      status: 'pending',
-      method: 'Upload',
-      fee: 30,
-      createdAt: '2025-06-07T08:45:00Z'
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [selectedTransfer, setSelectedTransfer] = useState<Transfer | null>(null);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+
+  // Generate 50 dummy transfers for pagination
+  const generateTransfers = (): Transfer[] => {
+    const beneficiaries = [
+      { name: 'ABC Corp Ltd', id: 'BEN001' },
+      { name: 'Crypto Payments', id: 'BEN002' },
+      { name: 'Supplier XYZ', id: 'BEN003' },
+      { name: 'Tech Solutions Inc', id: 'BEN004' },
+      { name: 'Global Trading Co', id: 'BEN005' }
+    ];
+    
+    const currencies = ['USD', 'EUR', 'GBP', 'USDT', 'BTC'];
+    const statuses: Array<'pending' | 'processing' | 'completed' | 'failed'> = ['pending', 'processing', 'completed', 'failed'];
+    const types: Array<'PAYIN' | 'PAYOUT' | 'Invoice'> = ['PAYIN', 'PAYOUT', 'Invoice'];
+    const methods: Array<'Web' | 'API' | 'Upload'> = ['Web', 'API', 'Upload'];
+
+    const transfers: Transfer[] = [];
+    
+    for (let i = 1; i <= 50; i++) {
+      const beneficiary = beneficiaries[Math.floor(Math.random() * beneficiaries.length)];
+      const currency = currencies[Math.floor(Math.random() * currencies.length)];
+      const status = statuses[Math.floor(Math.random() * statuses.length)];
+      const type = types[Math.floor(Math.random() * types.length)];
+      const method = methods[Math.floor(Math.random() * methods.length)];
+      
+      const randomDate = new Date();
+      randomDate.setDate(randomDate.getDate() - Math.floor(Math.random() * 30));
+      
+      transfers.push({
+        id: `TXN${String(i).padStart(3, '0')}`,
+        beneficiaryName: beneficiary.name,
+        beneficiaryId: beneficiary.id,
+        amount: Math.floor(Math.random() * 50000) + 1000,
+        currency,
+        type,
+        status,
+        method,
+        fee: Math.floor(Math.random() * 100) + 5,
+        createdAt: randomDate.toISOString(),
+        completedAt: status === 'completed' ? new Date(randomDate.getTime() + 3600000).toISOString() : undefined,
+        description: `${type} payment to ${beneficiary.name}`,
+        reference: `REF-${i}-${Date.now()}`,
+        processingTime: status === 'completed' ? '1 hour' : undefined,
+        accountDetails: {
+          accountNumber: `****${String(Math.floor(Math.random() * 9999)).padStart(4, '0')}`,
+          bankName: currency === 'USD' ? 'Chase Bank' : currency === 'EUR' ? 'Deutsche Bank' : undefined,
+          country: currency === 'USD' ? 'United States' : currency === 'EUR' ? 'Germany' : 'Singapore'
+        }
+      });
     }
-  ]);
+    
+    return transfers.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  };
+
+  const allTransfers = generateTransfers();
+
+  // Filter transfers
+  const filteredTransfers = allTransfers.filter(transfer => {
+    const matchesSearch = transfer.beneficiaryName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         transfer.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         transfer.beneficiaryId.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || transfer.status === statusFilter;
+    const matchesType = typeFilter === 'all' || transfer.type === typeFilter;
+    return matchesSearch && matchesStatus && matchesType;
+  });
+
+  // Pagination
+  const totalTransfers = filteredTransfers.length;
+  const totalPages = Math.ceil(totalTransfers / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedTransfers = filteredTransfers.slice(startIndex, endIndex);
+
+  const handleViewDetails = (transfer: Transfer) => {
+    setSelectedTransfer(transfer);
+    setIsDetailsModalOpen(true);
+  };
 
   const formatAmount = (amount: number, currency: string) => {
-    // List of known cryptocurrencies and other non-ISO currencies
     const cryptoCurrencies = ['USDT', 'BTC', 'ETH', 'USDC', 'BNB', 'ADA', 'DOT', 'MATIC'];
     
     if (cryptoCurrencies.includes(currency.toUpperCase())) {
-      // For cryptocurrencies, use a simple format with the currency symbol
       return `${amount.toLocaleString('en-US', { 
         minimumFractionDigits: 2, 
         maximumFractionDigits: 2 
       })} ${currency}`;
     }
     
-    // For standard ISO currencies, use the Intl.NumberFormat
     try {
       return new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: currency
       }).format(amount);
     } catch (error) {
-      // Fallback for any unrecognized currency codes
       return `${amount.toLocaleString('en-US', { 
         minimumFractionDigits: 2, 
         maximumFractionDigits: 2 
@@ -132,8 +207,8 @@ Supplier XYZ,8500,EUR,Invoice,Invoice payment`;
     window.URL.revokeObjectURL(url);
   };
 
-  const totalAmount = transfers.reduce((sum, transfer) => sum + transfer.amount, 0);
-  const totalFees = transfers.reduce((sum, transfer) => sum + transfer.fee, 0);
+  const totalAmount = paginatedTransfers.reduce((sum, transfer) => sum + transfer.amount, 0);
+  const totalFees = paginatedTransfers.reduce((sum, transfer) => sum + transfer.fee, 0);
 
   return (
     <div className="space-y-6">
@@ -155,6 +230,10 @@ Supplier XYZ,8500,EUR,Invoice,Invoice payment`;
           <Button variant="outline">
             <Upload className="h-4 w-4 mr-2" />
             Upload Excel
+          </Button>
+          <Button variant="outline">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh
           </Button>
           <Button>
             <Plus className="h-4 w-4 mr-2" />
@@ -186,7 +265,7 @@ Supplier XYZ,8500,EUR,Invoice,Invoice payment`;
         <Card>
           <CardContent className="p-4">
             <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-              {transfers.length}
+              {totalTransfers}
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-400">Total Transfers</div>
           </CardContent>
@@ -194,7 +273,7 @@ Supplier XYZ,8500,EUR,Invoice,Invoice payment`;
         <Card>
           <CardContent className="p-4">
             <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-              {transfers.filter(t => t.status === 'completed').length}
+              {filteredTransfers.filter(t => t.status === 'completed').length}
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-400">Completed</div>
           </CardContent>
@@ -204,7 +283,7 @@ Supplier XYZ,8500,EUR,Invoice,Invoice payment`;
             <div className="text-lg font-bold text-purple-600 dark:text-purple-400">
               ${totalAmount.toLocaleString()}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Total Amount</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Page Total</div>
           </CardContent>
         </Card>
         <Card>
@@ -212,20 +291,88 @@ Supplier XYZ,8500,EUR,Invoice,Invoice payment`;
             <div className="text-lg font-bold text-orange-600 dark:text-orange-400">
               ${totalFees.toLocaleString()}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Total Fees</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Page Fees</div>
           </CardContent>
         </Card>
       </div>
+
+      {/* Search and Filters */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  placeholder="Search by transaction ID, beneficiary name, or Ben ID..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-32">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="processing">Processing</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
+                  <SelectItem value="failed">Failed</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              <Select value={typeFilter} onValueChange={setTypeFilter}>
+                <SelectTrigger className="w-32">
+                  <SelectValue placeholder="Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="PAYOUT">Payout</SelectItem>
+                  <SelectItem value="PAYIN">Payin</SelectItem>
+                  <SelectItem value="Invoice">Invoice</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Button variant="outline" size="sm">
+                <Filter className="h-4 w-4 mr-2" />
+                More Filters
+              </Button>
+              <Button variant="outline" size="sm">
+                <Settings className="h-4 w-4 mr-2" />
+                Settings
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Transfers Table */}
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle>Transfer History</CardTitle>
-            <Button variant="outline" size="sm">
-              <Filter className="h-4 w-4 mr-2" />
-              Filter
-            </Button>
+            <CardTitle>
+              Transfer History ({filteredTransfers.length} total, showing {paginatedTransfers.length})
+            </CardTitle>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">Show:</span>
+              <Select value={pageSize.toString()} onValueChange={(value) => {
+                setPageSize(parseInt(value));
+                setCurrentPage(1);
+              }}>
+                <SelectTrigger className="w-20">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="20">20</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -240,13 +387,27 @@ Supplier XYZ,8500,EUR,Invoice,Invoice payment`;
                 <TableHead>Fee</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Date</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {transfers.map((transfer) => (
-                <TableRow key={transfer.id}>
-                  <TableCell className="font-mono">{transfer.id}</TableCell>
-                  <TableCell className="font-medium">{transfer.beneficiaryName}</TableCell>
+              {paginatedTransfers.map((transfer) => (
+                <TableRow key={transfer.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                  <TableCell>
+                    <Button 
+                      variant="link" 
+                      className="font-mono p-0 h-auto"
+                      onClick={() => handleViewDetails(transfer)}
+                    >
+                      {transfer.id}
+                    </Button>
+                  </TableCell>
+                  <TableCell>
+                    <div>
+                      <div className="font-medium">{transfer.beneficiaryName}</div>
+                      <div className="text-sm text-gray-500">{transfer.beneficiaryId}</div>
+                    </div>
+                  </TableCell>
                   <TableCell>
                     <div className="font-semibold">
                       {formatAmount(transfer.amount, transfer.currency)}
@@ -278,12 +439,77 @@ Supplier XYZ,8500,EUR,Invoice,Invoice payment`;
                       </div>
                     </div>
                   </TableCell>
+                  <TableCell>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => handleViewDetails(transfer)}
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-4 flex justify-center">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious 
+                      href="#" 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (currentPage > 1) setCurrentPage(currentPage - 1);
+                      }}
+                      className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
+                    />
+                  </PaginationItem>
+                  
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    const page = i + 1;
+                    return (
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          href="#"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setCurrentPage(page);
+                          }}
+                          isActive={currentPage === page}
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    );
+                  })}
+                  
+                  <PaginationItem>
+                    <PaginationNext 
+                      href="#" 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+                      }}
+                      className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          )}
         </CardContent>
       </Card>
+
+      {/* Transfer Details Modal */}
+      <TransferTransactionModal 
+        transfer={selectedTransfer}
+        isOpen={isDetailsModalOpen}
+        onClose={() => setIsDetailsModalOpen(false)}
+      />
     </div>
   );
 };

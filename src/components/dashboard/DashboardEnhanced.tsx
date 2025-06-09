@@ -10,17 +10,27 @@ import RealTimeDashboard from '../analytics/RealTimeDashboard';
 import CustomerInsights from '../analytics/CustomerInsights';
 import DashboardCustomizer from './DashboardCustomizer';
 
+interface DashboardWidget {
+  id: string;
+  title: string;
+  type: string;
+  visible: boolean;
+  size: 'small' | 'medium' | 'large';
+  icon: React.ComponentType<any>;
+  component: React.ComponentType<any>;
+}
+
 const DashboardEnhanced = () => {
   const [activeTab, setActiveTab] = useState('overview');
   
   // Default dashboard widgets configuration
-  const [dashboardWidgets, setDashboardWidgets] = useState([
+  const [dashboardWidgets, setDashboardWidgets] = useState<DashboardWidget[]>([
     { 
       id: 'revenue', 
       title: 'Revenue Overview', 
       type: 'chart', 
       visible: true, 
-      size: 'large' as const,
+      size: 'large',
       icon: BarChart3,
       component: DashboardOverview
     },
@@ -29,7 +39,7 @@ const DashboardEnhanced = () => {
       title: 'Analytics Summary', 
       type: 'metrics', 
       visible: true, 
-      size: 'medium' as const,
+      size: 'medium',
       icon: Activity,
       component: DashboardAnalytics
     },
@@ -38,7 +48,7 @@ const DashboardEnhanced = () => {
       title: 'Global Transactions', 
       type: 'map', 
       visible: true, 
-      size: 'large' as const,
+      size: 'large',
       icon: Globe,
       component: WorldMapAnalytics
     },
@@ -47,7 +57,7 @@ const DashboardEnhanced = () => {
       title: 'Real-time Activity', 
       type: 'live', 
       visible: true, 
-      size: 'medium' as const,
+      size: 'medium',
       icon: Zap,
       component: RealTimeDashboard
     },
@@ -56,7 +66,7 @@ const DashboardEnhanced = () => {
       title: 'Customer Insights', 
       type: 'insights', 
       visible: false, 
-      size: 'medium' as const,
+      size: 'medium',
       icon: Users,
       component: CustomerInsights
     },
@@ -65,7 +75,7 @@ const DashboardEnhanced = () => {
       title: 'AI Predictions', 
       type: 'ai', 
       visible: false, 
-      size: 'large' as const,
+      size: 'large',
       icon: Brain,
       component: PredictiveAnalytics
     }
