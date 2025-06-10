@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -6,7 +5,7 @@ import { Switch } from '@/components/ui/switch';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
 import { Settings, Eye, EyeOff, GripVertical } from 'lucide-react';
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 
 interface Column {
   key: string;
@@ -23,8 +22,6 @@ interface TransactionSettingsProps {
 const TransactionSettings = ({ columns, onColumnsChange }: TransactionSettingsProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [localColumns, setLocalColumns] = useState(columns);
-  console.log("Visible columns:", localColumns.map(c => `${c.key}:${c.order}`));
-
 
   const handleVisibilityChange = (columnKey: string, visible: boolean) => {
     const updated = localColumns.map(col =>
@@ -32,20 +29,16 @@ const TransactionSettings = ({ columns, onColumnsChange }: TransactionSettingsPr
     );
     setLocalColumns(updated);
   };
+
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
 
-    // Get current visible and ordered columns
     const visibleCols = localColumns.filter(col => col.visible).sort((a, b) => a.order - b.order);
-
-    // Move item in the visible list
     const [movedItem] = visibleCols.splice(result.source.index, 1);
     visibleCols.splice(result.destination.index, 0, movedItem);
 
-    // Recalculate order
     const reorderedVisible = visibleCols.map((col, idx) => ({ ...col, order: idx }));
 
-    // Merge reordered visible with hidden ones (preserve their original order)
     const updated = localColumns.map(col => {
       const reordered = reorderedVisible.find(v => v.key === col.key);
       return reordered ? reordered : col;
@@ -53,7 +46,6 @@ const TransactionSettings = ({ columns, onColumnsChange }: TransactionSettingsPr
 
     setLocalColumns(updated);
   };
-
 
   const applySettings = () => {
     onColumnsChange(localColumns);
@@ -63,7 +55,7 @@ const TransactionSettings = ({ columns, onColumnsChange }: TransactionSettingsPr
   const resetToDefault = () => {
     const defaultColumns = columns.map((col, index) => ({
       ...col,
-      visible: index < 9, // Show first 9 columns by default
+      visible: index < 9,
       order: index
     }));
     setLocalColumns(defaultColumns);
@@ -101,18 +93,14 @@ const TransactionSettings = ({ columns, onColumnsChange }: TransactionSettingsPr
                     .filter(col => col.visible)
                     .sort((a, b) => a.order - b.order)
                     .map((column, index) => (
-                      <Draggable
-                        key={column.key}
-                        draggableId={column.key}
-                        index={index}
-                      >
-
+                      <Draggable key={column.key} draggableId={column.key} index={index}>
                         {(provided, snapshot) => (
                           <div
                             ref={provided.innerRef}
                             {...provided.draggableProps}
-                            className={`flex items-center justify-between p-2 border rounded ${snapshot.isDragging ? 'bg-muted' : 'bg-background'
-                              }`}
+                            className={`flex items-center justify-between p-2 border rounded ${
+                              snapshot.isDragging ? 'bg-muted' : 'bg-background'
+                            }`}
                           >
                             <div className="flex items-center gap-2 flex-1">
                               <div {...provided.dragHandleProps}>
@@ -128,7 +116,9 @@ const TransactionSettings = ({ columns, onColumnsChange }: TransactionSettingsPr
                               )}
                               <Switch
                                 checked={column.visible}
-                                onCheckedChange={(checked) => handleVisibilityChange(column.key, checked)}
+                                onCheckedChange={(checked) =>
+                                  handleVisibilityChange(column.key, checked)
+                                }
                               />
                             </div>
                           </div>

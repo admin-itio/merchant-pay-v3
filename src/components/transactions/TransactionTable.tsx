@@ -50,15 +50,10 @@ interface TransactionTableProps {
   transactions: Transaction[];
   onViewDetails: (transaction: Transaction) => void;
   onBulkAction: (action: string, selectedIds: string[]) => void;
-  columns?: Array<{
-    key: string;
-    label: string;
-    visible: boolean;
-    order: number;
-  }>;
+  
 }
 
-const TransactionTable = ({ transactions, onViewDetails, onBulkAction, columns }: TransactionTableProps) => {
+const TransactionTable = ({ transactions, onViewDetails, onBulkAction }: TransactionTableProps) => {
   const [selectedTransactions, setSelectedTransactions] = useState<string[]>([]);
   const [selectAll, setSelectAll] = useState(false);
 
@@ -75,9 +70,8 @@ const TransactionTable = ({ transactions, onViewDetails, onBulkAction, columns }
   //   { key: 'country', label: 'Country', visible: true, order: 8 }
   // ];
 
-  const visibleColumns = (columns)
-    .filter(col => col.visible)
-    .sort((a, b) => a.order - b.order);
+  
+
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -194,6 +188,9 @@ const TransactionTable = ({ transactions, onViewDetails, onBulkAction, columns }
     const handleColumnsChange = (columns: any[]) => {
     setTableColumns(columns);
   };
+  const visibleColumns = tableColumns
+  .filter(col => col.visible)
+  .sort((a, b) => a.order - b.order);
   return (
     <Card>
       <CardHeader>

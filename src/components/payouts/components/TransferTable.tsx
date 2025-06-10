@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -45,23 +44,23 @@ const TransferTable = ({
 }: TransferTableProps) => {
   const formatAmount = (amount: number, currency: string) => {
     const cryptoCurrencies = ['USDT', 'BTC', 'ETH', 'USDC', 'BNB', 'ADA', 'DOT', 'MATIC'];
-    
+
     if (cryptoCurrencies.includes(currency.toUpperCase())) {
-      return `${amount.toLocaleString('en-US', { 
-        minimumFractionDigits: 2, 
-        maximumFractionDigits: 2 
+      return `${amount.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
       })} ${currency}`;
     }
-    
+
     try {
       return new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: currency
       }).format(amount);
     } catch (error) {
-      return `${amount.toLocaleString('en-US', { 
-        minimumFractionDigits: 2, 
-        maximumFractionDigits: 2 
+      return `${amount.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
       })} ${currency}`;
     }
   };
@@ -84,19 +83,54 @@ const TransferTable = ({
       default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300';
     }
   };
+
+  const renderCell = (key: string, transfer: Transfer) => {
+    switch (key) {
+      case 'id':
+        return (
+          <Button variant="link" className="font-mono p-0 h-auto" onClick={() => onViewDetails(transfer)}>
+            {transfer.id}
+          </Button>
+        );
+      case 'beneficiaryName':
+        return (
+          <div>
+            <div className="font-medium">{transfer.beneficiaryName}</div>
+            <div className="text-sm text-gray-500">{transfer.beneficiaryId}</div>
+          </div>
+        );
+      case 'amount':
+        return <div className="font-semibold">{formatAmount(transfer.amount, transfer.currency)}</div>;
+      case 'currency':
+        return <span>{transfer.currency}</span>;
+      case 'type':
+        return <Badge className={getTypeColor(transfer.type)}>{transfer.type}</Badge>;
+      case 'status':
+        return <Badge className={getStatusColor(transfer.status)}>{transfer.status}</Badge>;
+      case 'method':
+        return <Badge variant="outline">{transfer.method}</Badge>;
+      case 'fee':
+        return <span className="text-sm text-gray-600 dark:text-gray-400">${transfer.fee}</span>;
+      default:
+        return null;
+    }
+  };
+
   const [tableColumns, setTableColumns] = useState([
-    { key: 'id', label: 'Settlement ID', visible: true, order: 0 },
-    { key: 'amount', label: 'Amount', visible: true, order: 1 },
-    { key: 'transactions', label: 'Transactions', visible: true, order: 2 },
-    { key: 'fees', label: 'Fees', visible: true, order: 3 },
-    { key: 'bankAccount', label: 'Bank Account', visible: true, order: 4 },
+    { key: 'id', label: 'Transaction ID', visible: true, order: 0 },
+    { key: 'beneficiaryName', label: 'Beneficiary Name', visible: true, order: 1 },
+    { key: 'amount', label: 'Amount ', visible: true, order: 2 },
+    { key: 'currency', label: 'Currency', visible: true, order: 3 },
+    { key: 'type', label: 'Type', visible: true, order: 4 },
     { key: 'status', label: 'Status', visible: true, order: 5 },
-    { key: 'date', label: 'Date', visible: true, order: 6 },
-   
+    { key: 'method', label: 'Method', visible: true, order: 6 },
+    { key: 'fee', label: 'Fee', visible: true, order: 7 }
   ]);
- const handleColumnsChange = (columns: typeof tableColumns) => {
+
+  const handleColumnsChange = (columns: typeof tableColumns) => {
     setTableColumns(columns);
   };
+
   return (
     <Card>
       <CardHeader>
@@ -116,10 +150,7 @@ const TransferTable = ({
                 <SelectItem value="50">50</SelectItem>
               </SelectContent>
             </Select>
-             <TransactionSettings
-                columns={tableColumns}
-                onColumnsChange={handleColumnsChange}
-              />
+            <TransactionSettings columns={tableColumns} onColumnsChange={handleColumnsChange} />
           </div>
         </div>
       </CardHeader>
@@ -127,72 +158,20 @@ const TransferTable = ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Transaction ID</TableHead>
-              <TableHead>Beneficiary</TableHead>
-              <TableHead>Amount</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Method</TableHead>
-              <TableHead>Fee</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Date</TableHead>
+              {tableColumns.filter(col => col.visible).sort((a, b) => a.order - b.order).map(col => (
+                <TableHead key={col.key}>{col.label}</TableHead>
+              ))}
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {transfers.map((transfer) => (
               <TableRow key={transfer.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                {tableColumns.filter(col => col.visible).sort((a, b) => a.order - b.order).map(col => (
+                  <TableCell key={col.key}>{renderCell(col.key, transfer)}</TableCell>
+                ))}
                 <TableCell>
-                  <Button 
-                    variant="link" 
-                    className="font-mono p-0 h-auto"
-                    onClick={() => onViewDetails(transfer)}
-                  >
-                    {transfer.id}
-                  </Button>
-                </TableCell>
-                <TableCell>
-                  <div>
-                    <div className="font-medium">{transfer.beneficiaryName}</div>
-                    <div className="text-sm text-gray-500">{transfer.beneficiaryId}</div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="font-semibold">
-                    {formatAmount(transfer.amount, transfer.currency)}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Badge className={getTypeColor(transfer.type)}>
-                    {transfer.type}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <Badge variant="outline">{transfer.method}</Badge>
-                </TableCell>
-                <TableCell>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    ${transfer.fee}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <Badge className={getStatusColor(transfer.status)}>
-                    {transfer.status}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <div className="text-sm">
-                    {new Date(transfer.createdAt).toLocaleDateString()}
-                    <div className="text-xs text-gray-500">
-                      {new Date(transfer.createdAt).toLocaleTimeString()}
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => onViewDetails(transfer)}
-                  >
+                  <Button variant="ghost" size="sm" onClick={() => onViewDetails(transfer)}>
                     <Eye className="h-4 w-4" />
                   </Button>
                 </TableCell>
@@ -206,8 +185,8 @@ const TransferTable = ({
             <Pagination>
               <PaginationContent>
                 <PaginationItem>
-                  <PaginationPrevious 
-                    href="#" 
+                  <PaginationPrevious
+                    href="#"
                     onClick={(e) => {
                       e.preventDefault();
                       if (currentPage > 1) onPageChange(currentPage - 1);
@@ -215,7 +194,7 @@ const TransferTable = ({
                     className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
                   />
                 </PaginationItem>
-                
+
                 {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                   const page = i + 1;
                   return (
@@ -233,10 +212,10 @@ const TransferTable = ({
                     </PaginationItem>
                   );
                 })}
-                
+
                 <PaginationItem>
-                  <PaginationNext 
-                    href="#" 
+                  <PaginationNext
+                    href="#"
                     onClick={(e) => {
                       e.preventDefault();
                       if (currentPage < totalPages) onPageChange(currentPage + 1);

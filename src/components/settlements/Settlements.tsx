@@ -83,9 +83,9 @@ const Settlements = () => {
     { key: 'bankAccount', label: 'Bank Account', visible: true, order: 4 },
     { key: 'status', label: 'Status', visible: true, order: 5 },
     { key: 'date', label: 'Date', visible: true, order: 6 },
-   
+
   ]);
- const handleColumnsChange = (columns: typeof tableColumns) => {
+  const handleColumnsChange = (columns: typeof tableColumns) => {
     setTableColumns(columns);
   };
 
@@ -185,47 +185,71 @@ const Settlements = () => {
             <table className="w-full min-w-[800px]">
               <thead>
                 <tr className="border-b border-gray-200">
-                  <th className="text-left py-2 lg:py-3 px-2 lg:px-4 font-medium text-gray-600 text-xs lg:text-sm">Settlement ID</th>
-                  <th className="text-left py-2 lg:py-3 px-2 lg:px-4 font-medium text-gray-600 text-xs lg:text-sm">Amount</th>
-                  <th className="text-left py-2 lg:py-3 px-2 lg:px-4 font-medium text-gray-600 text-xs lg:text-sm">Transactions</th>
-                  <th className="text-left py-2 lg:py-3 px-2 lg:px-4 font-medium text-gray-600 text-xs lg:text-sm">Fees</th>
-                  <th className="text-left py-2 lg:py-3 px-2 lg:px-4 font-medium text-gray-600 text-xs lg:text-sm">Bank Account</th>
-                  <th className="text-left py-2 lg:py-3 px-2 lg:px-4 font-medium text-gray-600 text-xs lg:text-sm">Status</th>
-                  <th className="text-left py-2 lg:py-3 px-2 lg:px-4 font-medium text-gray-600 text-xs lg:text-sm">Date</th>
+                  {tableColumns
+                    .filter((col) => col.visible)
+                    .sort((a, b) => a.order - b.order)
+                    .map((col) => (
+                      <th
+                        key={col.key}
+                        className="text-left py-2 lg:py-3 px-2 lg:px-4 font-medium text-gray-600 text-xs lg:text-sm"
+                      >
+                        {col.label}
+                      </th>
+                    ))}
                   <th className="text-left py-2 lg:py-3 px-2 lg:px-4 font-medium text-gray-600 text-xs lg:text-sm">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {settlements.map((settlement) => (
                   <tr key={settlement.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                    <td className="py-3 lg:py-4 px-2 lg:px-4">
-                      <span className="font-mono text-xs lg:text-sm text-blue-600">{settlement.id}</span>
-                    </td>
-                    <td className="py-3 lg:py-4 px-2 lg:px-4">
-                      <span className="font-semibold text-gray-900 text-xs lg:text-sm">{settlement.amount}</span>
-                    </td>
-                    <td className="py-3 lg:py-4 px-2 lg:px-4">
-                      <span className="text-gray-700 text-xs lg:text-sm">{settlement.transactions}</span>
-                    </td>
-                    <td className="py-3 lg:py-4 px-2 lg:px-4">
-                      <span className="text-gray-700 text-xs lg:text-sm">{settlement.fees}</span>
-                    </td>
-                    <td className="py-3 lg:py-4 px-2 lg:px-4">
-                      <span className="text-gray-700 text-xs lg:text-sm">{settlement.bankAccount}</span>
-                    </td>
-                    <td className="py-3 lg:py-4 px-2 lg:px-4">
-                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full whitespace-nowrap ${settlement.status === 'Completed'
-                          ? 'bg-green-100 text-green-800'
-                          : settlement.status === 'Pending'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-blue-100 text-blue-800'
-                        }`}>
-                        {settlement.status}
-                      </span>
-                    </td>
-                    <td className="py-3 lg:py-4 px-2 lg:px-4">
-                      <span className="text-xs lg:text-sm text-gray-600">{settlement.date}</span>
-                    </td>
+                    {tableColumns
+                      .filter((col) => col.visible)
+                      .sort((a, b) => a.order - b.order)
+                      .map((col) => (
+                        <td key={col.key} className="py-3 lg:py-4 px-2 lg:px-4">
+                          {(() => {
+                            switch (col.key) {
+                              case 'id':
+                                return (
+                                  <span className="font-mono text-xs lg:text-sm text-blue-600">{settlement.id}</span>
+                                );
+                              case 'amount':
+                                return (
+                                  <span className="font-semibold text-gray-900 text-xs lg:text-sm">{settlement.amount}</span>
+                                );
+                              case 'transactions':
+                                return (
+                                  <span className="text-gray-700 text-xs lg:text-sm">{settlement.transactions}</span>
+                                );
+                              case 'fees':
+                                return (
+                                  <span className="text-gray-700 text-xs lg:text-sm">{settlement.fees}</span>
+                                );
+                              case 'bankAccount':
+                                return (
+                                  <span className="text-gray-700 text-xs lg:text-sm">{settlement.bankAccount}</span>
+                                );
+                              case 'status':
+                                return (
+                                  <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full whitespace-nowrap ${settlement.status === 'Completed'
+                                      ? 'bg-green-100 text-green-800'
+                                      : settlement.status === 'Pending'
+                                        ? 'bg-yellow-100 text-yellow-800'
+                                        : 'bg-blue-100 text-blue-800'
+                                    }`}>
+                                    {settlement.status}
+                                  </span>
+                                );
+                              case 'date':
+                                return (
+                                  <span className="text-xs lg:text-sm text-gray-600">{settlement.date}</span>
+                                );
+                              default:
+                                return null;
+                            }
+                          })()}
+                        </td>
+                      ))}
                     <td className="py-3 lg:py-4 px-2 lg:px-4">
                       <Button variant="ghost" size="sm" className="text-xs lg:text-sm">
                         View Details
@@ -234,6 +258,7 @@ const Settlements = () => {
                   </tr>
                 ))}
               </tbody>
+
             </table>
           </div>
         </CardContent>

@@ -3,11 +3,11 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Plus, 
-  Building2, 
-  Check, 
-  Clock, 
+import {
+  Plus,
+  Building2,
+  Check,
+  Clock,
   AlertCircle,
   Edit,
   Trash2
@@ -96,16 +96,17 @@ const CompanyAccountManagement = () => {
     }
   };
   const [tableColumns, setTableColumns] = useState([
-    { key: 'id', label: 'Settlement ID', visible: true, order: 0 },
-    { key: 'amount', label: 'Amount', visible: true, order: 1 },
-    { key: 'transactions', label: 'Transactions', visible: true, order: 2 },
-    { key: 'fees', label: 'Fees', visible: true, order: 3 },
-    { key: 'bankAccount', label: 'Bank Account', visible: true, order: 4 },
-    { key: 'status', label: 'Status', visible: true, order: 5 },
-    { key: 'date', label: 'Date', visible: true, order: 6 },
-   
+    { key: 'accountName', label: 'Account Name', visible: true, order: 0 },
+    { key: 'accountNumber', label: 'Account Number', visible: true, order: 1 },
+    { key: 'bankName', label: 'Bank Name', visible: true, order: 2 },
+    { key: 'swiftCode', label: 'Swift Code', visible: false, order: 3 },
+    { key: 'currency', label: 'Currency', visible: true, order: 4 },
+    { key: 'country', label: 'Country', visible: false, order: 5 },
+    { key: 'status', label: 'Status', visible: true, order: 6 },
+    { key: 'isDefault', label: 'Deafult', visible: true, order: 7 },
+
   ]);
- const handleColumnsChange = (columns: typeof tableColumns) => {
+  const handleColumnsChange = (columns: typeof tableColumns) => {
     setTableColumns(columns);
   };
   return (
@@ -136,7 +137,7 @@ const CompanyAccountManagement = () => {
                 Company Account Benefits
               </h3>
               <p className="text-sm text-blue-700 dark:text-blue-400">
-                Company bank accounts require admin approval but allow fee-free payouts. 
+                Company bank accounts require admin approval but allow fee-free payouts.
                 All transfers to verified company accounts are processed without additional charges.
               </p>
             </div>
@@ -182,8 +183,8 @@ const CompanyAccountManagement = () => {
 
       {/* Company Accounts Table */}
       <Card>
-        <CardHeader>         
-             <CardTitle className="text-base lg:text-lg font-semibold">
+        <CardHeader>
+          <CardTitle className="text-base lg:text-lg font-semibold">
             <div className="flex items-center justify-between">
               <span>Company Bank Accounts</span>
               <TransactionSettings
@@ -197,69 +198,97 @@ const CompanyAccountManagement = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Account Name</TableHead>
-                <TableHead>Account Number</TableHead>
-                <TableHead>Bank Details</TableHead>
-                <TableHead>Currency</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Default</TableHead>
+                {tableColumns
+                  .filter(col => col.visible)
+                  .sort((a, b) => a.order - b.order)
+                  .map(col => (
+                    <TableHead key={col.key}>{col.label}</TableHead>
+                  ))}
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
+
             <TableBody>
-              {companyAccounts.map((account) => {
-                const StatusIcon = getStatusIcon(account.status);
-                
-                return (
-                  <TableRow key={account.id}>
-                    <TableCell className="font-medium">{account.accountName}</TableCell>
-                    <TableCell>
-                      <span className="font-mono text-sm bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
-                        {account.accountNumber}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">{account.bankName}</div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400">
-                          {account.swiftCode} • {account.country}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{account.currency}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <StatusIcon className="h-4 w-4" />
-                        <Badge className={getStatusColor(account.status)}>
-                          {account.status}
-                        </Badge>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {account.isDefault && (
-                        <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300">
-                          Default
-                        </Badge>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        <Button variant="ghost" size="sm">
-                          <Edit className="h-4 w-4" />
+              {companyAccounts.map((account) => (
+                <TableRow key={account.id}>
+                  {tableColumns
+                    .filter(col => col.visible)
+                    .sort((a, b) => a.order - b.order)
+                    .map(col => {
+                      const key = col.key;
+                      switch (key) {
+                        case 'accountName':
+                          return <TableCell key={key} className="font-medium">{account.accountName}</TableCell>;
+                        case 'accountNumber':
+                          return (
+                            <TableCell key={key}>
+                              <span className="font-mono text-sm bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                                {account.accountNumber}
+                              </span>
+                            </TableCell>
+                          );
+                        case 'bankName':
+                          return (
+                            <TableCell key={key}>
+                              <div>
+                                <div className="font-medium">{account.bankName}</div>
+                                <div className="text-sm text-gray-600 dark:text-gray-400">
+                                  {account.swiftCode} • {account.country}
+                                </div>
+                              </div>
+                            </TableCell>
+                          );
+                        case 'swiftCode':
+                          return null; // already included above, skip
+                        case 'currency':
+                          return (
+                            <TableCell key={key}>
+                              <Badge variant="outline">{account.currency}</Badge>
+                            </TableCell>
+                          );
+                        case 'country':
+                          return null; // already shown with swiftCode
+                        case 'status':
+                          const StatusIcon = getStatusIcon(account.status);
+                          return (
+                            <TableCell key={key}>
+                              <div className="flex items-center gap-2">
+                                <StatusIcon className="h-4 w-4" />
+                                <Badge className={getStatusColor(account.status)}>
+                                  {account.status}
+                                </Badge>
+                              </div>
+                            </TableCell>
+                          );
+                        case 'isDefault':
+                          return (
+                            <TableCell key={key}>
+                              {account.isDefault && (
+                                <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300">
+                                  Default
+                                </Badge>
+                              )}
+                            </TableCell>
+                          );
+
+                      }
+                    })}
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      <Button variant="ghost" size="sm">
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      {!account.isDefault && (
+                        <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700">
+                          <Trash2 className="h-4 w-4" />
                         </Button>
-                        {!account.isDefault && (
-                          <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700">
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
+                      )}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
+
           </Table>
         </CardContent>
       </Card>
