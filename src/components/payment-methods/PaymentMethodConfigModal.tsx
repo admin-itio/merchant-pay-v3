@@ -118,6 +118,9 @@ const PaymentMethodConfigModal = ({ isOpen, onClose, paymentMethod }: PaymentMet
                       <SelectValue placeholder="Select countries" />
                     </SelectTrigger>
                     <SelectContent>
+                      <div className="p-2">
+                        <Input placeholder="Search Country..." className="mb-2" />
+                      </div>
                       <SelectItem value="us">United States</SelectItem>
                       <SelectItem value="uk">United Kingdom</SelectItem>
                       <SelectItem value="ca">Canada</SelectItem>
