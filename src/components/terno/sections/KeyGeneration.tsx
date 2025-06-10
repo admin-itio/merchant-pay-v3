@@ -41,11 +41,7 @@ const KeyGeneration = ({ data, onChange, isEditing }: KeyGenerationProps) => {
   const apiKeys = [
     {
       id: 'public_key',
-<<<<<<< HEAD
       label: 'Public Key',
-=======
-      label: 'Public API Key',
->>>>>>> 69dde2a19a6b35d3f68dfb370a02b5a28e0ee332
       description: 'Safe to use in client-side code and public repositories',
       value: isEditing ? 'pk_live_51H7gF8L5XqK2eN4V8cH9J...' : 'pk_test_51H7gF8L5XqK2eN4V8cH9J...',
       type: 'public',
@@ -53,11 +49,7 @@ const KeyGeneration = ({ data, onChange, isEditing }: KeyGenerationProps) => {
     },
     {
       id: 'secret_key',
-<<<<<<< HEAD
       label: 'Private Key',
-=======
-      label: 'Secret API Key',
->>>>>>> 69dde2a19a6b35d3f68dfb370a02b5a28e0ee332
       description: 'Keep this secure! Never expose in client-side code',
       value: isEditing ? 'sk_live_51H7gF8L5XqK2eN4V8cH9J...' : 'sk_test_51H7gF8L5XqK2eN4V8cH9J...',
       type: 'secret',

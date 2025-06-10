@@ -24,10 +24,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-<<<<<<< HEAD
 import TransactionSettings from './TransactionSettings';
-=======
->>>>>>> 69dde2a19a6b35d3f68dfb370a02b5a28e0ee332
 
 interface Transaction {
   id: string;
@@ -65,7 +62,6 @@ const TransactionTable = ({ transactions, onViewDetails, onBulkAction, columns }
   const [selectedTransactions, setSelectedTransactions] = useState<string[]>([]);
   const [selectAll, setSelectAll] = useState(false);
 
-<<<<<<< HEAD
   // // Default columns if none provided
   // const defaultColumns = [
   //   { key: 'id', label: 'Transaction ID', visible: true, order: 0 },
@@ -80,22 +76,6 @@ const TransactionTable = ({ transactions, onViewDetails, onBulkAction, columns }
   // ];
 
   const visibleColumns = (columns)
-=======
-  // Default columns if none provided
-  const defaultColumns = [
-    { key: 'id', label: 'Transaction ID', visible: true, order: 0 },
-    { key: 'amount', label: 'Amount', visible: true, order: 1 },
-    { key: 'customer', label: 'Customer', visible: true, order: 2 },
-    { key: 'status', label: 'Status', visible: true, order: 3 },
-    { key: 'paymentMethod', label: 'Payment Method', visible: true, order: 4 },
-    { key: 'timestamp', label: 'Date & Time', visible: true, order: 5 },
-    { key: 'fraudScore', label: 'Fraud Score', visible: true, order: 6 },
-    { key: 'gateway', label: 'Gateway', visible: true, order: 7 },
-    { key: 'country', label: 'Country', visible: true, order: 8 }
-  ];
-
-  const visibleColumns = (columns || defaultColumns)
->>>>>>> 69dde2a19a6b35d3f68dfb370a02b5a28e0ee332
     .filter(col => col.visible)
     .sort((a, b) => a.order - b.order);
 
@@ -193,7 +173,6 @@ const TransactionTable = ({ transactions, onViewDetails, onBulkAction, columns }
   const handleExportSelected = () => {
     onBulkAction('export', selectedTransactions);
   };
-<<<<<<< HEAD
  const [tableColumns, setTableColumns] = useState([
     { key: 'id', label: 'Transaction ID', visible: true, order: 0 },
     { key: 'amount', label: 'Amount', visible: true, order: 1 },
@@ -215,9 +194,6 @@ const TransactionTable = ({ transactions, onViewDetails, onBulkAction, columns }
     const handleColumnsChange = (columns: any[]) => {
     setTableColumns(columns);
   };
-=======
-
->>>>>>> 69dde2a19a6b35d3f68dfb370a02b5a28e0ee332
   return (
     <Card>
       <CardHeader>
@@ -234,21 +210,15 @@ const TransactionTable = ({ transactions, onViewDetails, onBulkAction, columns }
                 Export Selected ({selectedTransactions.length})
               </Button>
             )}
-<<<<<<< HEAD
              
-=======
->>>>>>> 69dde2a19a6b35d3f68dfb370a02b5a28e0ee332
             <Button variant="outline" size="sm">
               <RefreshCw className="h-4 w-4 mr-2" />
               Refresh
             </Button>
-<<<<<<< HEAD
               <TransactionSettings 
                 columns={tableColumns}
                 onColumnsChange={handleColumnsChange}
               />
-=======
->>>>>>> 69dde2a19a6b35d3f68dfb370a02b5a28e0ee332
           </div>
         </div>
       </CardHeader>
