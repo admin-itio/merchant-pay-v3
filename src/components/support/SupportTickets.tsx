@@ -8,11 +8,11 @@ import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { 
-  Plus, 
-  Search, 
-  MessageSquare, 
-  Clock, 
+import {
+  Plus,
+  Search,
+  MessageSquare,
+  Clock,
   CheckCircle,
   AlertTriangle,
   Filter
@@ -96,7 +96,7 @@ const SupportTickets = () => {
 
   const filteredTickets = tickets.filter(ticket => {
     const matchesSearch = ticket.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         ticket.id.toLowerCase().includes(searchTerm.toLowerCase());
+      ticket.id.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = filterStatus === 'all' || ticket.status.toLowerCase() === filterStatus.toLowerCase();
     return matchesSearch && matchesStatus;
   });
@@ -160,6 +160,9 @@ const SupportTickets = () => {
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
                     <SelectContent>
+                      <div className="p-2">
+                        <Input placeholder="Search Category..." className="mb-2" />
+                      </div>
                       <SelectItem value="technical">Technical</SelectItem>
                       <SelectItem value="configuration">Configuration</SelectItem>
                       <SelectItem value="billing">Billing</SelectItem>
@@ -299,7 +302,7 @@ const SupportTickets = () => {
                 No tickets found
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                {searchTerm || filterStatus !== 'all' 
+                {searchTerm || filterStatus !== 'all'
                   ? 'Try adjusting your search or filter criteria'
                   : 'Create your first support ticket to get started'
                 }

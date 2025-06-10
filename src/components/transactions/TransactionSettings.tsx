@@ -66,6 +66,7 @@ const TransactionSettings = ({ columns, onColumnsChange }: TransactionSettingsPr
       <PopoverTrigger asChild>
         <Button variant="outline" size="sm">
           <Settings className="h-4 w-4" />
+          {/* text */}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80 p-4" align="end">
