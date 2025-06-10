@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Globe, Shield, Eye, ExternalLink, Info, CheckCircle, AlertCircle } from 'lucide-react';
+import { Globe, Shield, Eye, ExternalLink, Info, CheckCircle, AlertCircle, InfoIcon } from 'lucide-react';
 import WebhookTestModal from './components/WebhookTestModal';
 
 interface URLsAndPoliciesProps {
@@ -47,7 +47,15 @@ const URLsAndPolicies = ({ data, onChange }: URLsAndPoliciesProps) => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="webhookUrl">Webhook URL</Label>
+            <div className="flex items-center gap-1">
+              <Label htmlFor="webhookUrl">Webhook URL</Label>
+              <div className="relative group cursor-pointer">
+                <InfoIcon className="w-4 h-4 text-gray-500" />
+                <div className="absolute bottom-full mb-1 w-48 p-2 text-xs text-white bg-gray-800 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                  Please add URL to activate webhook button
+                </div>
+              </div>
+            </div>
             <div className="flex gap-2">
               <div className="flex-1 relative">
                 <Input
@@ -66,8 +74,8 @@ const URLsAndPolicies = ({ data, onChange }: URLsAndPoliciesProps) => {
                   </div>
                 )}
               </div>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={() => testUrl(data.webhookUrl)}
                 disabled={!data.webhookUrl}
@@ -187,8 +195,8 @@ const URLsAndPolicies = ({ data, onChange }: URLsAndPoliciesProps) => {
                   </div>
                 )}
               </div>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={() => testUrl(data.successUrl)}
                 disabled={!data.successUrl}
@@ -221,8 +229,8 @@ const URLsAndPolicies = ({ data, onChange }: URLsAndPoliciesProps) => {
                   </div>
                 )}
               </div>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={() => testUrl(data.failureUrl)}
                 disabled={!data.failureUrl}
@@ -255,8 +263,8 @@ const URLsAndPolicies = ({ data, onChange }: URLsAndPoliciesProps) => {
                   </div>
                 )}
               </div>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={() => testUrl(data.cancelUrl)}
                 disabled={!data.cancelUrl}
