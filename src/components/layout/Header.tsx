@@ -1,12 +1,12 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Menu, 
-  Bell, 
-  Search, 
+import {
+  Menu,
+  Bell,
+  Search,
   User,
   LogOut,
   CreditCard,
@@ -17,7 +17,7 @@ import {
   Mail,
   Settings
 } from 'lucide-react';
-import { 
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -26,7 +26,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
-import DisplaySettings from '@/components/layout/DisplaySettings';
 
 interface HeaderProps {
   onToggleSidebar: () => void;
@@ -34,7 +33,8 @@ interface HeaderProps {
   setActiveTab: (tab: string) => void;
 }
 
-const Header = ({ onToggleSidebar, activeTab, setActiveTab }: HeaderProps) => {
+const Header = ({ onToggleSidebar, setActiveTab }: HeaderProps) => {
+  const [isRead, setIsRead] = useState(false);
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 lg:h-16 items-center px-4 lg:px-6 gap-4">
@@ -68,15 +68,15 @@ const Header = ({ onToggleSidebar, activeTab, setActiveTab }: HeaderProps) => {
           <ThemeToggle />
 
           {/* Language/Display Settings */}
-          <DisplaySettings />
+          {/* <DisplaySettings /> */}
 
           {/* Notifications */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="relative p-2">
                 <Bell className="h-4 w-4" />
-                <Badge 
-                  variant="destructive" 
+                <Badge
+                  variant="destructive"
                   className="absolute -top-1 -right-1 h-5 w-5 text-xs p-0 flex items-center justify-center"
                 >
                   3
@@ -87,30 +87,31 @@ const Header = ({ onToggleSidebar, activeTab, setActiveTab }: HeaderProps) => {
               <div className="p-4">
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="font-medium">Notifications</h4>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => setActiveTab('announcements')}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsRead(true)}
                     className="text-xs"
                   >
-                    View All
+                    Mark as Read
                   </Button>
                 </div>
                 <div className="space-y-2">
-                  <div className="p-2 rounded bg-muted border-l-2 border-blue-500">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Badge variant="secondary" className="text-xs">New</Badge>
-                      <p className="text-sm font-medium">System Maintenance</p>
+                  <div className="p-2 rounded bg-muted">
+                    <div className="flex items-center gap-2 mb-1">                    
+                      <p className={`text-sm ${isRead ? 'text-muted-foreground font-normal' : 'text-green-600 font-semibold'}`}>
+                        System Maintenance
+                      </p>
                     </div>
-                    <p className="text-xs text-muted-foreground">Scheduled maintenance on Dec 15, 2024</p>
+
                   </div>
                   <div className="p-2 rounded bg-muted">
-                    <p className="text-sm font-medium">Payment Received</p>
-                    <p className="text-xs text-muted-foreground">$1,234 from John Doe</p>
+                      <p className={`text-sm ${isRead ? 'text-muted-foreground font-normal' : 'text-green-600 font-semibold'}`}>Payment Received</p>
+                 
                   </div>
-                  <div className="p-2 rounded bg-muted border-l-2 border-red-500">
-                    <p className="text-sm font-medium">Chargeback Alert</p>
-                    <p className="text-xs text-muted-foreground">Transaction TXN001 disputed</p>
+                  <div className="p-2 rounded bg-muted">
+                      <p className={`text-sm ${isRead ? 'text-muted-foreground font-normal' : 'text-green-600 font-semibold'}`}>Chargeback Alert</p>
+                    
                   </div>
                 </div>
               </div>

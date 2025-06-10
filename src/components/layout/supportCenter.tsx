@@ -1,4 +1,3 @@
-import React from 'react';
 import { Phone, MessageSquare, Headphones } from 'lucide-react';
 
 interface SupportCenter2Props {
@@ -9,7 +8,7 @@ const SupportCenter2 = ({ setActiveTab }: SupportCenter2Props) => {
     setActiveTab('support-tickets');
   };
   return (
-    <div className="bg-white shadow-lg rounded-xl p-4 w-100">
+    <div className="bg-gray-100 shadow-lg mt-6 rounded-xl p-4 w-100">
       <div className="flex flex-col items-center space-y-3">
         {/* Headphones Icon */}
         <div className="bg-gray-100 p-2 rounded-full">
@@ -17,20 +16,20 @@ const SupportCenter2 = ({ setActiveTab }: SupportCenter2Props) => {
         </div>
 
         {/* Text */}
-        <p className="text-center text-sm text-gray-800" style={{fontSize: "12px"}}>
+        <p className="text-center text-sm text-gray-800">
           Have any problems or have suggestion?
         </p>
 
         {/* Button: Contact Support */}
         <button className="flex items-center justify-center w-full border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 text-sm" onClick={handleSupportClick} >
           <MessageSquare className="mr-2" />
-          Try Contact Customer Support
+          Support
         </button>
 
         {/* Button: Call Us */}
         <button className="flex items-center justify-center w-full bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 text-sm">
           <Phone className="w-4 h-4 mr-2" />
-          Need Help? Call US
+         Call US
         </button>
       </div>
     </div>

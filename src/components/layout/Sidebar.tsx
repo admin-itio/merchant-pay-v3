@@ -113,13 +113,9 @@ const Sidebar = ({ activeTab, setActiveTab, isOpen, setIsOpen }: SidebarProps) =
               </button>
             );
           })}
-          <div className="pb-4">
             <div className="pb-4">
               <SupportCenter2 setActiveTab={setActiveTab} />
             </div>
-
-
-          </div>
         </nav>
 
       </div>
