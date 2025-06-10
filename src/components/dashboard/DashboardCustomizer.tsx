@@ -1,6 +1,10 @@
 
 import React, { useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+<<<<<<< HEAD
+=======
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+>>>>>>> 69dde2a19a6b35d3f68dfb370a02b5a28e0ee332
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -8,6 +12,16 @@ import {
   GripVertical, 
   Eye, 
   EyeOff,
+<<<<<<< HEAD
+=======
+  Plus,
+  BarChart3,
+  DollarSign,
+  CreditCard,
+  Users,
+  TrendingUp,
+  AlertTriangle
+>>>>>>> 69dde2a19a6b35d3f68dfb370a02b5a28e0ee332
 } from 'lucide-react';
 import {
   Dialog,
@@ -34,6 +48,10 @@ interface DashboardCustomizerProps {
 }
 
 const DashboardCustomizer = ({ widgets, onWidgetsChange }: DashboardCustomizerProps) => {
+<<<<<<< HEAD
+=======
+  const [isCustomizing, setIsCustomizing] = useState(false);
+>>>>>>> 69dde2a19a6b35d3f68dfb370a02b5a28e0ee332
 
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
@@ -142,7 +160,11 @@ const DashboardCustomizer = ({ widgets, onWidgetsChange }: DashboardCustomizerPr
       </div>
 
       {/* Widget Grid */}
+<<<<<<< HEAD
       <div className="grid gap-4">
+=======
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+>>>>>>> 69dde2a19a6b35d3f68dfb370a02b5a28e0ee332
         {widgets
           .filter(widget => widget.visible)
           .map((widget) => {

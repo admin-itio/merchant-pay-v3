@@ -63,7 +63,6 @@ const Sidebar = ({ activeTab, setActiveTab, isOpen, setIsOpen }: SidebarProps) =
           onClick={() => setIsOpen(false)}
         />
       )}
-
       {/* Sidebar */}
       <div className={`
         fixed left-0 top-0 h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 z-50 transform transition-transform duration-300 ease-in-out
@@ -82,7 +81,6 @@ const Sidebar = ({ activeTab, setActiveTab, isOpen, setIsOpen }: SidebarProps) =
             <X className="h-5 w-5" />
           </Button>
         </div>
-
         <nav className="p-3 lg:p-4 space-y-1 lg:space-y-2 scrollbar-thin overflow-y-auto max-h-[calc(100vh-5rem)]">
           {menuItems.map((item) => {
             const Icon = item.icon;

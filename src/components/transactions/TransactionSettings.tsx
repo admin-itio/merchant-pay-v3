@@ -23,15 +23,22 @@ interface TransactionSettingsProps {
 const TransactionSettings = ({ columns, onColumnsChange }: TransactionSettingsProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [localColumns, setLocalColumns] = useState(columns);
+<<<<<<< HEAD
   console.log("Visible columns:", localColumns.map(c => `${c.key}:${c.order}`));
 
 
   const handleVisibilityChange = (columnKey: string, visible: boolean) => {
     const updated = localColumns.map(col =>
+=======
+
+  const handleVisibilityChange = (columnKey: string, visible: boolean) => {
+    const updated = localColumns.map(col => 
+>>>>>>> 69dde2a19a6b35d3f68dfb370a02b5a28e0ee332
       col.key === columnKey ? { ...col, visible } : col
     );
     setLocalColumns(updated);
   };
+<<<<<<< HEAD
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
 
@@ -55,6 +62,24 @@ const TransactionSettings = ({ columns, onColumnsChange }: TransactionSettingsPr
   };
 
 
+=======
+
+  const handleDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+
+    const items = Array.from(localColumns);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    const reordered = items.map((item, index) => ({
+      ...item,
+      order: index
+    }));
+
+    setLocalColumns(reordered);
+  };
+
+>>>>>>> 69dde2a19a6b35d3f68dfb370a02b5a28e0ee332
   const applySettings = () => {
     onColumnsChange(localColumns);
     setIsOpen(false);
@@ -74,7 +99,11 @@ const TransactionSettings = ({ columns, onColumnsChange }: TransactionSettingsPr
       <PopoverTrigger asChild>
         <Button variant="outline" size="sm">
           <Settings className="h-4 w-4 mr-2" />
+<<<<<<< HEAD
 
+=======
+          Columns
+>>>>>>> 69dde2a19a6b35d3f68dfb370a02b5a28e0ee332
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80 p-4" align="end">
@@ -85,7 +114,11 @@ const TransactionSettings = ({ columns, onColumnsChange }: TransactionSettingsPr
               Reset
             </Button>
           </div>
+<<<<<<< HEAD
 
+=======
+          
+>>>>>>> 69dde2a19a6b35d3f68dfb370a02b5a28e0ee332
           <Separator />
 
           <div className="space-y-2">
@@ -100,6 +133,7 @@ const TransactionSettings = ({ columns, onColumnsChange }: TransactionSettingsPr
               {(provided) => (
                 <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-2">
                   {localColumns
+<<<<<<< HEAD
                     .filter(col => col.visible)
                     .sort((a, b) => a.order - b.order)
                     .map((column, index) => (
@@ -109,12 +143,23 @@ const TransactionSettings = ({ columns, onColumnsChange }: TransactionSettingsPr
                         index={index}
                       >
 
+=======
+                    .sort((a, b) => a.order - b.order)
+                    .map((column, index) => (
+                      <Draggable key={column.key} draggableId={column.key} index={index}>
+>>>>>>> 69dde2a19a6b35d3f68dfb370a02b5a28e0ee332
                         {(provided, snapshot) => (
                           <div
                             ref={provided.innerRef}
                             {...provided.draggableProps}
+<<<<<<< HEAD
                             className={`flex items-center justify-between p-2 border rounded ${snapshot.isDragging ? 'bg-muted' : 'bg-background'
                               }`}
+=======
+                            className={`flex items-center justify-between p-2 border rounded ${
+                              snapshot.isDragging ? 'bg-muted' : 'bg-background'
+                            }`}
+>>>>>>> 69dde2a19a6b35d3f68dfb370a02b5a28e0ee332
                           >
                             <div className="flex items-center gap-2 flex-1">
                               <div {...provided.dragHandleProps}>

@@ -309,10 +309,17 @@ const TransactionsList = () => {
                 onFiltersChange={handleFiltersChange}
                 activeFilters={activeFilters}
               />
+<<<<<<< HEAD
               {/* <TransactionSettings 
                 columns={tableColumns}
                 onColumnsChange={handleColumnsChange}
               /> */}
+=======
+              <TransactionSettings 
+                columns={tableColumns}
+                onColumnsChange={handleColumnsChange}
+              />
+>>>>>>> 69dde2a19a6b35d3f68dfb370a02b5a28e0ee332
               <Button 
                 variant="outline" 
                 size="sm"
