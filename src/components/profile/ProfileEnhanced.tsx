@@ -12,8 +12,7 @@ import SubAccountManagement from './SubAccountManagement';
 import AuthorizedEmailManagement from './AuthorizedEmailManagement';
 import AccountSettings from './AccountSettings';
 
-const ProfileEnhanced = () => {
-  const [activeTab, setActiveTab] = useState('user');
+const ProfileEnhanced = ({ activeProfileTab, setActiveProfileTab }) => {
 
   const tabs = [
     { id: 'user', label: 'User Profile', icon: User, component: UserProfile },
@@ -33,7 +32,7 @@ const ProfileEnhanced = () => {
         <p className="text-sm lg:text-base text-gray-600 mt-2">Manage your account information, security settings, and business preferences</p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+   <Tabs value={activeProfileTab} onValueChange={setActiveProfileTab} className="w-full">
         <div className="overflow-x-auto pb-2">
           <TabsList className="grid grid-cols-4 lg:grid-cols-8 w-full min-w-max lg:min-w-0 bg-gray-100 p-1">
             {tabs.map((tab) => {

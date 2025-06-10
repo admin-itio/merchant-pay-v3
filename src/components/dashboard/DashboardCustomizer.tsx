@@ -30,9 +30,10 @@ interface DashboardWidget {
 interface DashboardCustomizerProps {
   widgets: DashboardWidget[];
   onWidgetsChange: (widgets: DashboardWidget[]) => void;
+  initialWidgets: DashboardWidget[];
 }
 
-const DashboardCustomizer = ({ widgets, onWidgetsChange }: DashboardCustomizerProps) => {
+const DashboardCustomizer = ({ widgets, onWidgetsChange, initialWidgets }: DashboardCustomizerProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleDragEnd = (result: any) => {
@@ -57,7 +58,9 @@ const DashboardCustomizer = ({ widgets, onWidgetsChange }: DashboardCustomizerPr
     );
     onWidgetsChange(updated);
   };
-
+  const handleReset = () => {
+    onWidgetsChange(initialWidgets.map(w => ({ ...w }))); // Deep copy to avoid reference issues
+  };
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -77,7 +80,7 @@ const DashboardCustomizer = ({ widgets, onWidgetsChange }: DashboardCustomizerPr
                 Drag and drop to reorder widgets, toggle visibility, and adjust sizes.
               </DialogDescription>
             </DialogHeader>
-
+         
             {/* Keep DnD mounted always */}
             <DragDropContext onDragEnd={handleDragEnd}>
               <Droppable droppableId="widgets">
@@ -93,9 +96,8 @@ const DashboardCustomizer = ({ widgets, onWidgetsChange }: DashboardCustomizerPr
                           <div
                             ref={provided.innerRef}
                             {...provided.draggableProps}
-                            className={`p-4 border rounded-lg bg-white ${
-                              snapshot.isDragging ? 'shadow-lg' : ''
-                            }`}
+                            className={`p-4 border rounded-lg bg-white ${snapshot.isDragging ? 'shadow-lg' : ''
+                              }`}
                           >
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-3">
@@ -143,8 +145,14 @@ const DashboardCustomizer = ({ widgets, onWidgetsChange }: DashboardCustomizerPr
                   </div>
                 )}
               </Droppable>
+                <div className="flex justify-end mb-4">
+              <Button variant="secondary" size="sm" onClick={handleReset}>
+                Reset to Default
+              </Button>
+            </div>
             </DragDropContext>
           </DialogContent>
+          
         </Dialog>
       </div>
 

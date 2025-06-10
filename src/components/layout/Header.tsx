@@ -26,14 +26,24 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
+import DisplaySettings from './DisplaySettings';
 
 interface HeaderProps {
   onToggleSidebar: () => void;
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  activeProfileTab: string;
+  setActiveProfileTab: (tab: string) => void;
 }
 
-const Header = ({ onToggleSidebar, setActiveTab }: HeaderProps) => {
+const Header = ({
+  onToggleSidebar,
+  activeTab,
+  setActiveTab,
+  activeProfileTab,
+  setActiveProfileTab,
+}: HeaderProps) => {
+
   const [isRead, setIsRead] = useState(false);
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -48,7 +58,7 @@ const Header = ({ onToggleSidebar, setActiveTab }: HeaderProps) => {
           >
             <Menu className="h-5 w-5" />
           </Button>
-          <h1 className="text-lg lg:text-xl font-bold">MerchantPay</h1>
+          {/* <h1 className="text-lg lg:text-xl font-bold">MerchantPay</h1> */}
         </div>
 
         {/* Search - now starts from left side */}
@@ -68,7 +78,7 @@ const Header = ({ onToggleSidebar, setActiveTab }: HeaderProps) => {
           <ThemeToggle />
 
           {/* Language/Display Settings */}
-          {/* <DisplaySettings /> */}
+          <DisplaySettings />
 
           {/* Notifications */}
           <DropdownMenu>
@@ -98,7 +108,7 @@ const Header = ({ onToggleSidebar, setActiveTab }: HeaderProps) => {
                 </div>
                 <div className="space-y-2">
                   <div className="p-2 rounded bg-muted">
-                    <div className="flex items-center gap-2 mb-1">                    
+                    <div className="flex items-center gap-2 mb-1">
                       <p className={`text-sm ${isRead ? 'text-muted-foreground font-normal' : 'text-green-600 font-semibold'}`}>
                         System Maintenance
                       </p>
@@ -106,12 +116,12 @@ const Header = ({ onToggleSidebar, setActiveTab }: HeaderProps) => {
 
                   </div>
                   <div className="p-2 rounded bg-muted">
-                      <p className={`text-sm ${isRead ? 'text-muted-foreground font-normal' : 'text-green-600 font-semibold'}`}>Payment Received</p>
-                 
+                    <p className={`text-sm ${isRead ? 'text-muted-foreground font-normal' : 'text-green-600 font-semibold'}`}>Payment Received</p>
+
                   </div>
                   <div className="p-2 rounded bg-muted">
-                      <p className={`text-sm ${isRead ? 'text-muted-foreground font-normal' : 'text-green-600 font-semibold'}`}>Chargeback Alert</p>
-                    
+                    <p className={`text-sm ${isRead ? 'text-muted-foreground font-normal' : 'text-green-600 font-semibold'}`}>Chargeback Alert</p>
+
                   </div>
                 </div>
               </div>
@@ -140,31 +150,34 @@ const Header = ({ onToggleSidebar, setActiveTab }: HeaderProps) => {
                 </div>
               </div>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => setActiveTab('profile')}>
+              <DropdownMenuItem onClick={() => {
+                setActiveTab('profile');
+                setActiveProfileTab('user');
+              }}>
                 <User className="mr-2 h-4 w-4" />
                 User Profile
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setActiveTab('profile')}>
+              <DropdownMenuItem onClick={() => {setActiveTab('profile');  setActiveProfileTab('business');}}>
                 <Building className="mr-2 h-4 w-4" />
                 Business Info
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setActiveTab('profile')}>
+              <DropdownMenuItem onClick={() => {setActiveTab('profile');  setActiveProfileTab('security');}}>
                 <Shield className="mr-2 h-4 w-4" />
                 Security Settings
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setActiveTab('profile')}>
+              <DropdownMenuItem onClick={() => {setActiveTab('profile');  setActiveProfileTab('sub-accounts');}}>
                 <Users className="mr-2 h-4 w-4" />
                 Sub Accounts
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setActiveTab('profile')}>
+              <DropdownMenuItem onClick={() => {setActiveTab('profile');  setActiveProfileTab('emails');}}>
                 <Mail className="mr-2 h-4 w-4" />
                 Authorized Emails
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setActiveTab('profile')}>
+              <DropdownMenuItem onClick={() => {setActiveTab('profile');  setActiveProfileTab('billing');}}>
                 <CreditCard className="mr-2 h-4 w-4" />
                 Billing & Plans
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setActiveTab('profile')}>
+              <DropdownMenuItem onClick={() => {setActiveTab('profile');  setActiveProfileTab('settings');}}>
                 <Settings className="mr-2 h-4 w-4" />
                 Account Settings
               </DropdownMenuItem>

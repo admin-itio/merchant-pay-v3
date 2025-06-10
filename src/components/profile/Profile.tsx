@@ -10,7 +10,12 @@ import { User, Building, CreditCard, Shield, Bell, Mail } from 'lucide-react';
 import ProfileEnhanced from './ProfileEnhanced';
 
 const Profile = () => {
-  return <ProfileEnhanced />;
+const [activeProfileTab, setActiveProfileTab] = useState('user'); 
+
+  return <ProfileEnhanced 
+    activeProfileTab={activeProfileTab}
+    setActiveProfileTab={setActiveProfileTab}
+  />;
 };
 
 export default Profile;

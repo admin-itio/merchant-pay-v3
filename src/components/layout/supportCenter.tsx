@@ -27,10 +27,12 @@ const SupportCenter2 = ({ setActiveTab }: SupportCenter2Props) => {
         </button>
 
         {/* Button: Call Us */}
-        <button className="flex items-center justify-center w-full bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 text-sm">
+        <button className="flex items-center justify-center w-full bg-sky-500 text-white px-4 py-2 rounded-md hover:bg-sky-600 text-sm">
           <Phone className="w-4 h-4 mr-2" />
-         Call US
+          Call Us
         </button>
+
+
       </div>
     </div>
   );

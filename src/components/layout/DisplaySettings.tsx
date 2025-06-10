@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Settings, Globe, Sun, Moon, Monitor } from 'lucide-react';
+import { Settings, Globe, Sun, Moon, Monitor, LanguagesIcon } from 'lucide-react';
 import { useTheme } from '@/components/theme/ThemeProvider';
 import { useToast } from '@/hooks/use-toast';
 
@@ -46,8 +46,8 @@ const DisplaySettings = () => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm" className="gap-2">
-          <Settings className="h-4 w-4" />
-          <span className="hidden sm:inline">Display</span>
+          <LanguagesIcon className="h-4 w-4" />
+          {/* <span className="hidden sm:inline">Display</span> */}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56 bg-white">
@@ -85,7 +85,7 @@ const DisplaySettings = () => {
 
         <DropdownMenuSeparator />
 
-        <div className="px-2 py-1">
+        {/* <div className="px-2 py-1">
           <p className="text-xs text-gray-500 mb-2">Theme</p>
           <div className="space-y-1">
             <DropdownMenuItem 
@@ -115,7 +115,7 @@ const DisplaySettings = () => {
               {theme === 'system' && <span className="ml-auto text-xs">✓</span>}
             </DropdownMenuItem>
           </div>
-        </div>
+        </div> */}
       </DropdownMenuContent>
     </DropdownMenu>
   );
