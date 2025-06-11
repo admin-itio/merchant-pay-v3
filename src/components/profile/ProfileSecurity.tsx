@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { AlertTriangle, Shield, Smartphone, Key, Clock, MapPin, Trash2, Plus } from 'lucide-react';
+import { AlertTriangle, Shield, Smartphone, Key, Clock, MapPin, Trash2, Plus, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface SecurityDevice {
@@ -36,6 +35,7 @@ const ProfileSecurity = () => {
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(true);
   const [loginAlertsEnabled, setLoginAlertsEnabled] = useState(true);
   const [showBackupCodes, setShowBackupCodes] = useState(false);
+  const [suspiciousActivityAlerts, setSuspiciousActivityAlerts] = useState(true);
 
   const [trustedDevices, setTrustedDevices] = useState<SecurityDevice[]>([
     {
@@ -164,6 +164,18 @@ const ProfileSecurity = () => {
       case 'tablet': return '📋';
       default: return '🖥️';
     }
+  };
+
+  const handleSuspiciousActivityToggle = (enabled: boolean) => {
+    setSuspiciousActivityAlerts(enabled);
+    localStorage.setItem('suspiciousActivityAlerts', JSON.stringify(enabled));
+    
+    toast({
+      title: enabled ? "Suspicious Activity Alerts Enabled" : "Suspicious Activity Alerts Disabled",
+      description: enabled 
+        ? "You will receive email notifications when logging in from non-trusted browsers"
+        : "Suspicious activity email notifications have been disabled",
+    });
   };
 
   return (
@@ -302,6 +314,42 @@ const ProfileSecurity = () => {
               onCheckedChange={setLoginAlertsEnabled}
             />
           </div>
+
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <Label className="flex items-center gap-2">
+                <Mail className="h-4 w-4" />
+                Suspicious Activity Alerts
+              </Label>
+              <p className="text-sm text-gray-500">
+                Send email notifications when logging in from non-trusted browsers or unusual locations
+              </p>
+            </div>
+            <Switch
+              checked={suspiciousActivityAlerts}
+              onCheckedChange={handleSuspiciousActivityToggle}
+            />
+          </div>
+
+          {suspiciousActivityAlerts && (
+            <div className="p-4 bg-blue-50 rounded-lg">
+              <div className="flex items-start gap-2">
+                <Shield className="h-5 w-5 text-blue-600 mt-0.5" />
+                <div>
+                  <h4 className="font-medium text-blue-900">Enhanced Security Monitoring</h4>
+                  <p className="text-sm text-blue-700">
+                    We'll monitor for suspicious login attempts and send email alerts when:
+                  </p>
+                  <ul className="text-sm text-blue-700 mt-2 space-y-1">
+                    <li>• Login from a new or non-trusted device</li>
+                    <li>• Login from an unusual geographic location</li>
+                    <li>• Multiple failed login attempts</li>
+                    <li>• Login at unusual times</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 

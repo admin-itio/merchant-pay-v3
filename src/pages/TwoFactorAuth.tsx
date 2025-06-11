@@ -14,12 +14,22 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp
 import { toast } from 'sonner';
 import { KeyRound, ShieldAlert, ShieldCheck } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import TrustDeviceModal from '@/components/profile/TrustDeviceModal';
 
 const TwoFactorAuth = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [value, setValue] = useState('');
   const [showRecoveryDialog, setShowRecoveryDialog] = useState(false);
+  const [showTrustDeviceModal, setShowTrustDeviceModal] = useState(false);
+
+  // Mock device information - in real app, this would be detected
+  const deviceInfo = {
+    browser: 'Chrome 119',
+    os: 'Windows 11',
+    location: 'New York, NY',
+    ip: '192.168.1.100'
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,18 +49,61 @@ const TwoFactorAuth = () => {
     try {
       console.log('2FA code:', value);
       
-      // Set last login timestamp
-      localStorage.setItem('lastLoginTime', new Date().toISOString());
-      
       toast.success("Two-factor authentication successful");
-      setTimeout(() => {
-        navigate('/');
-      }, 1000);
+      
+      // Check if device trust modal should be shown
+      const deviceTrustPreference = localStorage.getItem('deviceTrustPreference');
+      const shouldShowTrustModal = !deviceTrustPreference || 
+        JSON.parse(deviceTrustPreference || '{}').dontAskAgain !== true;
+
+      if (shouldShowTrustModal) {
+        setShowTrustDeviceModal(true);
+      } else {
+        handleSuccessfulLogin();
+      }
     } catch (error) {
       toast.error("Invalid verification code. Please try again.");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleTrustDevice = (trustDevice: boolean) => {
+    handleSuccessfulLogin();
+  };
+
+  const handleSuccessfulLogin = () => {
+    // Set last login timestamp
+    localStorage.setItem('lastLoginTime', new Date().toISOString());
+    
+    // Check user login preferences
+    const loginPreferences = localStorage.getItem('userLoginPreferences');
+    let redirectTo = '/'; // Default to dashboard
+    
+    if (loginPreferences) {
+      const preferences = JSON.parse(loginPreferences);
+      
+      if (preferences.rememberLastPage) {
+        // Get last visited page from localStorage
+        const lastPage = localStorage.getItem('lastVisitedPage');
+        if (lastPage) {
+          redirectTo = lastPage;
+        }
+      } else if (preferences.loginRedirection === 'where-i-left') {
+        // Same as remember last page
+        const lastPage = localStorage.getItem('lastVisitedPage');
+        if (lastPage) {
+          redirectTo = lastPage;
+        }
+      } else if (preferences.loginRedirection !== 'dashboard') {
+        // Redirect to specific page
+        redirectTo = `/?tab=${preferences.loginRedirection}`;
+      }
+    }
+    
+    setTimeout(() => {
+      navigate(redirectTo);
+    }, 1000);
   };
 
   const handleRecovery = () => {
@@ -146,6 +199,13 @@ const TwoFactorAuth = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <TrustDeviceModal
+        isOpen={showTrustDeviceModal}
+        onClose={() => setShowTrustDeviceModal(false)}
+        onTrust={handleTrustDevice}
+        deviceInfo={deviceInfo}
+      />
     </div>
   );
 };
