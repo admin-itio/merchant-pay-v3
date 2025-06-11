@@ -50,28 +50,40 @@ interface TransactionTableProps {
   transactions: Transaction[];
   onViewDetails: (transaction: Transaction) => void;
   onBulkAction: (action: string, selectedIds: string[]) => void;
-  
+  columns?: { key: string; label: string; visible: boolean; order: number; }[];
 }
 
-const TransactionTable = ({ transactions, onViewDetails, onBulkAction }: TransactionTableProps) => {
+const TransactionTable = ({ transactions, onViewDetails, onBulkAction, columns }: TransactionTableProps) => {
   const [selectedTransactions, setSelectedTransactions] = useState<string[]>([]);
   const [selectAll, setSelectAll] = useState(false);
 
-  // // Default columns if none provided
-  // const defaultColumns = [
-  //   { key: 'id', label: 'Transaction ID', visible: true, order: 0 },
-  //   { key: 'amount', label: 'Amount', visible: true, order: 1 },
-  //   { key: 'customer', label: 'Customer', visible: true, order: 2 },
-  //   { key: 'status', label: 'Status', visible: true, order: 3 },
-  //   { key: 'paymentMethod', label: 'Payment Method', visible: true, order: 4 },
-  //   { key: 'timestamp', label: 'Date & Time', visible: true, order: 5 },
-  //   { key: 'fraudScore', label: 'Fraud Score', visible: true, order: 6 },
-  //   { key: 'gateway', label: 'Gateway', visible: true, order: 7 },
-  //   { key: 'country', label: 'Country', visible: true, order: 8 }
-  // ];
+  const defaultColumns = [
+    { key: 'id', label: 'Transaction ID', visible: true, order: 0 },
+    { key: 'amount', label: 'Amount', visible: true, order: 1 },
+    { key: 'customer', label: 'Customer', visible: true, order: 2 },
+    { key: 'status', label: 'Status', visible: true, order: 3 },
+    { key: 'paymentMethod', label: 'Payment Method', visible: true, order: 4 },
+    { key: 'timestamp', label: 'Date & Time', visible: true, order: 5 },
+    { key: 'fraudScore', label: 'Fraud Score', visible: true, order: 6 },
+    { key: 'gateway', label: 'Gateway', visible: true, order: 7 },
+    { key: 'country', label: 'Country', visible: true, order: 8 },
+    { key: 'currency', label: 'Currency', visible: false, order: 9 },
+    { key: 'merchantRef', label: 'Merchant Ref', visible: false, order: 10 },
+    { key: 'customerEmail', label: 'Customer Email', visible: false, order: 11 },
+    { key: 'customerPhone', label: 'Customer Phone', visible: false, order: 12 },
+    { key: 'ipAddress', label: 'IP Address', visible: false, order: 13 },
+    { key: 'userAgent', label: 'User Agent', visible: false, order: 14 },
+    { key: 'responseCode', label: 'Response Code', visible: false, order: 15 }
+  ];
 
-  
+  const [tableColumns, setTableColumns] = useState(columns || defaultColumns);
 
+  // Update internal state when columns prop changes
+  React.useEffect(() => {
+    if (columns) {
+      setTableColumns(columns);
+    }
+  }, [columns]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -167,30 +179,15 @@ const TransactionTable = ({ transactions, onViewDetails, onBulkAction }: Transac
   const handleExportSelected = () => {
     onBulkAction('export', selectedTransactions);
   };
- const [tableColumns, setTableColumns] = useState([
-    { key: 'id', label: 'Transaction ID', visible: true, order: 0 },
-    { key: 'amount', label: 'Amount', visible: true, order: 1 },
-    { key: 'customer', label: 'Customer', visible: true, order: 2 },
-    { key: 'status', label: 'Status', visible: true, order: 3 },
-    { key: 'paymentMethod', label: 'Payment Method', visible: true, order: 4 },
-    { key: 'timestamp', label: 'Date & Time', visible: true, order: 5 },
-    { key: 'fraudScore', label: 'Fraud Score', visible: true, order: 6 },
-    { key: 'gateway', label: 'Gateway', visible: true, order: 7 },
-    { key: 'country', label: 'Country', visible: true, order: 8 },
-    { key: 'currency', label: 'Currency', visible: false, order: 9 },
-    { key: 'merchantRef', label: 'Merchant Ref', visible: false, order: 10 },
-    { key: 'customerEmail', label: 'Customer Email', visible: false, order: 11 },
-    { key: 'customerPhone', label: 'Customer Phone', visible: false, order: 12 },
-    { key: 'ipAddress', label: 'IP Address', visible: false, order: 13 },
-    { key: 'userAgent', label: 'User Agent', visible: false, order: 14 },
-    { key: 'responseCode', label: 'Response Code', visible: false, order: 15 }
-  ]);
-    const handleColumnsChange = (columns: any[]) => {
+
+  const handleColumnsChange = (columns: any[]) => {
     setTableColumns(columns);
   };
+
   const visibleColumns = tableColumns
-  .filter(col => col.visible)
-  .sort((a, b) => a.order - b.order);
+    .filter(col => col.visible)
+    .sort((a, b) => a.order - b.order);
+
   return (
     <Card>
       <CardHeader>
@@ -212,10 +209,10 @@ const TransactionTable = ({ transactions, onViewDetails, onBulkAction }: Transac
               <RefreshCw className="h-4 w-4 mr-2" />
               Refresh
             </Button>
-              <TransactionSettings 
-                columns={tableColumns}
-                onColumnsChange={handleColumnsChange}
-              />
+            <TransactionSettings 
+              columns={tableColumns}
+              onColumnsChange={handleColumnsChange}
+            />
           </div>
         </div>
       </CardHeader>
