@@ -18,6 +18,8 @@ import VerifyOTP from "./pages/VerifyOTP";
 import Logout from "./pages/Logout";
 import ForgotPassword from "./pages/ForgotPassword";
 
+console.log('App component initializing...');
+
 // Create QueryClient instance outside component to prevent recreation
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -29,6 +31,8 @@ const queryClient = new QueryClient({
 });
 
 const App = () => {
+  console.log('App component rendering...');
+  
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">

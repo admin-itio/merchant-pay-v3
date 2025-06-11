@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -54,6 +53,8 @@ interface TransactionTableProps {
 }
 
 const TransactionTable = ({ transactions, onViewDetails, onBulkAction, columns }: TransactionTableProps) => {
+  console.log('TransactionTable rendering with props:', { transactionsCount: transactions?.length, columnsCount: columns?.length });
+  
   const [selectedTransactions, setSelectedTransactions] = useState<string[]>([]);
   const [selectAll, setSelectAll] = useState(false);
 
@@ -79,7 +80,8 @@ const TransactionTable = ({ transactions, onViewDetails, onBulkAction, columns }
   const [tableColumns, setTableColumns] = useState(columns || defaultColumns);
 
   // Update internal state when columns prop changes
-  React.useEffect(() => {
+  useEffect(() => {
+    console.log('Columns prop changed:', columns);
     if (columns) {
       setTableColumns(columns);
     }
