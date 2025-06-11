@@ -22,13 +22,7 @@ const SupportSection = () => {
           <div className="rounded-full bg-primary/10 p-2 flex-shrink-0">
             <HeadphonesIcon className="h-5 w-5 text-primary" />
           </div>
-<<<<<<< HEAD
-          
-        </div>
-        <div className="flex-1 space-y-3">
-=======
           <div className="flex-1 space-y-3">
->>>>>>> 69dde2a19a6b35d3f68dfb370a02b5a28e0ee332
             <div>
               <p className="text-sm font-medium text-foreground">
                 Have any problems or have suggestion?
@@ -55,10 +49,7 @@ const SupportSection = () => {
               </Button>
             </div>
           </div>
-<<<<<<< HEAD
-=======
         </div>
->>>>>>> 69dde2a19a6b35d3f68dfb370a02b5a28e0ee332
       </CardContent>
     </Card>
   );
