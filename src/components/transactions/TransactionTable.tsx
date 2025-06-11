@@ -1,125 +1,128 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
-import { 
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Transaction, TransactionTableProps, TableColumn } from './types';
+import { Button } from '@/components/ui/button';
+import { Transaction, TransactionTableProps } from './types';
 import { getDefaultColumns } from './utils/transactionUtils';
-import TransactionTableHeader from './components/TransactionTableHeader';
 import TransactionTableCell from './components/TransactionTableCell';
 import TransactionTableActions from './components/TransactionTableActions';
+import TransactionTableHeader from './components/TransactionTableHeader';
 
-const TransactionTable = ({ transactions, onViewDetails, onBulkAction, columns }: TransactionTableProps) => {
-  console.log('TransactionTable rendering with props:', { transactionsCount: transactions?.length, columnsCount: columns?.length });
+console.log('TransactionTable component loading...');
+
+const TransactionTable = ({ 
+  transactions, 
+  onViewDetails, 
+  onBulkAction,
+  columns: propColumns 
+}: TransactionTableProps) => {
+  console.log('TransactionTable rendering with transactions:', transactions?.length);
   
-  const [selectedTransactions, setSelectedTransactions] = useState<string[]>([]);
-  const [selectAll, setSelectAll] = useState(false);
-  const [tableColumns, setTableColumns] = useState<TableColumn[]>(columns || getDefaultColumns());
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [columns, setColumns] = useState(propColumns || getDefaultColumns());
 
-  // Update internal state when columns prop changes
-  useEffect(() => {
-    console.log('Columns prop changed:', columns);
-    if (columns) {
-      setTableColumns(columns);
-    }
+  const visibleColumns = useMemo(() => {
+    return columns
+      .filter(col => col.visible)
+      .sort((a, b) => a.order - b.order);
   }, [columns]);
 
   const handleSelectAll = (checked: boolean) => {
-    setSelectAll(checked);
     if (checked) {
-      setSelectedTransactions(transactions.map(t => t.id));
+      setSelectedIds(transactions.map(t => t.id));
     } else {
-      setSelectedTransactions([]);
+      setSelectedIds([]);
     }
   };
 
-  const handleSelectTransaction = (transactionId: string, checked: boolean) => {
+  const handleSelectRow = (id: string, checked: boolean) => {
     if (checked) {
-      setSelectedTransactions(prev => [...prev, transactionId]);
+      setSelectedIds([...selectedIds, id]);
     } else {
-      setSelectedTransactions(prev => prev.filter(id => id !== transactionId));
-      setSelectAll(false);
+      setSelectedIds(selectedIds.filter(selectedId => selectedId !== id));
     }
-  };
-
-  const handleRowClick = (transaction: Transaction, event: React.MouseEvent) => {
-    if ((event.target as HTMLElement).closest('input, button, [role="checkbox"]')) {
-      return;
-    }
-    onViewDetails(transaction);
   };
 
   const handleExportSelected = () => {
-    onBulkAction('export', selectedTransactions);
+    console.log('Exporting selected transactions:', selectedIds);
+    // Export logic would go here
   };
 
-  const handleColumnsChange = (columns: TableColumn[]) => {
-    setTableColumns(columns);
-  };
-
-  const visibleColumns = tableColumns
-    .filter(col => col.visible)
-    .sort((a, b) => a.order - b.order);
+  if (!transactions || transactions.length === 0) {
+    return (
+      <Card>
+        <TransactionTableHeader 
+          selectedCount={selectedIds.length}
+          onExportSelected={handleExportSelected}
+          columns={columns}
+          onColumnsChange={setColumns}
+        />
+        <CardContent>
+          <div className="text-center py-8 text-gray-500">
+            No transactions found
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
-      <TransactionTableHeader
-        selectedCount={selectedTransactions.length}
+      <TransactionTableHeader 
+        selectedCount={selectedIds.length}
         onExportSelected={handleExportSelected}
-        columns={tableColumns}
-        onColumnsChange={handleColumnsChange}
+        columns={columns}
+        onColumnsChange={setColumns}
       />
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-12">
-                <Checkbox 
-                  checked={selectAll}
-                  onCheckedChange={handleSelectAll}
-                />
-              </TableHead>
-              {visibleColumns.map((column) => (
-                <TableHead key={column.key}>{column.label}</TableHead>
-              ))}
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {transactions.map((transaction) => (
-              <TableRow 
-                key={transaction.id}
-                className="cursor-pointer hover:bg-gray-50"
-                onClick={(e) => handleRowClick(transaction, e)}
-              >
-                <TableCell onClick={(e) => e.stopPropagation()}>
-                  <Checkbox 
-                    checked={selectedTransactions.includes(transaction.id)}
-                    onCheckedChange={(checked) => handleSelectTransaction(transaction.id, checked as boolean)}
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-12">
+                  <Checkbox
+                    checked={selectedIds.length === transactions.length}
+                    onCheckedChange={handleSelectAll}
                   />
-                </TableCell>
+                </TableHead>
                 {visibleColumns.map((column) => (
-                  <TableCell key={column.key}>
-                    <TransactionTableCell transaction={transaction} columnKey={column.key} />
-                  </TableCell>
+                  <TableHead key={column.key}>{column.label}</TableHead>
                 ))}
-                <TableCell onClick={(e) => e.stopPropagation()}>
-                  <TransactionTableActions 
-                    transaction={transaction}
-                    onViewDetails={onViewDetails}
-                  />
-                </TableCell>
+                <TableHead className="w-20">Actions</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {transactions.map((transaction) => (
+                <TableRow key={transaction.id}>
+                  <TableCell>
+                    <Checkbox
+                      checked={selectedIds.includes(transaction.id)}
+                      onCheckedChange={(checked) => 
+                        handleSelectRow(transaction.id, checked as boolean)
+                      }
+                    />
+                  </TableCell>
+                  {visibleColumns.map((column) => (
+                    <TableCell key={column.key}>
+                      <TransactionTableCell 
+                        transaction={transaction} 
+                        columnKey={column.key} 
+                      />
+                    </TableCell>
+                  ))}
+                  <TableCell>
+                    <TransactionTableActions 
+                      transaction={transaction}
+                      onViewDetails={onViewDetails}
+                    />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </CardContent>
     </Card>
   );
